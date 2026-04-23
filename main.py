@@ -10,6 +10,7 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 
 # 导入功能模块
 import modules as actions
+import modules.updater as updater
 
 # ================== 错误日志 ==================
 def log_error(error_msg):
@@ -44,6 +45,9 @@ class ScriptManager:
         self.setup_drag_drop()
         self.root.title("Python 脚本管理器")
 
+        # 启动后延时3秒静默检查更新（不打扰用户）
+        self.root.after(3000, lambda: updater.check_for_updates(self.root, show_no_update_msg=False))
+
     # ------------------ 界面 ------------------
     def create_widgets(self):
         try:
@@ -67,6 +71,7 @@ class ScriptManager:
                 ("✏️ 重命名", lambda: actions.rename_selected(self)),
                 ("📝 编辑内容", lambda: actions.edit_content(self)),
                 ("🔍 检查依赖", lambda: actions.check_deps(self)),
+                ("🔄 检查更新", lambda: updater.check_for_updates(self.root, show_no_update_msg=True)),
                 ("❌ 删除选中", lambda: actions.delete_selected(self))
             ]
             for text, cmd in buttons:
