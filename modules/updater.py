@@ -85,7 +85,8 @@ def fetch_latest_version(parent=None):
             print(f"响应状态码: {resp.status}")
             data = json.loads(resp.read().decode())
             print(f"API响应: {data}")
-            latest = data.get("name") or data.get("tag_name", "")
+            # 优先使用tag_name，确保获取到的是版本号而不是标题文字
+            latest = data.get("tag_name", "") or data.get("name", "")
             if latest.startswith("v"):
                 latest = latest[1:]
             assets = data.get("assets", [])
@@ -233,6 +234,81 @@ def download_file(url, dest_path, parent):
         webbrowser.open(url)
         return False
 
+def create_backup():
+    """创建整个文件夹的备份"""
+    import datetime
+    import zipfile
+    
+    # 获取当前目录
+    current_exe = sys.argv[0] if getattr(sys, 'frozen', False) else sys.argv[0]
+    current_dir = os.path.dirname(current_exe)
+    
+    # 生成备份文件名：备份+日期+顺序号
+    today = datetime.datetime.now().strftime("%Y%m%d")
+    backup_dir = os.path.join(current_dir, "backups")
+    os.makedirs(backup_dir, exist_ok=True)
+    
+    # 查找当前日期的备份文件，确定顺序号
+    backup_pattern = f"备份{today}*"
+    import glob
+    existing_backups = glob.glob(os.path.join(backup_dir, backup_pattern))
+    sequence = len(existing_backups) + 1
+    
+    backup_filename = f"备份{today}_{sequence:02d}.zip"
+    backup_path = os.path.join(backup_dir, backup_filename)
+    
+    print(f"创建备份：{backup_path}")
+    
+    # 打包整个目录
+    try:
+        with zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for root, _, files in os.walk(current_dir):
+                # 跳过备份目录和临时文件
+                if "backups" in root or "__pycache__" in root:
+                    continue
+                
+                for file in files:
+                    # 跳过大型文件或临时文件
+                    file_path = os.path.join(root, file)
+                    if os.path.getsize(file_path) > 100 * 1024 * 1024:  # 跳过大于100MB的文件
+                        print(f"跳过大型文件：{file_path}")
+                        continue
+                    
+                    # 计算相对路径
+                    arcname = os.path.relpath(file_path, current_dir)
+                    zipf.write(file_path, arcname)
+        
+        print(f"备份创建成功：{backup_path}")
+        
+        # 清理30天前的备份
+        cleanup_old_backups(backup_dir)
+        
+        return backup_path
+    except Exception as e:
+        print(f"备份创建失败：{e}")
+        return None
+
+def cleanup_old_backups(backup_dir):
+    """清理30天前的备份"""
+    import datetime
+    
+    today = datetime.datetime.now()
+    thirty_days_ago = today - datetime.timedelta(days=30)
+    
+    for file in os.listdir(backup_dir):
+        if file.endswith('.zip') and file.startswith('备份'):
+            file_path = os.path.join(backup_dir, file)
+            try:
+                # 提取日期部分：备份20230101_01.zip -> 20230101
+                date_str = file[2:10]  # 跳过"备份"，取8位日期
+                backup_date = datetime.datetime.strptime(date_str, "%Y%m%d")
+                
+                if backup_date < thirty_days_ago:
+                    os.remove(file_path)
+                    print(f"已删除过期备份：{file}")
+            except Exception as e:
+                print(f"清理备份失败：{e}")
+
 def apply_update(download_path, parent):
     """解压或复制文件，并启动更新脚本"""
     current_exe = sys.argv[0] if getattr(sys, 'frozen', False) else sys.argv[0]
@@ -245,6 +321,13 @@ def apply_update(download_path, parent):
     if not os.path.exists(download_path):
         messagebox.showerror("文件不存在", f"更新文件不存在：{download_path}", parent=parent)
         return False
+    
+    # 创建整个文件夹的备份
+    backup_path = create_backup()
+    if backup_path:
+        print(f"备份已创建：{backup_path}")
+    else:
+        print("备份创建失败，但继续更新")
 
     # 判断下载的是压缩包还是单文件
     if download_path.endswith('.zip'):
@@ -382,6 +465,11 @@ def auto_update(parent, download_url):
     apply_update(dest_path, parent)
 
 # 以下是原有的 check_for_updates 函数，修改为调用 auto_update
+def get_latest_version():
+    """获取最新版本号"""
+    latest, _ = fetch_latest_version()
+    return latest
+
 def check_for_updates(parent_root=None, show_no_update_msg=True):
     latest, download_url = fetch_latest_version(parent_root)
     if latest is None:

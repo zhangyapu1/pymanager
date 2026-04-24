@@ -38,8 +38,9 @@ class ScriptManager:
         self.scan_data_directory()
         self.setup_drag_drop()
         update_title_mode(self.root, DATA_DIR, BASE_DIR)
-
-        self.root.after(3000, lambda: updater.check_for_updates(self.root, show_no_update_msg=False))
+        
+        # 显示版本信息
+        self.show_version_info()
 
     # ------------------ 界面 ------------------
     def create_widgets(self):
@@ -87,6 +88,12 @@ class ScriptManager:
             self.status_var.set("就绪 | 拖拽 .py 文件自动复制存储，并检查依赖")
             status_bar = tk.Label(self.root, textvariable=self.status_var, bd=1, relief=tk.SUNKEN, anchor=tk.W)
             status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+            
+            # 版本信息标签
+            self.version_var = tk.StringVar()
+            self.version_var.set("版本信息加载中...")
+            version_bar = tk.Label(self.root, textvariable=self.version_var, bd=1, relief=tk.SUNKEN, anchor=tk.E, font=('Arial', 8))
+            version_bar.pack(side=tk.BOTTOM, fill=tk.X)
         except Exception as e:
             log_error(f"创建界面失败：{str(e)}")
             messagebox.showerror("界面错误", f"无法创建界面：{str(e)}\n\n详细信息已写入 error_log.txt")
@@ -260,6 +267,32 @@ class ScriptManager:
             self.save_scripts()
             self.update_listbox()
             self.status_var.set(f"扫描完成：添加 {added} 个脚本，更新 {updated} 个脚本")
+
+    def show_version_info(self):
+        """显示当前版本号和最新版本号"""
+        import threading
+        
+        def check_version():
+            try:
+                # 获取当前版本（从updater模块获取）
+                current_version = updater.CURRENT_VERSION
+                
+                # 检查最新版本
+                latest_version = updater.get_latest_version()
+                
+                if latest_version:
+                    status = "最新版本" if current_version == latest_version else "有新版本"
+                    self.version_var.set(f"当前版本：{current_version} | 最新版本：{latest_version} | {status}")
+                else:
+                    self.version_var.set(f"当前版本：{current_version} | 检查更新失败")
+            except Exception as e:
+                # 出错时使用默认版本
+                self.version_var.set(f"当前版本：1.0.0 | 检查更新失败")
+        
+        # 在后台线程中检查版本，避免阻塞UI
+        thread = threading.Thread(target=check_version)
+        thread.daemon = True
+        thread.start()
 
 # ================== 启动入口 ==================
 if __name__ == "__main__":
