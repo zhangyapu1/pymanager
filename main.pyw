@@ -9,13 +9,19 @@ from tkinter import messagebox, filedialog, simpledialog
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
 # 导入模块
-import modules as actions
 import modules.updater as updater
 from modules.config import BASE_DIR, DATA_DIR, DEFAULT_GROUP
 from modules.logger import log_error
 from modules.drag_drop import parse_dropped_files
 from modules.utils import update_title_mode
 from modules.group_manager import GroupManager
+from modules.add_script import add_script
+from modules.run_selected import run_selected
+from modules.rename_selected import rename_selected
+from modules.edit_content import edit_content
+from modules.check_deps import check_deps
+from modules.delete_selected import delete_selected
+from modules.dependencies import check_self_dependencies, check_script_deps_and_install
 
 # ================== 主程序类 ==================
 
@@ -29,7 +35,7 @@ class ScriptManager:
         self.group_manager = GroupManager(self.data_dir)
 
         try:
-            actions.check_self_dependencies(self.root)
+            check_self_dependencies(self.root)
         except Exception as e:
             log_error(f"依赖检查失败：{str(e)}")
             messagebox.showerror("初始化错误", f"依赖检查时出错：\n{str(e)}\n\n详细信息已写入 error_log.txt")
@@ -56,11 +62,11 @@ class ScriptManager:
             )
 
             main_frame = tk.Frame(self.root)
-            main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+            main_frame.pack(fill=tk.X, expand=False, padx=10, pady=10)
 
-            self.listbox = tk.Listbox(main_frame, selectmode=tk.SINGLE, font=("Consolas", 10))
+            self.listbox = tk.Listbox(main_frame, selectmode=tk.SINGLE, font=('Consolas', 10))
             self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-            self.listbox.bind('<Double-Button-1>', lambda e: actions.run_selected(self))
+            self.listbox.bind('<Double-Button-1>', lambda e: run_selected(self))
             self.listbox.bind("<Button-3>", self.show_context_menu)
 
             scrollbar = tk.Scrollbar(main_frame, orient=tk.VERTICAL, command=self.listbox.yview)
@@ -72,19 +78,37 @@ class ScriptManager:
 
             # 按钮列表 - 使用默认参数捕获 lambda，避免闭包问题
             buttons = [
-                ("➕ 添加脚本", lambda: actions.add_script(self)),
-                ("▶ 运行选中", lambda: actions.run_selected(self)),
-                ("✏️ 重命名", lambda: actions.rename_selected(self)),
-                ("📝 编辑内容", lambda: actions.edit_content(self)),
-                ("🔍 检查依赖", lambda: actions.check_deps(self)),
+                ("➕ 添加脚本", lambda: add_script(self)),
+                ("▶ 运行选中", lambda: run_selected(self)),
+                ("✏️ 重命名", lambda: rename_selected(self)),
+                ("📝 编辑内容", lambda: edit_content(self)),
+                ("🔍 检查依赖", lambda: check_deps(self)),
                 ("🔄 检查更新", lambda: updater.check_for_updates(self.root, show_no_update_msg=True)),
-                ("❌ 删除选中", lambda: actions.delete_selected(self))
+                ("❌ 删除选中", lambda: delete_selected(self))
             ]
             for text, cmd in buttons:
                 # 使用默认参数固定 cmd，防止循环变量捕获错误
                 btn = tk.Button(btn_frame, text=text, command=lambda c=cmd: c())
                 btn.pack(side=tk.LEFT, padx=2)
 
+            # 输出窗口
+            output_frame = tk.Frame(self.root)
+            output_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+            
+            output_label = tk.Label(output_frame, text="运行输出:")
+            output_label.pack(anchor=tk.W)
+            
+            # 加高运行输出框
+            self.output_text = tk.Text(output_frame, font=('Consolas', 10))
+            self.output_text.pack(fill=tk.BOTH, expand=True)
+            
+            output_scrollbar = tk.Scrollbar(self.output_text, orient=tk.VERTICAL, command=self.output_text.yview)
+            output_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            self.output_text.config(yscrollcommand=output_scrollbar.set)
+            
+            # 设置窗口初始大小，确保输出窗口有足够的高度
+            self.root.geometry("800x600")
+            
             self.status_var = tk.StringVar()
             self.status_var.set("就绪 | 拖拽 .py 文件自动复制存储，并检查依赖")
             status_bar = tk.Label(self.root, textvariable=self.status_var, bd=1, relief=tk.SUNKEN, anchor=tk.W)
@@ -133,10 +157,10 @@ class ScriptManager:
 
         menu.add_cascade(label="移动到分组", menu=move_menu)
         menu.add_separator()
-        menu.add_command(label="运行", command=lambda: actions.run_selected(self))
-        menu.add_command(label="编辑内容", command=lambda: actions.edit_content(self))
-        menu.add_command(label="重命名", command=lambda: actions.rename_selected(self))
-        menu.add_command(label="删除", command=lambda: actions.delete_selected(self))
+        menu.add_command(label="运行", command=lambda: run_selected(self))
+        menu.add_command(label="编辑内容", command=lambda: edit_content(self))
+        menu.add_command(label="重命名", command=lambda: rename_selected(self))
+        menu.add_command(label="删除", command=lambda: delete_selected(self))
         menu.add_separator()
         menu.add_command(label="刷新列表", command=self.scan_data_directory)
 
@@ -273,9 +297,9 @@ class ScriptManager:
         
         # 异步检查依赖，避免阻塞 UI
         # 注意：原代码是同步调用，如果检查耗时会卡住 UI。
-        # 这里保持原逻辑，但建议在实际 actions.check_script_deps_and_install 内部处理异步或快速返回
+        # 这里保持原逻辑，但建议在实际 check_script_deps_and_install 内部处理异步或快速返回
         try:
-            actions.check_script_deps_and_install(dest_path, display_name, self.root)
+            check_script_deps_and_install(dest_path, display_name, self.root)
         except Exception as e:
             log_error(f"依赖检查异常: {str(e)}")
 

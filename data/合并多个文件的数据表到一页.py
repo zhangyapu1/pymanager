@@ -1,10 +1,27 @@
+import warnings
+# 抑制所有 openpyxl 相关的 UserWarning
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl.*')
+
 import os
 import re
+import time
 import tkinter as tk
 from tkinter import filedialog, Tk, simpledialog, messagebox, ttk
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils.exceptions import InvalidFileException
+
+def progress_bar(current, total, bar_length=50):
+    """显示进度条"""
+    if total == 0:
+        percent = 1.0
+    else:
+        percent = current / total
+    filled_length = int(bar_length * percent)
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+    # 添加 flush 确保在部分 IDE 或终端中实时显示
+    print(f'\r[{bar}] {current}/{total} ({percent:.1%})', end='', flush=True)
 
 # 常量定义，便于维护
 REFRESH_INTERVAL_ROW = 10  # 行进度条刷新间隔
@@ -205,10 +222,13 @@ def 汇总Excel文件_按条件():
         return
 
     print(f"\n{'='*60}")
-    print(f"开始处理，共选择 {len(files)} 个文件")
+    total_files = len(files)
+    print(f"开始处理，共选择 {total_files} 个文件")
     print(f"筛选条件：工作表名称包含【{sheet_keyword or '所有'}】")
     print(f"行范围：第 {start_row} 行 — 第 {end_row} 行")
     print(f"{'='*60}\n")
+    
+    start_time = time.time()
 
     # ── 样式常量 ────────────────────────────────────────────────────
     header_font  = Font(bold=True, size=11, color="FFFFFF")
@@ -250,8 +270,11 @@ def 汇总Excel文件_按条件():
 
     # ── 逐文件处理 ──────────────────────────────────────────────────
     for file_index, file_path in enumerate(files, 1):
+        # 更新进度条
+        progress_bar(file_index, total_files)
+        
         file_name = os.path.basename(file_path)
-        print(f"[{file_index}/{len(files)}] 正在处理: {file_name}")
+        print(f"\n[{file_index}/{total_files}] 正在处理: {file_name}")
 
         progress.set_file(file_path, file_index)
 
@@ -267,7 +290,7 @@ def 汇总Excel文件_按条件():
                 raise InvalidFileException("文件格式不支持")
 
             if lower_name.endswith(".xls") and not (lower_name.endswith(".xlsx") or lower_name.endswith(".xlsm")):
-                print(f"  ⚠ 跳过旧格式文件（请转换为 .xlsx）: {file_name}")
+                print(f"  跳过旧格式文件（请转换为 .xlsx）: {file_name}")
                 error_files.append(f"{file_name} (旧格式，不支持)")
                 progress.finish_file(file_index)
                 continue
@@ -280,7 +303,7 @@ def 汇总Excel文件_按条件():
                     continue
 
                 sheet_found = True
-                print(f"  ✓ 匹配工作表: [{sheet_name}]")
+                print(f"  匹配工作表: [{sheet_name}]")
 
                 ws_src         = wb_src[sheet_name]
                 range_size     = max(end_row - start_row + 1, 1)
@@ -290,7 +313,7 @@ def 汇总Excel文件_按条件():
                 
                 # 如果起始行都超过了最大行，跳过
                 if start_row > (src_max_row if src_max_row else 0):
-                    print(f"    └─ 起始行超出范围，跳过")
+                    print(f"    └─ 起始行超出范围，跳过（文件最大行数: {src_max_row if src_max_row else 0}，指定起始行: {start_row}）")
                     continue
 
                 progress.set_sheet(sheet_name, range_size)
@@ -398,14 +421,14 @@ def 汇总Excel文件_按条件():
                     break
 
             if not sheet_found:
-                print(f"  ✗ 无匹配工作表（关键词: {sheet_keyword or '全部'}）")
+                print(f"  无匹配工作表（关键词: {sheet_keyword or '全部'}）")
                 error_files.append(f"{file_name} (无匹配工作表)")
 
         except InvalidFileException:
-             print(f"  ✗ 处理失败: 文件格式无效或损坏")
+             print(f"  处理失败: 文件格式无效或损坏")
              error_files.append(f"{file_name} (格式无效)")
         except Exception as exc:
-            print(f"  ✗ 处理失败: {exc}")
+            print(f"  处理失败: {exc}")
             error_files.append(f"{file_name} ({str(exc)[:50]})") # 截断过长错误信息
         finally:
             # 确保关闭工作簿，释放文件句柄
@@ -471,32 +494,72 @@ def 汇总Excel文件_按条件():
         ws_result.auto_filter.ref = ws_result.dimensions
 
         # 输出路径（避免覆盖）
-        output_dir  = os.path.dirname(files[0])
-        output_path = os.path.join(output_dir, f"{output_name}.xlsx")
-        counter     = 1
-        while os.path.exists(output_path):
-            output_path = os.path.join(output_dir,
-                                        f"{output_name}_{counter}.xlsx")
-            counter += 1
+        try:
+            # 尝试使用源文件目录
+            output_dir = os.path.dirname(files[0])
+            # 确保输出目录存在
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir, exist_ok=True)
+            
+            # 生成输出文件路径
+            output_path = os.path.join(output_dir, f"{output_name}.xlsx")
+            counter = 1
+            while os.path.exists(output_path):
+                output_path = os.path.join(output_dir,
+                                            f"{output_name}_{counter}.xlsx")
+                counter += 1
 
-        wb_result.save(output_path)
+            # 保存文件
+            wb_result.save(output_path)
+        except Exception as save_error:
+            print(f"保存文件失败: {save_error}")
+            # 尝试使用桌面目录作为备用
+            try:
+                desktop_dir = os.path.join(os.path.expanduser("~"), "Desktop")
+                if not os.path.exists(desktop_dir):
+                    desktop_dir = os.path.expanduser("~")  # 如果桌面目录不存在，使用用户主目录
+                
+                # 生成备用输出路径
+                output_path = os.path.join(desktop_dir, f"{output_name}.xlsx")
+                counter = 1
+                while os.path.exists(output_path):
+                    output_path = os.path.join(desktop_dir,
+                                                f"{output_name}_{counter}.xlsx")
+                    counter += 1
+                
+                # 保存文件到备用位置
+                wb_result.save(output_path)
+                print(f"[INFO] 保存到备用位置: {output_path}")
+                messagebox.showinfo("保存成功", f"由于权限限制，文件已保存到桌面:\n{output_path}")
+            except Exception as backup_error:
+                print(f"备用位置保存失败: {backup_error}")
+                messagebox.showerror("保存失败", f"无法保存输出文件:\n{save_error}\n\n备用位置也无法保存:\n{backup_error}\n\n请手动选择一个可写的输出目录。")
+                return
 
+        # 完成进度条
+        progress_bar(total_files, total_files)
+        print()  # 换行
+        
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        
         print(f"\n{'='*60}")
-        print(f"✅ 汇总完成！")
-        print(f"📁 输出文件: {output_path}")
-        print(f"📊 处理文件数: {len(files)}")
-        print(f"📋 匹配工作表数: {len(processed_sheets)}")
-        print(f"📝 汇总数据行数: {total_rows}")
+        print(f"[OK] 汇总完成！")
+        print(f"[DIR] 输出文件: {output_path}")
+        print(f"[FILES] 处理文件数: {len(files)}")
+        print(f"[SHEETS] 匹配工作表数: {len(processed_sheets)}")
+        print(f"[ROWS] 汇总数据行数: {total_rows}")
+        print(f"[TIME] 耗时: {elapsed_time:.2f}秒")
         if error_files:
-            print(f"\n⚠ 处理失败 ({len(error_files)} 个):")
+            print(f"\n[WARN] 处理失败 ({len(error_files)} 个):")
             for e in error_files:
                 print(f"   - {e}")
         if processed_sheets and len(processed_sheets) <= 20:
-            print(f"\n📑 详细列表:")
+            print(f"\n[LIST] 详细列表:")
             for s in processed_sheets:
                 print(f"   - {s}")
         elif processed_sheets:
-            print(f"\n📑 共处理 {len(processed_sheets)} 个工作表")
+            print(f"\n[LIST] 共处理 {len(processed_sheets)} 个工作表")
         print(f"{'='*60}")
 
         messagebox.showinfo(
