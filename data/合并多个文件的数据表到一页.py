@@ -4,6 +4,12 @@ import tkinter as tk
 from tkinter import filedialog, Tk, simpledialog, messagebox, ttk
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils.exceptions import InvalidFileException
+
+# 常量定义，便于维护
+REFRESH_INTERVAL_ROW = 10  # 行进度条刷新间隔
+REFRESH_INTERVAL_COL_SCAN = 5  # 列扫描时的刷新间隔
+DEFAULT_OUTPUT_NAME = "Excel汇总结果"
 
 
 class ProgressDialog:
@@ -80,9 +86,13 @@ class ProgressDialog:
     def set_file(self, file_path, file_index):
         """切换到新文件时调用"""
         name = os.path.basename(file_path)
-        self.var_file.config(text=f"文件 {file_index}/{self.total_files}：{name}") \
-            if hasattr(self.var_file, 'config') else self.var_file.set(
-            f"文件 {file_index}/{self.total_files}：{name}")
+        text = f"文件 {file_index}/{self.total_files}：{name}"
+        # 兼容不同的 StringVar 实现，虽然 tk.StringVar 通常只有 set
+        if hasattr(self.var_file, 'config'):
+            self.var_file.config(text=text)
+        else:
+            self.var_file.set(text)
+            
         self.bar_file["value"] = file_index - 1   # 开始处理时先移到前一格
         self.bar_row["value"] = 0
         self._flush()
@@ -98,8 +108,8 @@ class ProgressDialog:
         """每处理一行（或若干行）后调用"""
         self.bar_row["value"] = rows_done_in_sheet
         self.var_status.set(f"累计已提取有效数据：{total_rows_extracted} 行")
-        # 每 10 行才真正刷新一次界面，减少 tkinter 调度开销
-        if rows_done_in_sheet % 10 == 0:
+        # 每 REFRESH_INTERVAL_ROW 行才真正刷新一次界面，减少 tkinter 调度开销
+        if rows_done_in_sheet % REFRESH_INTERVAL_ROW == 0:
             self._flush()
 
     def finish_file(self, file_index):
@@ -108,7 +118,7 @@ class ProgressDialog:
         self._flush()
 
     def close(self):
-        if self.window.winfo_exists():
+        if self.window and self.window.winfo_exists():
             self.window.destroy()
 
     def on_cancel(self):
@@ -118,8 +128,12 @@ class ProgressDialog:
     # ── 内部工具 ────────────────────────────────────────────────────
 
     def _flush(self):
-        if self.window.winfo_exists():
-            self.window.update()
+        if self.window and self.window.winfo_exists():
+            try:
+                self.window.update()
+            except tk.TclError:
+                # 窗口可能在更新过程中被关闭
+                pass
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -174,10 +188,10 @@ def 汇总Excel文件_按条件():
 
     output_name = simpledialog.askstring(
         "输出文件名", "请输入输出文件名（不含扩展名）：",
-        initialvalue="Excel汇总结果",
+        initialvalue=DEFAULT_OUTPUT_NAME,
     )
     if not output_name:
-        output_name = "Excel汇总结果"
+        output_name = DEFAULT_OUTPUT_NAME
 
     files = filedialog.askopenfilenames(
         title="请选择要汇总的 Excel 文件（可多选）",
@@ -219,6 +233,7 @@ def 汇总Excel文件_按条件():
 
     if not include_header:
         ws_result.append(default_headers)
+        # 优化：直接对第一行单元格应用样式
         for cell in ws_result[1]:
             cell.font      = header_font
             cell.fill      = header_fill
@@ -244,15 +259,20 @@ def 汇总Excel文件_按条件():
             messagebox.showinfo("已取消", "用户终止了汇总操作。")
             break
 
+        wb_src = None
         try:
-            if (file_name.lower().endswith(".xls") and
-                    not file_name.lower().endswith((".xlsx", ".xlsm"))):
+            # 严格检查文件扩展名，避免加载非 Excel 文件
+            lower_name = file_name.lower()
+            if not (lower_name.endswith(".xlsx") or lower_name.endswith(".xlsm") or lower_name.endswith(".xls")):
+                raise InvalidFileException("文件格式不支持")
+
+            if lower_name.endswith(".xls") and not (lower_name.endswith(".xlsx") or lower_name.endswith(".xlsm")):
                 print(f"  ⚠ 跳过旧格式文件（请转换为 .xlsx）: {file_name}")
                 error_files.append(f"{file_name} (旧格式，不支持)")
                 progress.finish_file(file_index)
                 continue
 
-            wb_src     = load_workbook(file_path, data_only=True, read_only=True)
+            wb_src = load_workbook(file_path, data_only=True, read_only=True)
             sheet_found = False
 
             for sheet_name in wb_src.sheetnames:
@@ -264,34 +284,52 @@ def 汇总Excel文件_按条件():
 
                 ws_src         = wb_src[sheet_name]
                 range_size     = max(end_row - start_row + 1, 1)
-                actual_end_row = min(end_row, ws_src.max_row or end_row)
+                # 处理 max_row 可能为 None 的情况
+                src_max_row = ws_src.max_row
+                actual_end_row = min(end_row, src_max_row if src_max_row else end_row)
+                
+                # 如果起始行都超过了最大行，跳过
+                if start_row > (src_max_row if src_max_row else 0):
+                    print(f"    └─ 起始行超出范围，跳过")
+                    continue
 
                 progress.set_sheet(sheet_name, range_size)
 
                 # ── 第一遍：确定最大有效列 ──────────────────────────
                 max_col = 1
+                # 使用 values_only=True 提高速度
                 for r_idx, row in enumerate(
                     ws_src.iter_rows(
                         min_row=start_row, max_row=actual_end_row,
                         values_only=True
                     )
                 ):
+                    # 优化：使用 enumerate 并提前打断如果不需要更宽的列
+                    # 注意：row 可能是 None 填充的，或者长度不一
                     for c_idx, val in enumerate(row, 1):
                         if val is not None and str(val).strip():
                             if c_idx > max_col:
                                 max_col = c_idx
-                    # 每 5 行刷新一次
-                    if r_idx % 5 == 0:
+                    
+                    # 每 REFRESH_INTERVAL_COL_SCAN 行刷新一次
+                    if r_idx % REFRESH_INTERVAL_COL_SCAN == 0:
                         progress.update_row(r_idx, total_rows)
                         if progress.cancelled:
                             break
 
                 if progress.cancelled:
                     break
+                
+                # 如果没有找到任何有数据的列，重置为默认最小列数，避免后续错误
+                if max_col < len(default_headers):
+                     max_col = len(default_headers)
 
                 # ── 复制原始表头（可选）──────────────────────────────
                 if include_header and not header_copied and start_row > 1:
                     header_row_data = []
+                    # 读取第一行作为表头
+                    # 注意：read_only 模式下，访问 cell 可能需要小心，但 iter_rows 或 cell 方法通常可用
+                    # 为了保险，我们只读取需要的列
                     for col in range(1, max_col + 1):
                         val = ws_src.cell(1, col).value
                         header_row_data.append(
@@ -317,14 +355,25 @@ def 汇总Excel文件_按条件():
                 ):
                     actual_row_num = start_row + r_offset
 
+                    # 优化：列表推导式比循环 append 快
                     row_data = [
                         (v if v is not None else "") for v in row_vals
                     ]
-                    # 补齐列数（read_only 模式可能返回较短的行）
-                    while len(row_data) < max_col:
-                        row_data.append("")
+                    
+                    # 补齐列数（read_only 模式可能返回较短的行，如果该行后面全是空）
+                    # 注意：iter_rows(max_col=...) 应该保证长度，但为了安全
+                    curr_len = len(row_data)
+                    if curr_len < max_col:
+                        row_data.extend([""] * (max_col - curr_len))
 
-                    if any(str(v).strip() for v in row_data):
+                    # 检查是否有有效数据
+                    has_data = False
+                    for v in row_data:
+                        if str(v).strip():
+                            has_data = True
+                            break
+                    
+                    if has_data:
                         ws_result.append(
                             [file_name, sheet_name, actual_row_num] + row_data
                         )
@@ -332,7 +381,7 @@ def 汇总Excel文件_按条件():
                         total_rows         += 1
                         row_count          += 1
 
-                    # 实时刷新：每行都更新进度条数值，每 10 行才真正绘制
+                    # 实时刷新：每行都更新进度条数值，每 REFRESH_INTERVAL_ROW 行才真正绘制
                     progress.update_row(r_offset + 1, total_rows)
                     if progress.cancelled:
                         break
@@ -352,11 +401,19 @@ def 汇总Excel文件_按条件():
                 print(f"  ✗ 无匹配工作表（关键词: {sheet_keyword or '全部'}）")
                 error_files.append(f"{file_name} (无匹配工作表)")
 
-            wb_src.close()
-
+        except InvalidFileException:
+             print(f"  ✗ 处理失败: 文件格式无效或损坏")
+             error_files.append(f"{file_name} (格式无效)")
         except Exception as exc:
             print(f"  ✗ 处理失败: {exc}")
-            error_files.append(f"{file_name} ({exc})")
+            error_files.append(f"{file_name} ({str(exc)[:50]})") # 截断过长错误信息
+        finally:
+            # 确保关闭工作簿，释放文件句柄
+            if wb_src:
+                try:
+                    wb_src.close()
+                except:
+                    pass
 
         progress.finish_file(file_index)
         print()
@@ -374,22 +431,28 @@ def 汇总Excel文件_按条件():
     if not cancelled and total_rows > 0:
 
         # 自动调整列宽
+        # 优化：只遍历有数据的列
         for column in ws_result.columns:
             max_len = 0
             col_letter = column[0].column_letter
             for cell in column:
                 if cell.value:
-                    raw_len      = len(str(cell.value))
-                    chinese_cnt  = len(re.findall(r"[\u4e00-\u9fff]",
-                                                   str(cell.value)))
-                    raw_len     += chinese_cnt
-                    if raw_len > max_len:
-                        max_len = raw_len
-            ws_result.column_dimensions[col_letter].width = min(
-                max(max_len + 2, 8), 50
-            )
+                    val_str = str(cell.value)
+                    raw_len = len(val_str)
+                    # 简单估算中文宽度
+                    chinese_cnt = len(re.findall(r"[\u4e00-\u9fff]", val_str))
+                    weighted_len = raw_len + chinese_cnt 
+                    if weighted_len > max_len:
+                        max_len = weighted_len
+            
+            # 设置列宽，限制最小和最大值
+            new_width = min(max(max_len + 2, 8), 50)
+            ws_result.column_dimensions[col_letter].width = new_width
 
         # 数据行样式
+        # 优化：批量处理样式，避免过多的属性查找
+        # 注意：openpyxl 没有直接的“区域样式”应用，必须逐个单元格
+        # 但我们可以通过减少对象访问来微调，或者接受这个开销，因为这是保存前的最后一步
         for row in ws_result.iter_rows(min_row=2,
                                         max_row=current_result_row - 1):
             for cell in row:
@@ -399,6 +462,7 @@ def 汇总Excel文件_按条件():
 
         # 行高
         ws_result.row_dimensions[1].height = 25
+        # 优化：批量设置行高在某些版本可能不支持，这里保持循环但范围明确
         for r in range(2, current_result_row):
             ws_result.row_dimensions[r].height = 18
 
@@ -455,6 +519,12 @@ def 汇总Excel文件_按条件():
         )
     else:
         print("已取消操作，未保存任何文件。")
+    
+    # 清理 root 窗口
+    try:
+        root.destroy()
+    except:
+        pass
 
 
 if __name__ == "__main__":

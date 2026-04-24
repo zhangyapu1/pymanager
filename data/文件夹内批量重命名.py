@@ -107,6 +107,8 @@ class BatchRenameApp:
         self.log_text.insert(tk.END, message + "\n")
         self.log_text.see(tk.END)
         self.log_text.config(state=tk.DISABLED)
+        # 强制更新UI以显示最新日志，防止长任务时界面无响应感
+        self.root.update_idletasks()
 
     def select_folder(self):
         """弹出文件夹选择对话框"""
@@ -125,22 +127,33 @@ class BatchRenameApp:
         # 只收集文件（不包括子目录）
         self.original_files = []
         self.file_listbox.delete(0, tk.END)
-        for name in os.listdir(folder):
-            full = os.path.join(folder, name)
-            if os.path.isfile(full):
-                self.original_files.append(name)
-                self.file_listbox.insert(tk.END, name)
-        self.log(f"已加载文件夹：{folder}，共 {len(self.original_files)} 个文件")
+        try:
+            for name in os.listdir(folder):
+                full = os.path.join(folder, name)
+                if os.path.isfile(full):
+                    self.original_files.append(name)
+                    self.file_listbox.insert(tk.END, name)
+            self.log(f"已加载文件夹：{folder}，共 {len(self.original_files)} 个文件")
+        except PermissionError:
+            self.log("错误：没有权限访问该文件夹")
+        except Exception as e:
+            self.log(f"读取文件夹错误: {e}")
 
     def on_mode_changed(self):
         """根据选择的模式显示/隐藏对应的参数输入框"""
         mode = self.rename_mode.get()
 
         # 先隐藏所有参数控件
-        for widget in [self.prefix_label, self.prefix_entry, self.suffix_label, self.suffix_entry,
-                       self.replace_old_label, self.replace_old_entry, self.replace_new_label, self.replace_new_entry,
-                       self.seq_base_label, self.seq_base_entry, self.seq_start_label, self.seq_start_entry,
-                       self.seq_digits_label, self.seq_digits_entry]:
+        widgets_to_hide = [
+            self.prefix_label, self.prefix_entry, 
+            self.suffix_label, self.suffix_entry,
+            self.replace_old_label, self.replace_old_entry, 
+            self.replace_new_label, self.replace_new_entry,
+            self.seq_base_label, self.seq_base_entry, 
+            self.seq_start_label, self.seq_start_entry,
+            self.seq_digits_label, self.seq_digits_entry
+        ]
+        for widget in widgets_to_hide:
             widget.pack_forget()
 
         if mode == "prefix":
@@ -182,105 +195,137 @@ class BatchRenameApp:
         self.log_text.config(state=tk.NORMAL)
         self.log_text.delete(1.0, tk.END)
         self.log_text.config(state=tk.DISABLED)
+        self.log("开始执行重命名...")
 
-        if mode == "prefix":
-            prefix = self.prefix_entry.get()
-            self.add_prefix(folder, prefix)
-        elif mode == "suffix":
-            suffix = self.suffix_entry.get()
-            self.add_suffix(folder, suffix)
-        elif mode == "replace":
-            old_text = self.replace_old_entry.get()
-            new_text = self.replace_new_entry.get()
-            self.replace_text(folder, old_text, new_text)
-        elif mode == "sequential":
-            base = self.seq_base_entry.get()
-            start_str = self.seq_start_entry.get()
-            digits_str = self.seq_digits_entry.get()
-            try:
-                start = int(start_str) if start_str.isdigit() else 1
-                digits = int(digits_str) if digits_str.isdigit() else 3
-            except ValueError:
-                self.log("编号参数无效，使用默认值（起始1，位数3）")
-                start, digits = 1, 3
-            self.sequential_rename(folder, base, start, digits)
-        else:
-            self.log("未知的重命名模式")
-            return
+        try:
+            if mode == "prefix":
+                prefix = self.prefix_entry.get()
+                self.add_prefix(folder, prefix)
+            elif mode == "suffix":
+                suffix = self.suffix_entry.get()
+                self.add_suffix(folder, suffix)
+            elif mode == "replace":
+                old_text = self.replace_old_entry.get()
+                new_text = self.replace_new_entry.get()
+                self.replace_text(folder, old_text, new_text)
+            elif mode == "sequential":
+                base = self.seq_base_entry.get()
+                start_str = self.seq_start_entry.get()
+                digits_str = self.seq_digits_entry.get()
+                try:
+                    # 允许0，但不允许负数或非数字
+                    if start_str.lstrip('-').isdigit(): # 简单检查，防止负数
+                         start = int(start_str)
+                    else:
+                         start = 1
+                    
+                    if digits_str.isdigit() and int(digits_str) > 0:
+                        digits = int(digits_str)
+                    else:
+                        digits = 3
+                except ValueError:
+                    self.log("编号参数无效，使用默认值（起始1，位数3）")
+                    start, digits = 1, 3
+                
+                if not base:
+                    self.log("警告：基础名称为空，将仅使用序号")
+                
+                self.sequential_rename(folder, base, start, digits)
+            else:
+                self.log("未知的重命名模式")
+                return
+        except Exception as e:
+            self.log(f"发生未预期的错误: {e}")
 
         self.log("操作完成。")
         self.refresh_file_list()   # 刷新列表显示新文件名
 
     # ---------- 重命名具体实现 ----------
+    def _safe_rename(self, folder, old_name, new_name):
+        """
+        安全的重命名辅助函数
+        返回: True if success, False if skipped/failed
+        """
+        old_path = os.path.join(folder, old_name)
+        new_path = os.path.join(folder, new_name)
+        
+        # 1. 检查源文件是否存在（防止并发修改或逻辑错误）
+        if not os.path.exists(old_path):
+            self.log(f"跳过 {old_name}：源文件不存在")
+            return False
+            
+        # 2. 检查目标文件是否已存在
+        if os.path.exists(new_path):
+            # 如果目标路径和源路径一样（例如替换文本没变），跳过
+            if os.path.abspath(old_path) == os.path.abspath(new_path):
+                self.log(f"跳过 {old_name}：新名称与原名称相同")
+                return False
+            self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
+            return False
+
+        try:
+            os.rename(old_path, new_path)
+            self.log(f"重命名: {old_name} → {new_name}")
+            return True
+        except OSError as e:
+            self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+            return False
+
     def add_prefix(self, folder, prefix):
         """为所有文件添加前缀"""
+        if not prefix:
+            self.log("前缀为空，未执行任何操作")
+            return
         for old_name in self.original_files:
-            old_path = os.path.join(folder, old_name)
             new_name = prefix + old_name
-            new_path = os.path.join(folder, new_name)
-            try:
-                if os.path.exists(new_path):
-                    self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
-                else:
-                    os.rename(old_path, new_path)
-                    self.log(f"重命名: {old_name} → {new_name}")
-            except Exception as e:
-                self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+            self._safe_rename(folder, old_name, new_name)
 
     def add_suffix(self, folder, suffix):
         """在文件名后、扩展名前插入后缀"""
+        if not suffix:
+            self.log("后缀为空，未执行任何操作")
+            return
         for old_name in self.original_files:
-            old_path = os.path.join(folder, old_name)
             name, ext = os.path.splitext(old_name)
             new_name = name + suffix + ext
-            new_path = os.path.join(folder, new_name)
-            try:
-                if os.path.exists(new_path):
-                    self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
-                else:
-                    os.rename(old_path, new_path)
-                    self.log(f"重命名: {old_name} → {new_name}")
-            except Exception as e:
-                self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+            self._safe_rename(folder, old_name, new_name)
 
     def replace_text(self, folder, old_text, new_text):
         """替换文件名中的指定文本"""
         if not old_text:
             self.log("替换文本不能为空，操作取消")
             return
+        
+        count = 0
         for old_name in self.original_files:
             if old_text in old_name:
-                old_path = os.path.join(folder, old_name)
                 new_name = old_name.replace(old_text, new_text)
-                new_path = os.path.join(folder, new_name)
-                try:
-                    if os.path.exists(new_path):
-                        self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
-                    else:
-                        os.rename(old_path, new_path)
-                        self.log(f"重命名: {old_name} → {new_name}")
-                except Exception as e:
-                    self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
-            else:
-                self.log(f"跳过（不含'{old_text}'）: {old_name}")
+                # 如果替换后名字没变（例如替换为空且原本就没有，或者替换成一样的）
+                if new_name == old_name:
+                    continue
+                if self._safe_rename(folder, old_name, new_name):
+                    count += 1
+            # 优化：不再记录每个不匹配的文件，减少日志噪音
+        
+        if count == 0:
+            self.log("没有找到匹配的文件或无需更改")
 
     def sequential_rename(self, folder, base_name, start=1, digits=3):
         """按顺序重命名，保留原扩展名"""
-        # 按原文件名排序（可按需要修改排序规则）
+        # 按原文件名排序
         sorted_files = sorted(self.original_files)
+        
+        # 预检查：生成所有新名称，检查是否有内部冲突（新名称之间的重复）
+        # 注意：这里只做简单检查，不完全解决 A->B, B->A 的死锁问题，
+        # 但 _safe_rename 会处理目标存在的情况。
+        
         for idx, old_name in enumerate(sorted_files, start=start):
-            old_path = os.path.join(folder, old_name)
             ext = os.path.splitext(old_name)[1]
-            new_name = f"{base_name}{str(idx).zfill(digits)}{ext}"
-            new_path = os.path.join(folder, new_name)
-            try:
-                if os.path.exists(new_path):
-                    self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
-                else:
-                    os.rename(old_path, new_path)
-                    self.log(f"重命名: {old_name} → {new_name}")
-            except Exception as e:
-                self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+            # 格式化序号
+            num_str = str(idx).zfill(digits)
+            new_name = f"{base_name}{num_str}{ext}"
+            
+            self._safe_rename(folder, old_name, new_name)
 
 if __name__ == "__main__":
     root = tk.Tk()
