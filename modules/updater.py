@@ -318,35 +318,28 @@ def cleanup_old_backups(backup_dir):
 
 def apply_update(download_path, parent):
     """解压或复制文件，并启动更新脚本"""
-    current_exe = sys.argv[0]
+    current_exe = os.path.abspath(sys.argv[0])
     current_dir = os.path.dirname(current_exe)
     
     print(f"开始应用更新，当前文件：{current_exe}")
+    print(f"项目目录：{current_dir}")
     print(f"下载路径：{download_path}")
     
-    # 检查文件是否存在
     if not os.path.exists(download_path):
         messagebox.showerror("文件不存在", f"更新文件不存在：{download_path}", parent=parent)
         return False
     
-    # 创建整个文件夹的备份
     backup_path = create_backup()
     if backup_path:
         print(f"备份已创建：{backup_path}")
     else:
         print("备份创建失败，但继续更新")
 
-    new_exe = None
-    extract_dir = None
-    temp_files_to_clean = []
     single_backup_path = current_exe + ".backup"
 
     try:
-        # 判断下载的是压缩包还是单文件
         if download_path.endswith('.zip'):
-            # 解压到临时目录
             extract_dir = tempfile.mkdtemp()
-            temp_files_to_clean.append(extract_dir)
             print(f"解压到临时目录：{extract_dir}")
             
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
@@ -355,56 +348,118 @@ def apply_update(download_path, parent):
                         raise Exception(f"Unsafe zip path: {member.filename}")
                 zip_ref.extractall(extract_dir)
             
-            # GitHub zipball 解压后会有一个顶层目录如 zhangyapu1-pymanager-xxxx/
-            # 检查是否需要进入子目录
             entries = os.listdir(extract_dir)
             if len(entries) == 1 and os.path.isdir(os.path.join(extract_dir, entries[0])):
                 extract_dir = os.path.join(extract_dir, entries[0])
                 print(f"检测到 zipball 子目录，切换到：{extract_dir}")
             
-            # 将解压后的所有文件整体复制到项目目录
-            # 创建批处理脚本：先杀进程，再 xcopy 整个目录覆盖
+            # 用 Python 直接复制所有文件到项目目录
+            skip_dirs = {'backups', '__pycache__', '.git', '.config'}
+            copied = 0
+            for root, dirs, files in os.walk(extract_dir):
+                dirs[:] = [d for d in dirs if d not in skip_dirs]
+                
+                rel_root = os.path.relpath(root, extract_dir)
+                if rel_root == '.':
+                    dest_root = current_dir
+                else:
+                    dest_root = os.path.join(current_dir, rel_root)
+                
+                os.makedirs(dest_root, exist_ok=True)
+                
+                for f in files:
+                    src_file = os.path.join(root, f)
+                    dst_file = os.path.join(dest_root, f)
+                    try:
+                        shutil.copy2(src_file, dst_file)
+                        copied += 1
+                        print(f"已复制: {os.path.relpath(dst_file, current_dir)}")
+                    except PermissionError:
+                        print(f"跳过权限不足: {dst_file}")
+                    except Exception as e:
+                        print(f"复制失败 {dst_file}: {e}")
+            
+            print(f"共复制 {copied} 个文件")
+            
+            # 创建批处理脚本：仅负责杀进程和重启
             current_exe_name = os.path.basename(current_exe)
-            
             script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
-            temp_files_to_clean.append(script_path)
-            
-            safe_current_dir = f'"{current_dir}"'
-            safe_extract_dir = f'"{extract_dir}"'
             safe_current_exe = f'"{current_exe}"'
+            
+            bat_content = f"""@echo off
+chcp 65001 >nul
+echo 更新完成，正在重启程序...
+timeout /t 2 /nobreak >nul
+start "" {safe_current_exe}
+del "%~f0"
+"""
+            with open(script_path, "w", encoding='gbk') as f:
+                f.write(bat_content)
+            
+            print(f"已创建重启脚本：{script_path}")
+
+            CREATE_NEW_PROCESS_GROUP = 0x00000200
+            DETACHED_PROCESS = 0x00000008
+            
+            subprocess.Popen(
+                [script_path], 
+                creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
+                shell=True
+            )
+            
+            print("重启脚本已启动，当前程序即将退出")
+            
+            if parent:
+                parent.quit()
+            sys.exit(0)
+            
+        else:
+            new_exe = download_path
+            
+            try:
+                if os.path.exists(single_backup_path):
+                    os.remove(single_backup_path)
+                shutil.copy2(current_exe, single_backup_path)
+                print(f"已备份旧文件到：{single_backup_path}")
+            except Exception as e:
+                print(f"单文件备份失败：{e}")
+
+            if sys.platform != 'win32':
+                messagebox.showerror("不支持的平台", "自动更新仅支持 Windows 系统。请手动替换文件。", parent=parent)
+                return False
+
+            script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
+            
+            safe_current_exe = f'"{current_exe}"'
+            safe_new_exe = f'"{new_exe}"'
             safe_single_backup = f'"{single_backup_path}"'
+            exe_basename = os.path.basename(current_exe)
 
             bat_content = f"""@echo off
 chcp 65001 >nul
 echo 正在更新程序...
 timeout /t 2 /nobreak >nul
 
-:: 尝试关闭当前进程
-taskkill /f /im "{current_exe_name}" 2>nul
-
-:: 等待进程完全退出
+taskkill /f /im "{exe_basename}" 2>nul
 timeout /t 1 /nobreak >nul
 
-:: 复制所有文件到项目目录（排除 backups 和 __pycache__）
-echo 正在复制文件...
-xcopy {safe_extract_dir} {safe_current_dir} /e /y /exclude:%TEMP%\\update_exclude.txt
-
+copy /y {safe_new_exe} {safe_current_exe}
 if %errorlevel% equ 0 (
     echo 更新成功！
     start "" {safe_current_exe}
 ) else (
-    echo 更新失败！
-    pause
+    echo 更新失败，尝试恢复备份...
+    if exist {safe_single_backup} (
+        copy /y {safe_single_backup} {safe_current_exe}
+        start "" {safe_current_exe}
+    ) else (
+        echo 严重错误：更新失败且无备份。
+        pause
+    )
 )
 
-:: 清理脚本自身
 del "%~f0"
 """
-            # 创建排除列表文件
-            exclude_path = os.path.join(tempfile.gettempdir(), "update_exclude.txt")
-            with open(exclude_path, "w", encoding="gbk") as f:
-                f.write("backups\\\n__pycache__\\\n.config\\\n")
-            
             with open(script_path, "w", encoding='gbk') as f:
                 f.write(bat_content)
             
@@ -424,83 +479,6 @@ del "%~f0"
             if parent:
                 parent.quit()
             sys.exit(0)
-            
-        else:
-            # 直接下载的可执行文件（单文件更新）
-            new_exe = download_path
-        
-        if not new_exe or not os.path.exists(new_exe):
-            raise Exception("未能定位到新版本的执行文件")
-
-        try:
-            if os.path.exists(single_backup_path):
-                os.remove(single_backup_path)
-            shutil.copy2(current_exe, single_backup_path)
-            print(f"已备份旧文件到：{single_backup_path}")
-        except Exception as e:
-            print(f"单文件备份失败：{e}")
-
-        if sys.platform != 'win32':
-            messagebox.showerror("不支持的平台", "自动更新仅支持 Windows 系统。请手动替换文件。", parent=parent)
-            return False
-
-        script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
-        temp_files_to_clean.append(script_path)
-        
-        safe_current_exe = f'"{current_exe}"'
-        safe_new_exe = f'"{new_exe}"'
-        safe_single_backup = f'"{single_backup_path}"'
-        exe_basename = os.path.basename(current_exe)
-
-        bat_content = f"""@echo off
-chcp 65001 >nul
-echo 正在更新程序...
-timeout /t 2 /nobreak >nul
-
-:: 尝试关闭当前进程
-taskkill /f /im "{exe_basename}" 2>nul
-
-:: 等待进程完全退出
-timeout /t 1 /nobreak >nul
-
-:: 复制新文件
-copy /y {safe_new_exe} {safe_current_exe}
-if %errorlevel% equ 0 (
-    echo 更新成功！
-    start "" {safe_current_exe}
-) else (
-    echo 更新失败，尝试恢复备份...
-    if exist {safe_single_backup} (
-        copy /y {safe_single_backup} {safe_current_exe}
-        start "" {safe_current_exe}
-    ) else (
-        echo 严重错误：更新失败且无备份。
-        pause
-    )
-)
-
-:: 清理脚本自身
-del "%~f0"
-"""
-        with open(script_path, "w", encoding='gbk') as f:
-            f.write(bat_content)
-        
-        print(f"已创建更新脚本：{script_path}")
-
-        CREATE_NEW_PROCESS_GROUP = 0x00000200
-        DETACHED_PROCESS = 0x00000008
-        
-        subprocess.Popen(
-            [script_path], 
-            creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
-            shell=True
-        )
-        
-        print("更新脚本已启动，当前程序即将退出")
-        
-        if parent:
-            parent.quit()
-        sys.exit(0)
 
     except Exception as e:
         print(f"应用更新过程中发生错误：{e}")
