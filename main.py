@@ -35,6 +35,7 @@ class ScriptManager:
 
         self.create_widgets()
         self.load_scripts()
+        self.scan_data_directory()
         self.setup_drag_drop()
         update_title_mode(self.root, DATA_DIR, BASE_DIR)
 
@@ -220,6 +221,45 @@ class ScriptManager:
         self.group_manager.refresh_combo()
         self.update_listbox()
         self.status_var.set(f"已加载 {len(self.scripts)} 个脚本")
+        
+    def scan_data_directory(self):
+        """扫描data目录下的py文件，自动添加到脚本列表"""
+        added = 0
+        updated = 0
+        
+        # 遍历data目录下的所有py文件
+        for file_name in os.listdir(DATA_DIR):
+            if file_name.endswith('.py'):
+                file_path = os.path.join(DATA_DIR, file_name)
+                
+                # 检查是否已存在
+                existing_index = None
+                for i, script in enumerate(self.scripts):
+                    if script['display'] == file_name:
+                        existing_index = i
+                        break
+                
+                if existing_index is not None:
+                    # 已存在，更新信息
+                    self.scripts[existing_index] = {
+                        "display": file_name,
+                        "storage_path": file_path,
+                        "group": self.scripts[existing_index].get("group", DEFAULT_GROUP)
+                    }
+                    updated += 1
+                else:
+                    # 不存在，添加新脚本
+                    self.scripts.append({
+                        "display": file_name,
+                        "storage_path": file_path,
+                        "group": DEFAULT_GROUP
+                    })
+                    added += 1
+        
+        if added > 0 or updated > 0:
+            self.save_scripts()
+            self.update_listbox()
+            self.status_var.set(f"扫描完成：添加 {added} 个脚本，更新 {updated} 个脚本")
 
 # ================== 启动入口 ==================
 if __name__ == "__main__":
