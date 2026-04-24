@@ -80,7 +80,7 @@ def merge_excel_files(file_paths, output_file):
         # 播放完成提示音（如果系统支持）
         try:
             import winsound
-            winsound.Beep(800, 300)  # 频率800Hz，持续300ms
+            winsound.Beep(800, 300)  # 频率800Hz，持续300ms1
         except:
             pass
 
