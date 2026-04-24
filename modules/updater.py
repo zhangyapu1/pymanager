@@ -14,7 +14,7 @@ from tkinter import messagebox, simpledialog, ttk
 import tkinter as tk
 
 # ================== 配置区域 ==================
-CURRENT_VERSION = "1.0.7"
+CURRENT_VERSION = "1.0.8"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
