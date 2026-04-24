@@ -1,10 +1,6 @@
-# 移除了未使用的 import os
-
-def update_title_mode(root, data_dir, base_dir):
+def update_title_mode(root):
     """
     更新窗口标题。
-    
-    注意: data_dir 和 base_dir 参数当前未被使用，保留以维持接口兼容性。
     """
     # 增加健壮性检查：确保 root 对象存在且具有 title 方法
     if root is None:

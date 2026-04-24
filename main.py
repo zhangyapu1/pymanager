@@ -38,7 +38,7 @@ class ScriptManager:
         self.create_widgets()
         self.scan_data_directory()
         self.setup_drag_drop()
-        update_title_mode(self.root, self.data_dir, self.base_dir)
+        update_title_mode(self.root)
         
         # 显示版本信息
         self.show_version_info()
@@ -402,23 +402,9 @@ class ScriptManager:
     def save_scripts(self):
         """
         持久化保存脚本列表。
-        注意：原代码中调用了此方法但未定义。
-        这里提供一个基本实现，实际项目中应根据具体需求（如保存到 JSON/SQLite）实现。
-        如果 actions 模块中有专门的保存逻辑，应调用那个。
-        此处仅为防止 NameError 并满足代码完整性。
+        注意：当前实现为占位符，实际项目中应根据具体需求（如保存到 JSON/SQLite）实现。
         """
-        # 示例：保存到 JSON 文件（假设）
-        # import json
-        # with open(os.path.join(self.data_dir, 'scripts.json'), 'w', encoding='utf-8') as f:
-        #     json.dump(self.scripts, f, ensure_ascii=False, indent=4)
-        # 
-        # 或者，如果原意是调用 actions 中的方法：
-        # actions.save_scripts_to_disk(self.scripts)
-        
-        # 由于不知道具体的持久化策略，且原代码在 add_script 中调用了它，
-        # 我们必须确保它存在。如果这是一个空操作，至少不报错。
-        # 更好的做法是确认 actions 模块是否有此功能。
-        # 这里暂时留空或记录日志，实际使用时请补充具体逻辑。
+        # 实际项目中应实现持久化逻辑
         pass
 
 # ================== 启动入口 ==================
