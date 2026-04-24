@@ -4,7 +4,6 @@ import shutil
 import threading
 import tkinter as tk
 from tkinter import messagebox
-from tkinterdnd2 import DND_FILES, TkinterDnD
 
 # 导入模块
 import modules.updater as updater
@@ -209,6 +208,7 @@ class ScriptManager:
 
     # ------------------ 拖拽 ------------------
     def setup_drag_drop(self):
+        from tkinterdnd2 import DND_FILES
         self.listbox.drop_target_register(DND_FILES)
         self.listbox.dnd_bind('<<Drop>>', self.on_drop)
 
@@ -431,6 +431,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     try:
+        from tkinterdnd2 import TkinterDnD
         root = TkinterDnD.Tk()
     except ImportError as e:
         log_error(f"缺少 tkinterdnd2：{str(e)}")
