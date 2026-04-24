@@ -14,7 +14,7 @@ from tkinter import messagebox, simpledialog, ttk
 import tkinter as tk
 
 # ================== 配置区域 ==================
-CURRENT_VERSION = "1.0.6"
+CURRENT_VERSION = "1.0.7"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -349,64 +349,83 @@ def apply_update(download_path, parent):
             print(f"解压到临时目录：{extract_dir}")
             
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
-                # 安全检查：防止路径遍历攻击 (虽然extractall在现代Python中有一定保护，但显式检查更好)
                 for member in zip_ref.infolist():
                     if member.filename.startswith('/') or '..' in member.filename:
                         raise Exception(f"Unsafe zip path: {member.filename}")
                 zip_ref.extractall(extract_dir)
             
-            # 查找新文件
+            # GitHub zipball 解压后会有一个顶层目录如 zhangyapu1-pymanager-xxxx/
+            # 检查是否需要进入子目录
+            entries = os.listdir(extract_dir)
+            if len(entries) == 1 and os.path.isdir(os.path.join(extract_dir, entries[0])):
+                extract_dir = os.path.join(extract_dir, entries[0])
+                print(f"检测到 zipball 子目录，切换到：{extract_dir}")
+            
+            # 将解压后的所有文件整体复制到项目目录
+            # 创建批处理脚本：先杀进程，再 xcopy 整个目录覆盖
             current_exe_name = os.path.basename(current_exe)
-            found_file = None
             
-            # 策略1: 查找与当前执行文件同名的文件
-            for root, _, files in os.walk(extract_dir):
-                for f in files:
-                    if f == current_exe_name:
-                        found_file = os.path.join(root, f)
-                        break
-                if found_file:
-                    break
+            script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
+            temp_files_to_clean.append(script_path)
             
-            # 策略2: 如果没有同名文件，查找常见的入口文件
-            if not found_file:
-                common_names = ['main.py', 'app.py', 'start.py']
-                # 如果是exe环境，可能还是找exe
-                if getattr(sys, 'frozen', False):
-                     common_names = [f for f in os.listdir(extract_dir) if f.endswith('.exe')]
-                     # 如果根目录有exe，优先取
-                     for f in common_names:
-                         p = os.path.join(extract_dir, f)
-                         if os.path.isfile(p):
-                             found_file = p
-                             break
-                else:
-                    for root, _, files in os.walk(extract_dir):
-                        for f in files:
-                            if f in common_names or f.endswith('.pyw'):
-                                found_file = os.path.join(root, f)
-                                break
-                        if found_file:
-                            break
+            safe_current_dir = f'"{current_dir}"'
+            safe_extract_dir = f'"{extract_dir}"'
+            safe_current_exe = f'"{current_exe}"'
+            safe_single_backup = f'"{single_backup_path}"' if os.path.exists(current_exe + ".backup") else ""
 
-            if not found_file:
-                 # 策略3: 任意py或exe
-                 for root, _, files in os.walk(extract_dir):
-                    for f in files:
-                        if f.endswith('.py') or f.endswith('.exe'):
-                            found_file = os.path.join(root, f)
-                            break
-                    if found_file:
-                        break
+            bat_content = f"""@echo off
+chcp 65001 >nul
+echo 正在更新程序...
+timeout /t 2 /nobreak >nul
 
-            if not found_file:
-                raise Exception("压缩包中未找到可执行文件或Python文件")
+:: 尝试关闭当前进程
+taskkill /f /im "{current_exe_name}" 2>nul
+
+:: 等待进程完全退出
+timeout /t 1 /nobreak >nul
+
+:: 复制所有文件到项目目录（排除 backups 和 __pycache__）
+echo 正在复制文件...
+xcopy {safe_extract_dir} {safe_current_dir} /e /y /exclude:%TEMP%\\update_exclude.txt
+
+if %errorlevel% equ 0 (
+    echo 更新成功！
+    start "" {safe_current_exe}
+) else (
+    echo 更新失败！
+    pause
+)
+
+:: 清理脚本自身
+del "%~f0"
+"""
+            # 创建排除列表文件
+            exclude_path = os.path.join(tempfile.gettempdir(), "update_exclude.txt")
+            with open(exclude_path, "w", encoding="gbk") as f:
+                f.write("backups\\\n__pycache__\\\n.config\\\n")
             
-            new_exe = found_file
-            print(f"找到目标更新文件：{new_exe}")
+            with open(script_path, "w", encoding='gbk') as f:
+                f.write(bat_content)
+            
+            print(f"已创建更新脚本：{script_path}")
+
+            CREATE_NEW_PROCESS_GROUP = 0x00000200
+            DETACHED_PROCESS = 0x00000008
+            
+            subprocess.Popen(
+                [script_path], 
+                creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
+                shell=True
+            )
+            
+            print("更新脚本已启动，当前程序即将退出")
+            
+            if parent:
+                parent.quit()
+            sys.exit(0)
             
         else:
-            # 直接下载的可执行文件
+            # 直接下载的可执行文件（单文件更新）
             new_exe = download_path
         
         if not new_exe or not os.path.exists(new_exe):
@@ -421,10 +440,7 @@ def apply_update(download_path, parent):
             print(f"已备份旧文件到：{single_backup_path}")
         except Exception as e:
             print(f"单文件备份失败：{e}")
-            # 继续，因为已经有文件夹备份了
 
-        # 创建更新脚本（批处理）
-        # 注意：仅支持 Windows
         if sys.platform != 'win32':
             messagebox.showerror("不支持的平台", "自动更新仅支持 Windows 系统。请手动替换文件。", parent=parent)
             return False
@@ -432,7 +448,6 @@ def apply_update(download_path, parent):
         script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
         temp_files_to_clean.append(script_path)
         
-        # 确保路径被双引号包裹，防止空格或特殊字符问题
         safe_current_exe = f'"{current_exe}"'
         safe_new_exe = f'"{new_exe}"'
         safe_single_backup = f'"{single_backup_path}"'
@@ -468,13 +483,11 @@ if %errorlevel% equ 0 (
 :: 清理脚本自身
 del "%~f0"
 """
-        with open(script_path, "w", encoding='gbk') as f: # Windows batch 通常使用 gbk 或 ansi，utf-8 有时会有 BOM 问题
+        with open(script_path, "w", encoding='gbk') as f:
             f.write(bat_content)
         
         print(f"已创建更新脚本：{script_path}")
 
-        # 执行更新脚本并退出
-        # DETACHED_PROCESS 使得子进程独立于父进程运行
         CREATE_NEW_PROCESS_GROUP = 0x00000200
         DETACHED_PROCESS = 0x00000008
         
@@ -486,7 +499,6 @@ del "%~f0"
         
         print("更新脚本已启动，当前程序即将退出")
         
-        # 关闭当前程序
         if parent:
             parent.quit()
         sys.exit(0)
