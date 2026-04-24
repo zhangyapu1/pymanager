@@ -10,9 +10,8 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 # 导入模块
 import modules as actions
 import modules.updater as updater
-from modules.config import BASE_DIR, DATA_DIR, CONFIG_FILE, DEFAULT_GROUP
+from modules.config import BASE_DIR, DATA_DIR, DEFAULT_GROUP
 from modules.logger import log_error
-from modules.storage import save_scripts, load_scripts
 from modules.drag_drop import parse_dropped_files
 from modules.utils import update_title_mode
 from modules.group_manager import GroupManager
@@ -22,7 +21,6 @@ class ScriptManager:
     def __init__(self, root):
         self.root = root
         self.DATA_DIR = DATA_DIR
-        self.CONFIG_FILE = CONFIG_FILE
         self.scripts = []
         self.group_manager = GroupManager(DATA_DIR)
 
@@ -34,7 +32,6 @@ class ScriptManager:
             sys.exit(1)
 
         self.create_widgets()
-        self.load_scripts()
         self.scan_data_directory()
         self.setup_drag_drop()
         update_title_mode(self.root, DATA_DIR, BASE_DIR)
@@ -131,6 +128,8 @@ class ScriptManager:
         menu.add_command(label="编辑内容", command=lambda: actions.edit_content(self))
         menu.add_command(label="重命名", command=lambda: actions.rename_selected(self))
         menu.add_command(label="删除", command=lambda: actions.delete_selected(self))
+        menu.add_separator()
+        menu.add_command(label="刷新列表", command=self.scan_data_directory)
 
         menu.post(event.x_root, event.y_root)
 
@@ -138,10 +137,46 @@ class ScriptManager:
         if item["group"] == target_group:
             return
         old_group = item["group"]
-        item["group"] = target_group
-        self.save_scripts()
-        self.update_listbox()
-        self.status_var.set(f"已将「{item['display']}」从「{old_group}」移动到「{target_group}」")
+        
+        # 移动文件到对应的子文件夹
+        old_path = item["storage_path"]
+        file_name = os.path.basename(old_path)
+        
+        if target_group == DEFAULT_GROUP:
+            # 移动到默认分组，即data根目录
+            new_path = os.path.join(DATA_DIR, file_name)
+        else:
+            # 移动到对应的子文件夹
+            group_dir = os.path.join(DATA_DIR, target_group)
+            # 确保分组文件夹存在
+            os.makedirs(group_dir, exist_ok=True)
+            new_path = os.path.join(group_dir, file_name)
+        
+        # 处理文件名冲突
+        counter = 1
+        name_without_ext, ext = os.path.splitext(file_name)
+        while os.path.exists(new_path):
+            new_file_name = f"{name_without_ext}_{counter}{ext}"
+            if target_group == DEFAULT_GROUP:
+                new_path = os.path.join(DATA_DIR, new_file_name)
+            else:
+                new_path = os.path.join(DATA_DIR, target_group, new_file_name)
+            counter += 1
+        
+        try:
+            # 移动文件
+            shutil.move(old_path, new_path)
+            # 更新脚本信息
+            item["group"] = target_group
+            item["storage_path"] = new_path
+            # 更新显示名称
+            relative_path = os.path.relpath(new_path, DATA_DIR)
+            item["display"] = relative_path.replace('\\', '/')
+            
+            self.update_listbox()
+            self.status_var.set(f"已将「{item['display']}」从「{old_group}」移动到「{target_group}」")
+        except Exception as e:
+            messagebox.showerror("错误", f"移动文件失败：{str(e)}")
 
     def create_group_and_move(self, item):
         new_group = self.group_manager.new_group(self.root)
@@ -213,58 +248,68 @@ class ScriptManager:
         for item in self.scripts:
             if item.get("group") == self.group_manager.current_group:
                 self.listbox.insert(tk.END, item["display"])
-
-    def save_scripts(self):
-        save_scripts(self.scripts, CONFIG_FILE)
-
-    def load_scripts(self):
-        scripts, groups_set = load_scripts(CONFIG_FILE, self.group_manager.groups)
-        self.scripts = scripts
-        for g in groups_set:
-            if g not in self.group_manager.groups:
-                self.group_manager.groups.append(g)
-        self.group_manager.save_groups()
-        # 刷新分组下拉菜单（由 GroupManager 负责）
-        self.group_manager.refresh_combo()
-        self.update_listbox()
-        self.status_var.set(f"已加载 {len(self.scripts)} 个脚本")
         
     def scan_data_directory(self):
         """扫描data目录下的py文件，自动添加到脚本列表"""
         added = 0
         updated = 0
         
-        # 遍历data目录下的所有py文件
-        for file_name in os.listdir(DATA_DIR):
-            if file_name.endswith('.py'):
-                file_path = os.path.join(DATA_DIR, file_name)
-                
-                # 检查是否已存在
-                existing_index = None
-                for i, script in enumerate(self.scripts):
-                    if script['display'] == file_name:
-                        existing_index = i
-                        break
-                
-                if existing_index is not None:
-                    # 已存在，更新信息
-                    self.scripts[existing_index] = {
-                        "display": file_name,
-                        "storage_path": file_path,
-                        "group": self.scripts[existing_index].get("group", DEFAULT_GROUP)
-                    }
-                    updated += 1
-                else:
-                    # 不存在，添加新脚本
-                    self.scripts.append({
-                        "display": file_name,
-                        "storage_path": file_path,
-                        "group": DEFAULT_GROUP
-                    })
-                    added += 1
+        # 递归遍历data目录下的所有py文件
+        for root, dirs, files in os.walk(DATA_DIR):
+            for file_name in files:
+                if file_name.endswith('.py'):
+                    file_path = os.path.join(root, file_name)
+                    # 计算相对路径，用于显示
+                    relative_path = os.path.relpath(file_path, DATA_DIR)
+                    display_name = relative_path.replace('\\', '/')
+                    
+                    # 根据目录结构确定分组
+                    # 如果文件直接在data目录下，属于默认分组
+                    # 如果文件在子目录下，属于子目录名称的分组
+                    relative_dir = os.path.dirname(relative_path)
+                    if relative_dir == '.' or relative_dir == '':
+                        group = DEFAULT_GROUP
+                    else:
+                        # 取第一级子目录作为分组
+                        group = relative_dir.split(os.sep)[0]
+                    
+                    # 检查是否已存在
+                    existing_index = None
+                    for i, script in enumerate(self.scripts):
+                        if script['storage_path'] == file_path:
+                            existing_index = i
+                            break
+                    
+                    if existing_index is not None:
+                        # 已存在，更新信息
+                        self.scripts[existing_index] = {
+                            "display": display_name,
+                            "storage_path": file_path,
+                            "group": group
+                        }
+                        updated += 1
+                    else:
+                        # 不存在，添加新脚本
+                        self.scripts.append({
+                            "display": display_name,
+                            "storage_path": file_path,
+                            "group": group
+                        })
+                        added += 1
+        
+        # 更新分组列表
+        groups_set = set()
+        for script in self.scripts:
+            groups_set.add(script.get("group", DEFAULT_GROUP))
+        
+        # 更新group_manager中的分组列表
+        for g in groups_set:
+            if g not in self.group_manager.groups:
+                self.group_manager.groups.append(g)
+        self.group_manager.save_groups()
+        self.group_manager.refresh_combo()
         
         if added > 0 or updated > 0:
-            self.save_scripts()
             self.update_listbox()
             self.status_var.set(f"扫描完成：添加 {added} 个脚本，更新 {updated} 个脚本")
 

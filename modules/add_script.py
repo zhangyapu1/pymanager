@@ -43,7 +43,7 @@ def add_script_from_path(manager, src_path):
     })
     manager.update_listbox()
     manager.status_var.set(f"已添加：{display_name}")
-    manager.save_scripts()
+    # 不需要保存脚本列表，因为我们现在基于文件夹结构管理脚本
     # 检查并安装依赖
     from modules import check_script_deps_and_install
     check_script_deps_and_install(storage_path, display_name, manager.root)

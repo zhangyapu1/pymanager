@@ -19,13 +19,18 @@ def load_scripts(config_file, groups):
         with open(config_file, 'rb') as f:
             scripts = pickle.load(f)
         groups_set = set(groups)
-        for script in scripts:
-            if "group" not in script:
-                script["group"] = DEFAULT_GROUP
-            groups_set.add(script["group"])
         valid = []
         for item in scripts:
             if os.path.exists(item["storage_path"]):
+                # 根据文件实际位置重新确定分组
+                relative_path = os.path.relpath(item["storage_path"], os.path.dirname(config_file))
+                relative_dir = os.path.dirname(relative_path)
+                if relative_dir == '.' or relative_dir == '':
+                    item["group"] = DEFAULT_GROUP
+                else:
+                    # 取第一级子目录作为分组
+                    item["group"] = relative_dir.split(os.sep)[0]
+                groups_set.add(item["group"])
                 valid.append(item)
             else:
                 print(f"警告：脚本 {item['display']} 内部文件丢失，已忽略")

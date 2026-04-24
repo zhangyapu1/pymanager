@@ -15,27 +15,25 @@ class GroupManager:
         self.load_groups()
 
     def load_groups(self):
-        if os.path.exists(self.groups_file):
-            try:
-                with open(self.groups_file, 'rb') as f:
-                    self.groups = pickle.load(f)
-            except Exception as e:
-                log_error(f"加载分组失败：{str(e)}")
-                self.groups = [DEFAULT_GROUP]
-        else:
-            self.groups = [DEFAULT_GROUP]
-            self.save_groups()
-        if DEFAULT_GROUP not in self.groups:
-            self.groups.append(DEFAULT_GROUP)
-            self.save_groups()
+        # 根据data目录下的子文件夹确定分组
+        self.groups = [DEFAULT_GROUP]
+        
+        # 遍历data目录下的子文件夹
+        if os.path.exists(self.data_dir):
+            for item in os.listdir(self.data_dir):
+                item_path = os.path.join(self.data_dir, item)
+                if os.path.isdir(item_path) and item != DEFAULT_GROUP:
+                    self.groups.append(item)
+        
+        # 保存分组信息（可选，用于向后兼容）
+        # self.save_groups()
+        
         self.current_group = DEFAULT_GROUP
 
     def save_groups(self):
-        try:
-            with open(self.groups_file, 'wb') as f:
-                pickle.dump(self.groups, f)
-        except Exception as e:
-            log_error(f"保存分组失败：{str(e)}")
+        # 分组信息现在根据文件夹结构动态生成，不需要保存到文件中
+        # 保留此方法以保持向后兼容
+        pass
 
     def new_group(self, parent=None):
         new_name = simpledialog.askstring("新建分组", "请输入分组名称：", parent=parent)
@@ -45,6 +43,15 @@ class GroupManager:
         if new_name in self.groups:
             messagebox.showwarning("提示", "分组已存在", parent=parent)
             return None
+        
+        # 创建对应的子文件夹
+        group_dir = os.path.join(self.data_dir, new_name)
+        try:
+            os.makedirs(group_dir, exist_ok=True)
+        except Exception as e:
+            messagebox.showerror("错误", f"创建分组文件夹失败：{str(e)}", parent=parent)
+            return None
+        
         self.groups.append(new_name)
         self.save_groups()
         self.current_group = new_name
@@ -59,6 +66,34 @@ class GroupManager:
         if not messagebox.askyesno("确认删除", f"确定删除分组「{self.current_group}」吗？\n该分组下的所有脚本将移动到「{DEFAULT_GROUP}」。", parent=parent):
             return False
         deleted = self.current_group
+        
+        # 移动分组文件夹中的文件到默认分组
+        group_dir = os.path.join(self.data_dir, deleted)
+        if os.path.exists(group_dir):
+            try:
+                for file_name in os.listdir(group_dir):
+                    if file_name.endswith('.py'):
+                        old_path = os.path.join(group_dir, file_name)
+                        new_path = os.path.join(self.data_dir, file_name)
+                        
+                        # 处理文件名冲突
+                        counter = 1
+                        name_without_ext, ext = os.path.splitext(file_name)
+                        while os.path.exists(new_path):
+                            new_file_name = f"{name_without_ext}_{counter}{ext}"
+                            new_path = os.path.join(self.data_dir, new_file_name)
+                            counter += 1
+                        
+                        # 移动文件
+                        import shutil
+                        shutil.move(old_path, new_path)
+                
+                # 删除空的分组文件夹
+                if len(os.listdir(group_dir)) == 0:
+                    os.rmdir(group_dir)
+            except Exception as e:
+                messagebox.showerror("错误", f"移动文件失败：{str(e)}", parent=parent)
+        
         self.groups.remove(deleted)
         self.save_groups()
         self.current_group = DEFAULT_GROUP

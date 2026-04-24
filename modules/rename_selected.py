@@ -30,7 +30,7 @@ def rename_selected(manager):
         item["display"] = os.path.basename(new_path)
         item["storage_path"] = new_path
         manager.update_listbox()
-        manager.save_scripts()
+        # 不需要保存脚本列表，因为我们现在基于文件夹结构管理脚本
         manager.status_var.set(f"已重命名：{old_display} -> {item['display']}")
         if item["display"] != new_name:
             messagebox.showinfo("提示", f"由于文件名已存在，实际保存为：{item['display']}")

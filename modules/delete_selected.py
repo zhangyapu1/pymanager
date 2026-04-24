@@ -13,5 +13,5 @@ def delete_selected(manager):
             messagebox.showwarning("删除警告", f"无法删除内部文件：{e}")
         manager.scripts.remove(item)
         manager.update_listbox()
-        manager.save_scripts()
+        # 不需要保存脚本列表，因为我们现在基于文件夹结构管理脚本
         manager.status_var.set(f"已移除：{item['display']}")
