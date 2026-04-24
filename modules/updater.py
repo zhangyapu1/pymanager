@@ -339,6 +339,7 @@ def apply_update(download_path, parent):
     new_exe = None
     extract_dir = None
     temp_files_to_clean = []
+    single_backup_path = current_exe + ".backup"
 
     try:
         # 判断下载的是压缩包还是单文件
@@ -371,7 +372,7 @@ def apply_update(download_path, parent):
             safe_current_dir = f'"{current_dir}"'
             safe_extract_dir = f'"{extract_dir}"'
             safe_current_exe = f'"{current_exe}"'
-            safe_single_backup = f'"{single_backup_path}"' if os.path.exists(current_exe + ".backup") else ""
+            safe_single_backup = f'"{single_backup_path}"'
 
             bat_content = f"""@echo off
 chcp 65001 >nul
@@ -431,8 +432,6 @@ del "%~f0"
         if not new_exe or not os.path.exists(new_exe):
             raise Exception("未能定位到新版本的执行文件")
 
-        # 备份旧文件 (单个文件备份，用于快速回滚)
-        single_backup_path = current_exe + ".backup"
         try:
             if os.path.exists(single_backup_path):
                 os.remove(single_backup_path)
