@@ -1,11 +1,9 @@
 import os
 import sys
 import shutil
-import uuid
-import traceback
 import threading
 import tkinter as tk
-from tkinter import messagebox, filedialog, simpledialog
+from tkinter import messagebox
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
 # 导入模块
@@ -79,17 +77,14 @@ class ScriptManager:
             # 按钮列表 - 使用默认参数捕获 lambda，避免闭包问题
             buttons = [
                 ("➕ 添加脚本", lambda: add_script(self)),
-                ("▶ 运行选中", lambda: run_selected(self)),
-                ("✏️ 重命名", lambda: rename_selected(self)),
-                ("📝 编辑内容", lambda: edit_content(self)),
                 ("🔍 检查依赖", lambda: check_deps(self)),
                 ("🔄 检查更新", lambda: updater.check_for_updates(self.root, show_no_update_msg=True)),
-                ("❌ 删除选中", lambda: delete_selected(self))
+                ("🔑 删除Token", lambda: self.delete_token()),
+                ("📁 打开程序目录", lambda: self.open_program_dir()),
             ]
-            for text, cmd in buttons:
-                # 使用默认参数固定 cmd，防止循环变量捕获错误
+            for i, (text, cmd) in enumerate(buttons):
                 btn = tk.Button(btn_frame, text=text, command=lambda c=cmd: c())
-                btn.pack(side=tk.LEFT, padx=2)
+                btn.pack(side=tk.LEFT, padx=5, pady=2)
 
             # 输出窗口
             output_frame = tk.Frame(self.root)
@@ -198,15 +193,7 @@ class ScriptManager:
             relative_path = os.path.relpath(new_path, self.data_dir)
             item["display"] = relative_path.replace('\\', '/')
             
-            # 关键修复：移动成功后需要保存状态，确保数据一致性
-            # 假设 actions 或本类有保存脚本列表的机制，这里调用通用的保存逻辑
-            # 如果 save_scripts 是 actions 模块的函数，应改为 actions.save_scripts(self)
-            # 鉴于原代码在 add_script 中调用了 self.save_scripts()，我们保持一致
-            if hasattr(self, 'save_scripts'):
-                self.save_scripts()
-            else:
-                # 如果不存在，至少保存分组信息，防止分组元数据丢失
-                self.group_manager.save_groups()
+            self.group_manager.save_groups()
                 
             self.update_listbox()
             self.status_var.set(f"已将「{item['display']}」从「{old_group}」移动到「{target_group}」")
@@ -291,9 +278,7 @@ class ScriptManager:
         self.update_listbox()
         self.status_var.set(f"已添加：{display_name} (分组：{self.group_manager.current_group})")
         
-        # 保存状态
-        if hasattr(self, 'save_scripts'):
-            self.save_scripts()
+        self.group_manager.save_groups()
         
         # 异步检查依赖，避免阻塞 UI
         # 注意：原代码是同步调用，如果检查耗时会卡住 UI。
@@ -423,19 +408,27 @@ class ScriptManager:
         thread.daemon = True
         thread.start()
 
-    def save_scripts(self):
-        """
-        持久化保存脚本列表。
-        注意：当前实现为占位符，实际项目中应根据具体需求（如保存到 JSON/SQLite）实现。
-        """
-        # 实际项目中应实现持久化逻辑
-        pass
+    def delete_token(self):
+        from modules.token_crypto import delete_api_token, get_api_token
+        if not get_api_token():
+            messagebox.showinfo("提示", "当前没有保存的 Token。")
+            return
+        if messagebox.askyesno("确认删除", "确定要删除已保存的 GitHub API Token 吗？"):
+            delete_api_token()
+            self.status_var.set("已删除保存的 Token")
+
+    def open_program_dir(self):
+        import subprocess
+        program_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+        subprocess.Popen(f'explorer "{program_dir}"')
 
 # ================== 启动入口 ==================
 if __name__ == "__main__":
     def restart_app():
         """自动重启当前程序"""
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        import subprocess
+        subprocess.Popen([sys.executable] + sys.argv)
+        sys.exit(0)
 
     try:
         root = TkinterDnD.Tk()

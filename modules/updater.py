@@ -32,24 +32,7 @@ MAX_BACKUP_FILE_SIZE = 100 * 1024 * 1024
 CONFIG_DIR = os.path.join(os.path.dirname(__file__), "..", "config")
 TOKEN_FILE = os.path.join(CONFIG_DIR, "api_token.txt")
 
-def get_api_token():
-    if os.path.exists(TOKEN_FILE):
-        try:
-            with open(TOKEN_FILE, "r", encoding='utf-8') as f:
-                token = f.read().strip()
-                if token:
-                    return token
-        except Exception:
-            pass
-    return os.environ.get("GITHUB_TOKEN", "")
-
-def save_api_token(token):
-    try:
-        os.makedirs(CONFIG_DIR, exist_ok=True)
-        with open(TOKEN_FILE, "w", encoding='utf-8') as f:
-            f.write(token.strip())
-    except Exception as e:
-        print(f"保存Token失败: {e}")
+from modules.token_crypto import get_api_token, save_api_token
 
 def prompt_for_token(parent):
     token = simpledialog.askstring(
