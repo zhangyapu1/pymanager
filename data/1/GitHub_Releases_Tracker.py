@@ -1,5 +1,8 @@
 import os
 import sys
+
+sys.dont_write_bytecode = True
+
 import json
 import re
 import threading
@@ -7,37 +10,20 @@ import urllib.request
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 
-CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config")
-DATA_FILE = os.path.join(CONFIG_DIR, "github_releases.json")
 THIS_FILE = os.path.abspath(__file__)
 
-HARDCODED_TOKEN = ""
+_PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(THIS_FILE), "..", ".."))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
+CONFIG_DIR = os.path.join(_PROJECT_ROOT, "config")
+DATA_FILE = os.path.join(CONFIG_DIR, "github_releases.json")
 
 try:
-    from modules.token_crypto import get_api_token as _get_stored_token, save_api_token as _save_token
+    from modules.token_crypto import get_api_token
 except ImportError:
-    def _get_stored_token():
+    def get_api_token():
         return os.environ.get("GITHUB_TOKEN", "")
-    def _save_token(token):
-        pass
-
-
-def get_api_token():
-    stored = _get_stored_token()
-    if stored:
-        return stored
-    return HARDCODED_TOKEN
-
-
-def _ensure_token_stored(root=None):
-    if _get_stored_token():
-        return
-    token = simpledialog.askstring(
-        "API Token", "首次运行需要设置 GitHub API Token：\n\n（用于提升 API 限额至 5000 次/小时）\n\n留空则使用匿名访问（60 次/小时）",
-        parent=root
-    )
-    if token and token.strip():
-        _save_token(token.strip())
 
 
 def get_download_dir():
@@ -212,7 +198,6 @@ class GitHubReleasesApp:
         self.project_widgets = {}
         self.releases_cache = {}
         self.select_vars = {}
-        _ensure_token_stored(self.root)
         self.build_ui()
         self.refresh_projects()
 
