@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
+
+class BatchRenameApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("批量重命名工具")
+        self.root.geometry("700x600")
+        self.root.resizable(True, True)
+
+        # 当前选中的文件夹路径
+        self.folder_path = tk.StringVar()
+
+        # 文件列表（原始名称，用于预览）
+        self.original_files = []
+
+        # 创建界面组件
+        self.create_widgets()
+
+    def create_widgets(self):
+        # 1. 文件夹选择区域
+        frame_folder = tk.LabelFrame(self.root, text="1. 选择文件夹", padx=5, pady=5)
+        frame_folder.pack(fill=tk.X, padx=10, pady=5)
+
+        tk.Entry(frame_folder, textvariable=self.folder_path, width=50).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame_folder, text="浏览...", command=self.select_folder).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame_folder, text="刷新文件列表", command=self.refresh_file_list).pack(side=tk.LEFT, padx=5)
+
+        # 2. 文件列表预览（带滚动条）
+        frame_list = tk.LabelFrame(self.root, text="当前文件列表（仅显示文件，不含子文件夹）", padx=5, pady=5)
+        frame_list.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        scrollbar = tk.Scrollbar(frame_list)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.file_listbox = tk.Listbox(frame_list, yscrollcommand=scrollbar.set, height=12)
+        self.file_listbox.pack(fill=tk.BOTH, expand=True)
+        scrollbar.config(command=self.file_listbox.yview)
+
+        # 3. 重命名模式选择
+        frame_mode = tk.LabelFrame(self.root, text="2. 选择重命名方式", padx=5, pady=5)
+        frame_mode.pack(fill=tk.X, padx=10, pady=5)
+
+        self.rename_mode = tk.StringVar(value="prefix")
+
+        modes = [("添加前缀", "prefix"),
+                 ("添加后缀（扩展名前插入）", "suffix"),
+                 ("替换文字", "replace"),
+                 ("按序号重命名", "sequential")]
+        for text, mode in modes:
+            tk.Radiobutton(frame_mode, text=text, variable=self.rename_mode, value=mode,
+                           command=self.on_mode_changed).pack(side=tk.LEFT, padx=10)
+
+        # 4. 参数输入区域（根据模式动态显示）
+        frame_params = tk.LabelFrame(self.root, text="3. 设置参数", padx=5, pady=5)
+        frame_params.pack(fill=tk.X, padx=10, pady=5)
+
+        # 前缀/后缀模式下的输入
+        self.prefix_label = tk.Label(frame_params, text="前缀:")
+        self.prefix_entry = tk.Entry(frame_params, width=30)
+        self.suffix_label = tk.Label(frame_params, text="后缀:")
+        self.suffix_entry = tk.Entry(frame_params, width=30)
+
+        # 替换模式下的输入
+        self.replace_old_label = tk.Label(frame_params, text="被替换文本:")
+        self.replace_old_entry = tk.Entry(frame_params, width=30)
+        self.replace_new_label = tk.Label(frame_params, text="新文本:")
+        self.replace_new_entry = tk.Entry(frame_params, width=30)
+
+        # 序号模式下的输入
+        self.seq_base_label = tk.Label(frame_params, text="基础名称:")
+        self.seq_base_entry = tk.Entry(frame_params, width=20)
+        self.seq_start_label = tk.Label(frame_params, text="起始编号:")
+        self.seq_start_entry = tk.Entry(frame_params, width=10)
+        self.seq_start_entry.insert(0, "1")
+        self.seq_digits_label = tk.Label(frame_params, text="编号位数:")
+        self.seq_digits_entry = tk.Entry(frame_params, width=10)
+        self.seq_digits_entry.insert(0, "3")
+
+        # 初始显示前缀模式
+        self.on_mode_changed()
+
+        # 5. 执行按钮
+        btn_frame = tk.Frame(self.root)
+        btn_frame.pack(pady=10)
+        tk.Button(btn_frame, text="执行重命名", command=self.execute_rename,
+                  bg="lightgreen", width=15).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="退出", command=self.root.quit, width=10).pack(side=tk.LEFT, padx=5)
+
+        # 6. 日志/状态区域
+        frame_log = tk.LabelFrame(self.root, text="操作日志", padx=5, pady=5)
+        frame_log.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        self.log_text = tk.Text(frame_log, height=8, state=tk.DISABLED, wrap=tk.WORD)
+        scrollbar_log = tk.Scrollbar(frame_log, command=self.log_text.yview)
+        self.log_text.configure(yscrollcommand=scrollbar_log.set)
+        scrollbar_log.pack(side=tk.RIGHT, fill=tk.Y)
+        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    def log(self, message):
+        """在日志区域追加消息"""
+        self.log_text.config(state=tk.NORMAL)
+        self.log_text.insert(tk.END, message + "\n")
+        self.log_text.see(tk.END)
+        self.log_text.config(state=tk.DISABLED)
+
+    def select_folder(self):
+        """弹出文件夹选择对话框"""
+        folder = filedialog.askdirectory()
+        if folder:
+            self.folder_path.set(folder)
+            self.refresh_file_list()
+
+    def refresh_file_list(self):
+        """刷新文件列表显示"""
+        folder = self.folder_path.get()
+        if not os.path.isdir(folder):
+            self.log("错误：文件夹不存在或无效")
+            return
+
+        # 只收集文件（不包括子目录）
+        self.original_files = []
+        self.file_listbox.delete(0, tk.END)
+        for name in os.listdir(folder):
+            full = os.path.join(folder, name)
+            if os.path.isfile(full):
+                self.original_files.append(name)
+                self.file_listbox.insert(tk.END, name)
+        self.log(f"已加载文件夹：{folder}，共 {len(self.original_files)} 个文件")
+
+    def on_mode_changed(self):
+        """根据选择的模式显示/隐藏对应的参数输入框"""
+        mode = self.rename_mode.get()
+
+        # 先隐藏所有参数控件
+        for widget in [self.prefix_label, self.prefix_entry, self.suffix_label, self.suffix_entry,
+                       self.replace_old_label, self.replace_old_entry, self.replace_new_label, self.replace_new_entry,
+                       self.seq_base_label, self.seq_base_entry, self.seq_start_label, self.seq_start_entry,
+                       self.seq_digits_label, self.seq_digits_entry]:
+            widget.pack_forget()
+
+        if mode == "prefix":
+            self.prefix_label.pack(side=tk.LEFT, padx=5)
+            self.prefix_entry.pack(side=tk.LEFT, padx=5)
+        elif mode == "suffix":
+            self.suffix_label.pack(side=tk.LEFT, padx=5)
+            self.suffix_entry.pack(side=tk.LEFT, padx=5)
+        elif mode == "replace":
+            self.replace_old_label.pack(side=tk.LEFT, padx=5)
+            self.replace_old_entry.pack(side=tk.LEFT, padx=5)
+            self.replace_new_label.pack(side=tk.LEFT, padx=5)
+            self.replace_new_entry.pack(side=tk.LEFT, padx=5)
+        elif mode == "sequential":
+            self.seq_base_label.pack(side=tk.LEFT, padx=5)
+            self.seq_base_entry.pack(side=tk.LEFT, padx=5)
+            self.seq_start_label.pack(side=tk.LEFT, padx=5)
+            self.seq_start_entry.pack(side=tk.LEFT, padx=5)
+            self.seq_digits_label.pack(side=tk.LEFT, padx=5)
+            self.seq_digits_entry.pack(side=tk.LEFT, padx=5)
+
+    def execute_rename(self):
+        """根据当前模式和参数执行重命名"""
+        folder = self.folder_path.get()
+        if not os.path.isdir(folder):
+            messagebox.showerror("错误", "请先选择一个有效的文件夹")
+            return
+
+        if not self.original_files:
+            messagebox.showwarning("警告", "文件夹中没有文件，请刷新列表")
+            return
+
+        mode = self.rename_mode.get()
+        # 确认对话框
+        if not messagebox.askyesno("确认", f"即将对 {len(self.original_files)} 个文件执行重命名操作，是否继续？"):
+            return
+
+        # 清空日志，开始操作
+        self.log_text.config(state=tk.NORMAL)
+        self.log_text.delete(1.0, tk.END)
+        self.log_text.config(state=tk.DISABLED)
+
+        if mode == "prefix":
+            prefix = self.prefix_entry.get()
+            self.add_prefix(folder, prefix)
+        elif mode == "suffix":
+            suffix = self.suffix_entry.get()
+            self.add_suffix(folder, suffix)
+        elif mode == "replace":
+            old_text = self.replace_old_entry.get()
+            new_text = self.replace_new_entry.get()
+            self.replace_text(folder, old_text, new_text)
+        elif mode == "sequential":
+            base = self.seq_base_entry.get()
+            start_str = self.seq_start_entry.get()
+            digits_str = self.seq_digits_entry.get()
+            try:
+                start = int(start_str) if start_str.isdigit() else 1
+                digits = int(digits_str) if digits_str.isdigit() else 3
+            except ValueError:
+                self.log("编号参数无效，使用默认值（起始1，位数3）")
+                start, digits = 1, 3
+            self.sequential_rename(folder, base, start, digits)
+        else:
+            self.log("未知的重命名模式")
+            return
+
+        self.log("操作完成。")
+        self.refresh_file_list()   # 刷新列表显示新文件名
+
+    # ---------- 重命名具体实现 ----------
+    def add_prefix(self, folder, prefix):
+        """为所有文件添加前缀"""
+        for old_name in self.original_files:
+            old_path = os.path.join(folder, old_name)
+            new_name = prefix + old_name
+            new_path = os.path.join(folder, new_name)
+            try:
+                if os.path.exists(new_path):
+                    self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
+                else:
+                    os.rename(old_path, new_path)
+                    self.log(f"重命名: {old_name} → {new_name}")
+            except Exception as e:
+                self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+
+    def add_suffix(self, folder, suffix):
+        """在文件名后、扩展名前插入后缀"""
+        for old_name in self.original_files:
+            old_path = os.path.join(folder, old_name)
+            name, ext = os.path.splitext(old_name)
+            new_name = name + suffix + ext
+            new_path = os.path.join(folder, new_name)
+            try:
+                if os.path.exists(new_path):
+                    self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
+                else:
+                    os.rename(old_path, new_path)
+                    self.log(f"重命名: {old_name} → {new_name}")
+            except Exception as e:
+                self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+
+    def replace_text(self, folder, old_text, new_text):
+        """替换文件名中的指定文本"""
+        if not old_text:
+            self.log("替换文本不能为空，操作取消")
+            return
+        for old_name in self.original_files:
+            if old_text in old_name:
+                old_path = os.path.join(folder, old_name)
+                new_name = old_name.replace(old_text, new_text)
+                new_path = os.path.join(folder, new_name)
+                try:
+                    if os.path.exists(new_path):
+                        self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
+                    else:
+                        os.rename(old_path, new_path)
+                        self.log(f"重命名: {old_name} → {new_name}")
+                except Exception as e:
+                    self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+            else:
+                self.log(f"跳过（不含'{old_text}'）: {old_name}")
+
+    def sequential_rename(self, folder, base_name, start=1, digits=3):
+        """按顺序重命名，保留原扩展名"""
+        # 按原文件名排序（可按需要修改排序规则）
+        sorted_files = sorted(self.original_files)
+        for idx, old_name in enumerate(sorted_files, start=start):
+            old_path = os.path.join(folder, old_name)
+            ext = os.path.splitext(old_name)[1]
+            new_name = f"{base_name}{str(idx).zfill(digits)}{ext}"
+            new_path = os.path.join(folder, new_name)
+            try:
+                if os.path.exists(new_path):
+                    self.log(f"跳过 {old_name} → {new_name}（目标文件已存在）")
+                else:
+                    os.rename(old_path, new_path)
+                    self.log(f"重命名: {old_name} → {new_name}")
+            except Exception as e:
+                self.log(f"错误: {old_name} → {new_name} 失败，原因: {e}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = BatchRenameApp(root)
+    root.mainloop()
