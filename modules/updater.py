@@ -11,18 +11,12 @@ from tkinter import messagebox, simpledialog, ttk
 import tkinter as tk
 
 # ================== 配置区域 ==================
-CURRENT_VERSION = "1.0.2"
-PROJECT_URL = "https://gitee.com/yaopei6678/pymanager"
+CURRENT_VERSION = "1.0.4"
+PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
-# 仓库类型: 'gitee' 或 'github'
-REPO_TYPE = "gitee"
-REPO_OWNER = "yaopei6678"
+REPO_OWNER = "zhangyapu1"
 REPO_NAME = "pymanager"
-
-if REPO_TYPE == "gitee":
-    RELEASE_API_URL = f"https://gitee.com/api/v5/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
-else:
-    RELEASE_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
+RELEASE_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
 
 # 下载超时（秒）
 DOWNLOAD_TIMEOUT = 60
@@ -37,7 +31,7 @@ def get_api_token():
             token = f.read().strip()
             if token:
                 return token
-    return os.environ.get("GITEE_TOKEN" if REPO_TYPE == "gitee" else "GITHUB_TOKEN", "")
+    return os.environ.get("GITHUB_TOKEN", "")
 
 def save_api_token(token):
     os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -47,9 +41,9 @@ def save_api_token(token):
 def prompt_for_token(parent):
     token = simpledialog.askstring(
         "API Token",
-        f"请输入{REPO_TYPE.capitalize()} Personal Access Token 以提高 API 限额。\n\n"
+        "请输入GitHub Personal Access Token 以提高 API 限额。\n\n"
         "如何获取？\n"
-        f"1. 访问 https://{REPO_TYPE}.com/settings/tokens\n"
+        "1. 访问 https://github.com/settings/tokens\n"
         "2. 生成新令牌，勾选 'repo' 或 'projects' 权限\n"
         "3. 复制并粘贴到此处。\n\n"
         "若跳过，匿名请求每小时限制 60 次。",
@@ -78,47 +72,130 @@ def fetch_latest_version(parent=None):
 
     headers = {"User-Agent": f"ScriptManager/{CURRENT_VERSION}"}
     if token:
-        if REPO_TYPE == "gitee":
-            headers["Authorization"] = f"token {token}"
-        else:
-            headers["Authorization"] = f"Bearer {token}"
+        headers["Authorization"] = f"Bearer {token}"
         auth_status = "已认证"
     else:
         auth_status = "未认证"
 
     try:
+        print(f"请求URL: {RELEASE_API_URL}")
+        print(f"请求头: {headers}")
         req = urllib.request.Request(RELEASE_API_URL, headers=headers)
         with urllib.request.urlopen(req, timeout=15) as resp:
+            print(f"响应状态码: {resp.status}")
             data = json.loads(resp.read().decode())
+            print(f"API响应: {data}")
             latest = data.get("name") or data.get("tag_name", "")
             if latest.startswith("v"):
                 latest = latest[1:]
             assets = data.get("assets", [])
+            print(f"资产列表: {assets}")
             # 优先选择 .exe 或 .zip 文件，否则取第一个
             download_url = ""
             for asset in assets:
                 name = asset.get("name", "")
                 url = asset.get("browser_download_url", "")
-                if name.endswith(".exe") or name.endswith(".zip"):
+                print(f"资产: {name}, URL: {url}")
+                if name.endswith(".exe") or name.endswith(".zip") or name.endswith(".rar"):
                     download_url = url
                     break
             if not download_url and assets:
                 download_url = assets[0].get("browser_download_url", "")
+            # 如果没有找到资产，使用zipball_url或tarball_url
+            if not download_url:
+                download_url = data.get("zipball_url", "")
+                if not download_url:
+                    download_url = data.get("tarball_url", "")
+                if not download_url:
+                    download_url = data.get("html_url", PROJECT_URL)
+            print(f"最终下载链接: {download_url}")
             print(f"[{auth_status}] 最新版本: {latest}, 下载链接: {download_url}")
             return latest, download_url
     except Exception as e:
         print(f"获取版本失败: {e}")
-        return None, None
-
-def download_progress_hook(block_num, block_size, total_size, progress_bar, status_label):
-    downloaded = block_num * block_size
-    if total_size > 0:
-        percent = min(100, int(downloaded * 100 / total_size))
-        progress_bar['value'] = percent
-        status_label.config(text=f"下载中... {percent}%")
-        progress_bar.update_idletasks()
+        # 即使失败，也返回当前版本和项目URL，以便用户手动更新
+        return CURRENT_VERSION, PROJECT_URL
 
 def download_file(url, dest_path, parent):
+    print(f"开始下载文件，URL: {url}")
+    print(f"目标路径: {dest_path}")
+    # 检查URL是否为文件链接或GitHub API的zipball/tarball链接
+    is_file_link = (url.endswith('.exe') or url.endswith('.zip') or url.endswith('.rar'))
+    is_github_api_link = ('api.github.com' in url and ('/zipball/' in url or '/tarball/' in url))
+    
+    if not (is_file_link or is_github_api_link):
+        print(f"URL不是直接文件链接，开始处理")
+        # 检查是否为GitHub发布页面链接
+        if 'github.com' in url and ('/releases/tag/' in url or '/releases/latest' in url):
+            print(f"URL是GitHub发布页面链接")
+            try:
+                import re
+                # 从GitHub发布页面提取资产下载链接
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"})
+                print(f"发送请求获取GitHub发布页面")
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    print(f"获取到GitHub发布页面，状态码: {resp.status}")
+                    content = resp.read().decode()
+                    # 保存HTML内容到临时文件以进行调试
+                    debug_file = os.path.join(tempfile.gettempdir(), "github_release_page.html")
+                    with open(debug_file, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    print(f"已保存GitHub发布页面到：{debug_file}")
+                    
+                    # 查找资产下载链接 - 尝试多种模式
+                    patterns = [
+                        r'href=["\'](/[^"/]+/[^"/]+/releases/download/[^"/]+/[^"\'\s]+\.(?:exe|zip|rar))["\']',
+                        r'href=["\'](https://github.com/[^"/]+/[^"/]+/releases/download/[^"/]+/[^"\'\s]+\.(?:exe|zip|rar))["\']',
+                        r'browser_download_url[\s:]+["\']([^"\']+\.(?:exe|zip|rar))["\']',
+                        r'/releases/download/[^"/]+/[^"\'\s]+\.(?:exe|zip|rar)'
+                    ]
+                    
+                    asset_url = None
+                    for pattern in patterns:
+                        matches = re.findall(pattern, content)
+                        if matches:
+                            print(f"使用模式 {pattern} 找到匹配：{matches}")
+                            if matches[0].startswith('http'):
+                                asset_url = matches[0]
+                            elif matches[0].startswith('/'):
+                                asset_url = f"https://github.com{matches[0]}"
+                            else:
+                                # 尝试构建完整URL
+                                if '/releases/download/' in matches[0]:
+                                    asset_url = f"https://github.com{matches[0]}"
+                            if asset_url:
+                                break
+                    
+                    # 提取第一个匹配的链接
+                    if asset_url:
+                        print(f"从GitHub页面提取到资产链接：{asset_url}")
+                        # 重新调用download_file函数下载资产
+                        return download_file(asset_url, dest_path, parent)
+                    else:
+                        print("未找到资产下载链接")
+            except Exception as e:
+                print(f"提取GitHub资产链接失败：{e}")
+                import traceback
+                traceback.print_exc()
+        
+        # 不是文件链接，也不是GitHub发布页面，或者提取失败
+        print(f"无法直接下载此链接，将打开浏览器进行手动下载：{url}")
+        progress_win = tk.Toplevel(parent)
+        progress_win.title("下载提示")
+        progress_win.geometry("400x150")
+        progress_win.transient(parent)
+        progress_win.grab_set()
+        tk.Label(progress_win, text="无法直接下载此链接，将打开浏览器进行手动下载。").pack(pady=10)
+        tk.Label(progress_win, text=f"链接: {url}").pack(pady=5)
+        
+        def open_browser():
+            webbrowser.open(url)
+            progress_win.destroy()
+        
+        tk.Button(progress_win, text="打开浏览器", command=open_browser).pack(pady=10)
+        progress_win.wait_window()
+        return False
+    
     progress_win = tk.Toplevel(parent)
     progress_win.title("正在下载更新")
     progress_win.geometry("400x150")
@@ -130,12 +207,8 @@ def download_file(url, dest_path, parent):
     status_label = tk.Label(progress_win, text="开始下载...")
     status_label.pack(pady=5)
 
-    def hook(block, bs, size):
-        # 由于 urlretrieve 不支持直接更新进度条，需要自定义
-        pass
-
     try:
-        # 使用urlretrieve 但无法实时进度，改用 urllib.request 分块下载
+        # 使用 urllib.request 分块下载
         req = urllib.request.Request(url, headers={"User-Agent": "ScriptManager"})
         with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT) as response:
             total_size = int(response.headers.get('Content-Length', 0))
@@ -156,40 +229,75 @@ def download_file(url, dest_path, parent):
         return True
     except Exception as e:
         progress_win.destroy()
-        messagebox.showerror("下载失败", f"下载更新文件时出错：{e}", parent=parent)
+        messagebox.showerror("下载失败", f"下载更新文件时出错：{e}\n\n请尝试手动下载：{url}", parent=parent)
+        webbrowser.open(url)
         return False
 
 def apply_update(download_path, parent):
     """解压或复制文件，并启动更新脚本"""
     current_exe = sys.argv[0] if getattr(sys, 'frozen', False) else sys.argv[0]
     current_dir = os.path.dirname(current_exe)
+    
+    print(f"开始应用更新，当前文件：{current_exe}")
+    print(f"下载路径：{download_path}")
+    
+    # 检查文件是否存在
+    if not os.path.exists(download_path):
+        messagebox.showerror("文件不存在", f"更新文件不存在：{download_path}", parent=parent)
+        return False
 
     # 判断下载的是压缩包还是单文件
     if download_path.endswith('.zip'):
         # 解压到临时目录
         extract_dir = tempfile.mkdtemp()
+        print(f"解压到临时目录：{extract_dir}")
         try:
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
                 zip_ref.extractall(extract_dir)
-            # 假设解压后主程序名为 ScriptManager.exe 或 ScriptManager.pyw
-            # 需要查找并确定新文件
+            # 查找新文件
             new_exe = None
+            # 首先查找与当前文件同名的文件
+            current_exe_name = os.path.basename(current_exe)
+            print(f"当前文件名：{current_exe_name}")
             for root, dirs, files in os.walk(extract_dir):
+                print(f"在目录 {root} 中查找文件：{files}")
                 for f in files:
-                    if f.endswith('.exe') or f.endswith('.pyw') or f == 'main.py':
+                    if f == current_exe_name:
                         new_exe = os.path.join(root, f)
+                        print(f"找到与当前文件同名的文件：{new_exe}")
+                        break
+                    elif f.endswith('.exe') or f.endswith('.pyw') or f == 'main.py':
+                        new_exe = os.path.join(root, f)
+                        print(f"找到目标文件：{new_exe}")
                         break
                 if new_exe:
                     break
             if not new_exe:
-                raise Exception("压缩包中未找到可执行文件")
+                # 尝试查找任何Python文件
+                for root, dirs, files in os.walk(extract_dir):
+                    for f in files:
+                        if f.endswith('.py'):
+                            new_exe = os.path.join(root, f)
+                            print(f"找到Python文件：{new_exe}")
+                            break
+                    if new_exe:
+                        break
+            if not new_exe:
+                raise Exception("压缩包中未找到可执行文件或Python文件")
+            # 检查新文件大小
+            new_exe_size = os.path.getsize(new_exe)
+            print(f"新文件大小：{new_exe_size} bytes")
         except Exception as e:
+            print(f"解压失败：{e}")
             messagebox.showerror("解压失败", f"解压更新包失败：{e}", parent=parent)
             return False
     else:
         # 直接下载的可执行文件
         new_exe = download_path
         extract_dir = None
+        # 检查新文件大小
+        new_exe_size = os.path.getsize(new_exe)
+        print(f"新文件大小：{new_exe_size} bytes")
 
     # 备份旧文件
     backup_path = current_exe + ".backup"
@@ -197,44 +305,80 @@ def apply_update(download_path, parent):
         if os.path.exists(backup_path):
             os.remove(backup_path)
         shutil.copy2(current_exe, backup_path)
+        print(f"已备份旧文件到：{backup_path}")
+        # 检查备份文件大小
+        backup_size = os.path.getsize(backup_path)
+        print(f"备份文件大小：{backup_size} bytes")
     except Exception as e:
-        messagebox.showwarning("备份警告", f"备份旧版本失败：{e}，更新可能无法继续")
+        print(f"备份失败：{e}")
+        messagebox.showwarning("备份警告", f"备份旧版本失败：{e}，更新可能无法继续", parent=parent)
 
-    # 创建更新脚本（批处理或Python脚本）
+    # 创建更新脚本（批处理）
     script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
-    with open(script_path, "w", encoding='utf-8') as f:
-        f.write(f"""
+    try:
+        with open(script_path, "w", encoding='utf-8') as f:
+            f.write(f"""
 @echo off
+echo 正在更新程序...
+echo 当前文件：{current_exe}
+echo 新文件：{new_exe}
 timeout /t 2 /nobreak >nul
 taskkill /f /im "{os.path.basename(current_exe)}" 2>nul
 del /f /q "{current_exe}" 2>nul
+echo 复制新文件...
 copy /y "{new_exe}" "{current_exe}"
-start "" "{current_exe}"
+if %errorlevel% equ 0 (
+    echo 更新成功！
+    start "" "{current_exe}"
+) else (
+    echo 更新失败，尝试恢复备份...
+    copy /y "{backup_path}" "{current_exe}"
+    start "" "{current_exe}"
+)
 del "%~f0"
 """)
+        print(f"已创建更新脚本：{script_path}")
+    except Exception as e:
+        print(f"脚本创建失败：{e}")
+        messagebox.showerror("脚本创建失败", f"创建更新脚本失败：{e}", parent=parent)
+        return False
 
     # 执行更新脚本并退出
-    subprocess.Popen([script_path], shell=True)
-    # 关闭当前程序
-    parent.quit()
-    sys.exit(0)
+    try:
+        subprocess.Popen([script_path], shell=True)
+        print("更新脚本已启动")
+        # 关闭当前程序
+        parent.quit()
+        sys.exit(0)
+    except Exception as e:
+        print(f"执行失败：{e}")
+        messagebox.showerror("执行失败", f"执行更新脚本失败：{e}", parent=parent)
+        return False
 
 def auto_update(parent, download_url):
     """自动下载并更新"""
-    # 询问使用自动更新还是手动下载
-    if not messagebox.askyesno("自动更新", "发现新版本，是否自动下载并安装？\n（自动更新将替换当前程序）", parent=parent):
-        webbrowser.open(download_url)
+    # 检查下载URL是否有效
+    if not download_url:
+        messagebox.showerror("更新失败", "下载链接无效，无法进行自动更新。", parent=parent)
+        webbrowser.open(PROJECT_URL)
         return
 
     # 下载到临时文件
     temp_dir = tempfile.gettempdir()
     file_name = download_url.split('/')[-1] or "update.zip"
+    # 如果是GitHub的zipball或tarball链接，添加.zip扩展名
+    if 'api.github.com' in download_url and ('/zipball/' in download_url or '/tarball/' in download_url):
+        if not file_name.endswith('.zip'):
+            file_name += '.zip'
     dest_path = os.path.join(temp_dir, file_name)
 
+    print(f"开始下载更新到：{dest_path}")
     if not download_file(download_url, dest_path, parent):
+        print("下载失败，已打开浏览器进行手动下载")
         return
 
     # 应用更新
+    print("下载完成，开始应用更新")
     apply_update(dest_path, parent)
 
 # 以下是原有的 check_for_updates 函数，修改为调用 auto_update
