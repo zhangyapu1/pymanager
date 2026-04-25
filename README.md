@@ -56,57 +56,29 @@ pymanager/
 - **脚本管理**：添加、删除、重命名脚本
 - **分组管理**：按类别组织脚本
 - **快速运行**：直接运行 Python 脚本
-- **依赖检查**：自动检测和安装依赖
+- **依赖检查**：自动检测和安装依赖，运行前自动检查，详细状态输出
 - **自动更新**：检查并更新到最新版本
+- **统一输出**：所有模块通过 `append_output` 统一输出到"运行输出"窗口和日志文件
+- **日志管理**：自动清理过期日志（7天过期，单文件1MB截断）
 
 ## 更新日志
 
+### v1.2.1
+
+- 统一输出系统：所有模块通过 `append_output` 写入窗口和日志文件
+- 依赖检查增强：运行前自动检查，详细状态输出，pip 进度实时显示
+- 线程安全修复：耗时操作移至后台线程，messagebox 线程安全调用
+- 日志自动清理：启动时自动删除 7 天前日志，超过 1MB 自动截断
+- 修复 data 脚本 messagebox 无限递归 bug
+
 ### v1.2.0
 
-**废弃代码清理**
-- 删除 `storage.py` 模块（主流程已改用目录扫描，pickle 序列化不再使用）
-- 清理 `config.py` 中与 pickle 存储相关的 `CONFIG_FILE`、`CONFIG_FILE_NAME` 常量
-- 移除 README 模块说明表中已删除的 `storage` 条目
-
-**线程安全修复**
-- 所有耗时操作的 UI 更新统一通过 `root.after(0, callback)` 调度，杜绝跨线程直接操作 Tkinter 控件
-  - `run_selected.py`：后台线程的输出插入、状态栏更新、按钮状态变更全部改为 `root.after` 调度
-  - `check_deps.py`：后台线程中所有 `status_var.set` 和输出回调改为 `root.after` 调度
-  - `main.pyw`：`output_to_console` 回调统一使用 `root.after`，新增 `_append_output()` 线程安全入口
-- 修复 `stop_running()` 直接操作 UI 控件的线程安全问题，提取 `_on_stopped()` 函数通过 `root.after` 调度
-- 修复 `_on_stopped` 与 `_on_run_complete` 竞态条件：用户停止脚本后，后台线程仍会调度"运行完成"回调，导致输出窗口同时出现"已停止"和"运行完成"两条消息。新增 `_process_stopped` 标志，`_on_run_complete` 检测到该标志后跳过执行
-
-**运行控制增强**
-- 保存 `subprocess.Popen` 引用到 `manager.running_process`
-- 新增 **⏹ 停止运行** 按钮，调用 `process.terminate()` 终止正在运行的脚本
-- 运行时自动启用停止按钮，运行完成后自动禁用
-- 运行前检查是否已有进程在执行，防止重复启动
-
-**路径系统重构**
-- `storage_path` 字段统一改为相对路径（基于 `data_dir`），如 `"脚本.py"` 或 `"工具组/脚本.py"`
-- 新增 `manager._resolve_path(rel_path)` 方法，在需要绝对路径时统一解析
-- 所有模块（`add_script`、`delete_selected`、`rename_selected`、`edit_content`、`check_deps`、`run_selected`）均已适配相对路径
-- 路径分隔符统一使用 `/`，确保跨平台一致性
-- 修复 `run_selected.py` 路径解析不一致问题：内联的 `os.path.join` + `os.path.isabs` 替换为 `manager._resolve_path()`，与其他模块保持统一入口
-
-**代码质量修复**
-- 修复 `add_script.py` 重复路径生成逻辑：`_get_unique_path()` 已返回唯一路径，但 28-38 行又自行实现了一套冲突检测 while 循环，逻辑重复且不支持子目录，已删除
-- 修复 `run_selected.py` 缺少 `import tkinter as tk`：使用了 `tk.NORMAL`/`tk.DISABLED` 但未导入 tkinter
-
-**统一输出与日志系统**
-- 新增 `manager._append_output(msg)` 统一输出方法，所有模块写入"运行输出"窗口的内容均通过此方法
-- `_append_output` 同时写入 GUI 窗口和 `logs/output_log.txt` 日志文件，确保运行记录持久化
-- `run_selected.py`：所有 `output_text.insert` 替换为 `manager._append_output()`，子进程输出、运行完成/停止消息统一走此入口
-- `main.pyw`：脚本头注释显示、依赖检查输出等均改用 `_append_output()`
-- `updater.py`：34 处 `print()` 全部替换为 `logger.info()` / `logger.error()`，`traceback.print_exc()` 替换为 `logger.error(..., exc_info=True)`
-- `token_crypto.py`：`print()` 替换为 `log_error()`
-- `logger.py` 重构：日志文件从项目根目录 `error_log.txt` 迁移至 `logs/` 目录（`logs/error_log.txt` + `logs/output_log.txt`），新增 `log_output()` 函数专门记录运行输出
-- `.gitignore` 新增 `logs/` 忽略规则
-
-**脚本自描述**
-- 单击脚本列表中的文件时，自动在运行输出窗口显示脚本头注释
-- 支持 Python 三引号 docstring（`"""` / `'''`）和 `#` 注释行两种格式
-- 无头注释的脚本显示"该脚本无头注释"提示
+- 废弃代码清理：删除 `storage.py`，移除 pickle 相关代码
+- 线程安全：UI 更新统一通过 `root.after` 调度，修复竞态条件
+- 运行控制：新增停止运行按钮，防止重复启动
+- 路径重构：`storage_path` 统一为相对路径，新增 `_resolve_path` 方法
+- 统一输出与日志：新增 `_append_output` 方法，日志迁移至 `logs/` 目录
+- 脚本自描述：单击显示脚本头注释（docstring / # 注释）
 
 ### v1.1.0
 

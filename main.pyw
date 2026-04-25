@@ -7,7 +7,7 @@ from tkinter import messagebox
 
 import modules.updater as updater
 from modules.config import BASE_DIR, DATA_DIR, DEFAULT_GROUP
-from modules.logger import log_error, log_info, log_output
+from modules.logger import log_error, log_info, log_output, cleanup_logs
 from modules.drag_drop import parse_dropped_files
 from modules.utils import update_title_mode
 from modules.group_manager import GroupManager
@@ -467,6 +467,8 @@ class ScriptManager:
 
 # ================== 启动入口 ==================
 if __name__ == "__main__":
+    cleanup_logs()
+
     def restart_app():
         import subprocess
         subprocess.Popen([sys.executable] + sys.argv)

@@ -7,6 +7,9 @@ LOG_DIR = os.path.join(os.path.dirname(__file__), '..', 'logs')
 ERROR_LOG_FILE = os.path.join(LOG_DIR, 'error_log.txt')
 OUTPUT_LOG_FILE = os.path.join(LOG_DIR, 'output_log.txt')
 
+LOG_RETENTION_DAYS = 7
+LOG_MAX_SIZE = 1 * 1024 * 1024
+
 def _ensure_dir(log_file):
     log_dir = os.path.dirname(log_file)
     if log_dir and not os.path.exists(log_dir):
@@ -47,5 +50,44 @@ def _log(level, message, log_file):
     try:
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(full_log)
+    except Exception:
+        pass
+
+def cleanup_logs(log_dir=None, retention_days=None, max_size=None):
+    log_dir = log_dir or LOG_DIR
+    retention_days = retention_days if retention_days is not None else LOG_RETENTION_DAYS
+    max_size = max_size if max_size is not None else LOG_MAX_SIZE
+
+    if not os.path.isdir(log_dir):
+        return
+
+    now = time.time()
+    cutoff = now - retention_days * 86400
+
+    try:
+        for filename in os.listdir(log_dir):
+            filepath = os.path.join(log_dir, filename)
+            if not os.path.isfile(filepath):
+                continue
+
+            try:
+                if os.path.getmtime(filepath) < cutoff:
+                    os.remove(filepath)
+                    continue
+            except Exception:
+                pass
+
+            try:
+                if os.path.getsize(filepath) > max_size:
+                    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                        f.seek(0, 2)
+                        file_size = f.tell()
+                        f.seek(max(0, file_size - max_size))
+                        f.readline()
+                        remaining = f.read()
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        f.write(remaining)
+            except Exception:
+                pass
     except Exception:
         pass
