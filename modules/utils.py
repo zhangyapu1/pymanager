@@ -1,18 +1,53 @@
+import os
+import tkinter as tk
+
+
 def update_title_mode(root):
-    """
-    更新窗口标题。
-    """
-    # 增加健壮性检查：确保 root 对象存在且具有 title 方法
     if root is None:
         return
-    
+
     if not hasattr(root, 'title'):
-        # 如果 root 不是预期的 Tkinter 窗口对象，可以选择记录日志或静默失败
-        # 这里选择静默返回以避免崩溃，符合“友好”但“严苛”的错误预防原则
         return
 
     try:
         root.title("Python 脚本管理器")
-    except Exception:
-        # 捕获可能的异常（例如窗口已被销毁），防止程序崩溃
+    except (tk.TclError, AttributeError):
         pass
+
+
+def extract_docstring(file_path):
+    if not os.path.isfile(file_path):
+        return None
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except (OSError, UnicodeDecodeError):
+        return None
+
+    stripped = [l.strip() for l in lines]
+    non_empty = [i for i, l in enumerate(stripped) if l and not l.startswith('#')]
+    if not non_empty:
+        comments = [l for l in stripped if l.startswith('#')]
+        return '\n'.join(l.lstrip('#').strip() for l in comments if l) or None
+
+    first = non_empty[0]
+    line = stripped[first]
+    if line.startswith('"""') or line.startswith("'''"):
+        quote = line[:3]
+        rest = line[3:]
+        if rest.endswith(quote) and len(rest) > 0:
+            return rest[:-3].strip() or None
+        parts = [rest]
+        for l in lines[first + 1:]:
+            s = l.strip()
+            if s.endswith(quote):
+                parts.append(s[:-3])
+                break
+            parts.append(s)
+        return '\n'.join(parts).strip() or None
+
+    comments = []
+    for l in stripped[:first]:
+        if l.startswith('#'):
+            comments.append(l.lstrip('#').strip())
+    return '\n'.join(comments) if comments else None

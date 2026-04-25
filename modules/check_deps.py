@@ -2,6 +2,7 @@ import threading
 import tkinter as tk
 
 from .dependencies import DependencyChecker, check_script_deps_and_install
+from .script_manager import resolve_path
 
 def check_and_install_deps(abs_path, display_name, parent_root=None, output_callback=None):
     all_imports = DependencyChecker.extract_imports_from_script(abs_path)
@@ -58,7 +59,7 @@ def check_deps(manager):
                 manager.root.after(0, lambda: manager.status_var.set("选中脚本信息不完整，无法检查依赖"))
                 return
 
-            abs_path = manager._resolve_path(storage_path)
+            abs_path = resolve_path(manager.data_dir, storage_path)
 
             manager.root.after(0, lambda: manager.status_var.set(f"正在检查脚本「{display_name}」的依赖"))
 
@@ -75,7 +76,7 @@ def check_deps(manager):
             manager.root.after(0, lambda: manager.append_output(msg))
             manager.root.after(0, lambda: manager.status_var.set(msg))
 
-        except Exception as e:
+        except (OSError, RuntimeError) as e:
             error_msg = str(e) if str(e) else "未知错误"
             manager.root.after(0, lambda: manager.append_output(f"[错误] 检查依赖时发生错误: {error_msg}"))
             manager.root.after(0, lambda: manager.status_var.set(f"检查依赖时发生错误: {error_msg}"))

@@ -69,7 +69,7 @@ def get_api_token():
                 encrypted = f.read().strip()
                 if encrypted:
                     return _decrypt(encrypted)
-        except Exception:
+        except (OSError, ValueError, UnicodeDecodeError):
             pass
     return ""
 
@@ -80,7 +80,7 @@ def save_api_token(token):
         encrypted = _encrypt(token.strip())
         with open(TOKEN_FILE, "w", encoding="ascii") as f:
             f.write(encrypted)
-    except Exception as e:
+    except (OSError, ValueError) as e:
         log_error(f"保存Token失败: {e}")
 
 
@@ -88,5 +88,5 @@ def delete_api_token():
     if os.path.exists(TOKEN_FILE):
         try:
             os.remove(TOKEN_FILE)
-        except Exception:
+        except OSError:
             pass

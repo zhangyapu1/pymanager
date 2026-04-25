@@ -10,12 +10,19 @@ def get_base_dir():
     return str(base_dir)
 
 DATA_DIR_NAME = "data"
+CONFIG_DIR_NAME = "config"
 DEFAULT_GROUP = "默认分组"
 
 BASE_DIR = get_base_dir()
 DATA_DIR = str(Path(BASE_DIR) / DATA_DIR_NAME)
+CONFIG_DIR = str(Path(BASE_DIR) / CONFIG_DIR_NAME)
 
 try:
     Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
+except OSError as e:
+    raise e
+
+try:
+    Path(CONFIG_DIR).mkdir(parents=True, exist_ok=True)
 except OSError as e:
     raise e

@@ -6,6 +6,10 @@
 
 ```
 pymanager/
+├── config/                  # JSON 配置文件目录
+│   ├── settings.json        # 窗口、日志等全局设置
+│   ├── groups_meta.json     # 分组排序元数据
+│   └── pdf_tool.json        # PDF 工具配置
 ├── data/                    # 脚本存放目录（按分组组织子目录）
 │   └── 系统工具/            # 分组子目录
 │       ├── Disable_Windows_Update.py
@@ -15,6 +19,7 @@ pymanager/
 │   ├── add_script.py        # 添加脚本
 │   ├── check_deps.py        # 依赖检查
 │   ├── config.py            # 路径与配置常量
+│   ├── context_menu.py      # 右键菜单
 │   ├── delete_selected.py   # 删除脚本
 │   ├── dependencies.py      # 依赖解析与安装
 │   ├── drag_drop.py         # 拖拽支持
@@ -23,9 +28,12 @@ pymanager/
 │   ├── logger.py            # 日志记录
 │   ├── rename_selected.py   # 重命名脚本
 │   ├── run_selected.py      # 运行与停止脚本
+│   ├── script_manager.py    # 脚本数据 CRUD
+│   ├── settings_manager.py  # JSON 配置管理
 │   ├── token_crypto.py      # Token 加密存储
 │   ├── updater.py           # 自动更新
 │   └── utils.py             # 通用工具
+├── tests/                   # 单元测试
 ├── main.pyw                 # 程序入口
 ├── REQUIREMENTS.md          # 需求文档
 ├── README.md
@@ -39,6 +47,7 @@ pymanager/
 | `add_script` | 添加新脚本到管理库 |
 | `check_deps` | 检查脚本依赖 |
 | `config` | 配置管理 |
+| `context_menu` | 右键菜单 |
 | `delete_selected` | 删除选中的脚本 |
 | `dependencies` | 依赖解析和处理 |
 | `drag_drop` | 拖拽功能支持 |
@@ -47,6 +56,8 @@ pymanager/
 | `logger` | 日志记录 |
 | `rename_selected` | 重命名选中脚本 |
 | `run_selected` | 运行选中脚本 |
+| `script_manager` | 脚本数据 CRUD |
+| `settings_manager` | JSON 配置管理 |
 | `token_crypto` | API Token 加密 |
 | `updater` | 自动更新检查 |
 | `utils` | 通用工具函数 |
@@ -62,6 +73,14 @@ pymanager/
 - **日志管理**：自动清理过期日志（7天过期，单文件1MB截断）
 
 ## 更新日志
+
+### v1.3.0
+
+- 代码解耦：拆分 `script_manager.py`（脚本数据 CRUD）、`context_menu.py`（右键菜单）、`settings_manager.py`（JSON 配置管理）
+- JSON 配置系统：所有配置统一存放在 `config/` 目录，支持 `settings.json`、`groups_meta.json`、`pdf_tool.json`
+- 异常处理细化：modules/ 下 40 处 `except Exception` 全部替换为具体异常类型，避免吞掉未预料的 bug
+- 窗口位置记忆：关闭时保存窗口大小和位置，下次启动恢复
+- 单元测试：新增 55 个测试用例覆盖核心模块
 
 ### v1.2.1
 

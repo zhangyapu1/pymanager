@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 from modules.config import DEFAULT_GROUP
 from modules.logger import log_error
+from modules.settings_manager import load_groups_meta, save_groups_meta
 
 class GroupManager:
     # 预编译正则表达式，用于验证分组名称：只允许字母、数字、中文、下划线、连字符、空格
@@ -13,8 +14,8 @@ class GroupManager:
 
     def __init__(self, data_dir, output_callback=None):
         self.data_dir = data_dir
-        self.groups_file = os.path.join(data_dir, "groups.dat")
         self.groups = []
+        self.groups_meta = {}
         self.current_group = DEFAULT_GROUP
         self.combo = None
         self._output = output_callback
@@ -36,17 +37,12 @@ class GroupManager:
         return True
 
     def load_groups(self):
-        # 根据data目录下的子文件夹确定分组
         self.groups = [DEFAULT_GROUP]
-        
-        # 遍历data目录下的子文件夹
+
         if os.path.exists(self.data_dir):
             try:
                 for item in os.listdir(self.data_dir):
                     item_path = os.path.join(self.data_dir, item)
-                    # 确保是目录且不是默认分组（默认分组可能不存在物理文件夹，或者作为根目录存在）
-                    # 注意：如果 DEFAULT_GROUP 对应一个物理文件夹，这里排除它意味着它不会出现在下拉菜单的“额外”选项中，
-                    # 但它在 self.groups 初始化时已经存在。
                     if os.path.isdir(item_path) and item != DEFAULT_GROUP:
                         self.groups.append(item)
             except OSError as e:
@@ -54,16 +50,27 @@ class GroupManager:
                 if self._output:
                     self._output(f"[错误] 无法读取数据目录：{str(e)}")
                 messagebox.showerror("错误", f"无法读取数据目录：{str(e)}")
-        
-        # 保存分组信息（可选，用于向后兼容）
-        # self.save_groups()
-        
+
+        self.groups_meta = load_groups_meta()
+
+        for g in self.groups:
+            if g not in self.groups_meta:
+                self.groups_meta[g] = {"order": len(self.groups_meta)}
+
+        stale = [g for g in self.groups_meta if g not in self.groups]
+        for g in stale:
+            del self.groups_meta[g]
+
+        self.groups.sort(key=lambda g: self.groups_meta.get(g, {}).get("order", 999))
+        default_idx = self.groups.index(DEFAULT_GROUP) if DEFAULT_GROUP in self.groups else 0
+        self.groups.pop(default_idx)
+        self.groups.insert(0, DEFAULT_GROUP)
+
+        self.save_groups()
         self.current_group = DEFAULT_GROUP
 
     def save_groups(self):
-        # 分组信息现在根据文件夹结构动态生成，不需要保存到文件中
-        # 保留此方法以保持向后兼容
-        pass
+        save_groups_meta(self.groups_meta)
 
     def new_group(self, parent=None):
         new_name = simpledialog.askstring("新建分组", "请输入分组名称：", parent=parent)
@@ -89,8 +96,15 @@ class GroupManager:
         group_dir = os.path.join(self.data_dir, new_name)
         try:
             os.makedirs(group_dir, exist_ok=True)
-        except Exception as e:
-            error_msg = f"创建分组文件夹失败：{str(e)}"
+        except PermissionError as e:
+            error_msg = f"权限不足，无法创建分组文件夹：{e}"
+            log_error(error_msg)
+            if self._output:
+                self._output(f"[错误] {error_msg}")
+            messagebox.showerror("错误", error_msg, parent=parent)
+            return None
+        except OSError as e:
+            error_msg = f"创建分组文件夹失败：{e}"
             log_error(error_msg)
             if self._output:
                 self._output(f"[错误] {error_msg}")
@@ -162,13 +176,12 @@ class GroupManager:
                 except OSError:
                     pass # 忽略删除目录失败，可能已被删除或非空
 
-            except Exception as e:
-                error_msg = f"移动文件失败：{str(e)}"
+            except OSError as e:
+                error_msg = f"移动文件失败：{e}"
                 log_error(error_msg)
                 if self._output:
                     self._output(f"[错误] {error_msg}")
                 messagebox.showerror("错误", error_msg, parent=parent)
-                # 如果移动失败，不应该从列表中移除分组，以免数据丢失且无法访问
                 return False
         
         # 只有成功移动后才从内存列表中移除

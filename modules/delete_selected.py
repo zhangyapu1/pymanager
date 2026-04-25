@@ -1,5 +1,7 @@
 import os
 from tkinter import messagebox
+from modules.script_manager import resolve_path
+
 
 def delete_selected(manager):
     item = manager.get_selected_item()
@@ -8,7 +10,7 @@ def delete_selected(manager):
 
     display_name = item['display']
     storage_path = item["storage_path"]
-    abs_path = manager._resolve_path(storage_path)
+    abs_path = resolve_path(manager.data_dir, storage_path)
 
     if messagebox.askyesno("确认删除", f"从管理器中移除\n{display_name}\n（内部存储的副本也会被删除）"):
         manager.append_output(f"正在删除：{display_name}")

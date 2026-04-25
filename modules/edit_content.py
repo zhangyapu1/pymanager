@@ -2,9 +2,11 @@ import tkinter as tk
 from tkinter import messagebox
 import threading
 import os
+import subprocess
 import tempfile
 import shutil
 from modules.dependencies import check_script_deps_and_install
+from modules.script_manager import resolve_path
 
 def edit_content(manager):
     item = manager.get_selected_item()
@@ -12,7 +14,7 @@ def edit_content(manager):
         return
 
     script_rel_path = item["storage_path"]
-    script_path = manager._resolve_path(script_rel_path)
+    script_path = resolve_path(manager.data_dir, script_rel_path)
 
     if not os.path.isfile(script_path):
         msg = "脚本文件不存在"
@@ -82,18 +84,23 @@ def edit_content(manager):
                         f.write(new_content)
                     shutil.move(temp_path, script_path)
                     save_success = True
-                except:
+                except OSError:
                     if os.path.exists(temp_path):
-                        os.remove(temp_path)
+                        try:
+                            os.remove(temp_path)
+                        except OSError:
+                            pass
                     raise
-            except Exception as e:
+            except OSError as e:
                 error_msg = f"文件保存失败：{e}"
 
             if save_success and not error_msg:
                 try:
                     check_script_deps_and_install(script_path, item['display'], manager.root)
-                except Exception as e:
-                    error_msg = f"依赖检查或安装失败：{str(e)}"
+                except (OSError, subprocess.SubprocessError) as e:
+                    error_msg = f"依赖安装失败：{e}"
+                except RuntimeError as e:
+                    error_msg = f"依赖检查失败：{e}"
 
             manager.root.after(0, lambda: on_check_complete(error_msg))
 

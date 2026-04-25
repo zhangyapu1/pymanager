@@ -6,11 +6,18 @@ import tkinter as tk
 from tkinter import messagebox
 
 import modules.updater as updater
-from modules.config import BASE_DIR, DATA_DIR, DEFAULT_GROUP
+from modules.config import BASE_DIR, DATA_DIR, DEFAULT_GROUP, CONFIG_DIR
 from modules.logger import log_error, log_info, log_output, cleanup_logs
+from modules.settings_manager import load_settings, save_settings
 from modules.drag_drop import parse_dropped_files
-from modules.utils import update_title_mode
+from modules.utils import update_title_mode, extract_docstring
 from modules.group_manager import GroupManager
+from modules.script_manager import (
+    resolve_path, get_unique_path, get_selected_item,
+    update_listbox, scan_data_directory, add_script_from_path,
+    move_script_to_group
+)
+from modules.context_menu import show_context_menu
 from modules.add_script import add_script
 from modules.run_selected import run_selected, stop_running
 from modules.rename_selected import rename_selected
@@ -28,6 +35,7 @@ class ScriptManager:
         self.base_dir = BASE_DIR
         self.scripts = []
         self.running_process = None
+        self.settings = load_settings()
         self.group_manager = GroupManager(self.data_dir, output_callback=self.append_output)
 
         self.create_widgets()
@@ -37,10 +45,10 @@ class ScriptManager:
                 self.root.after(0, lambda: self.append_output(message))
 
             check_self_dependencies(self.root, output_callback=output_to_console)
-        except Exception as e:
-            log_error(f"依赖检查失败：{str(e)}")
-            self.append_output(f"[错误] 依赖检查时出错：{str(e)}")
-            messagebox.showerror("初始化错误", f"依赖检查时出错：\n{str(e)}\n\n详细信息已写入 logs/error_log.txt")
+        except (OSError, RuntimeError) as e:
+            log_error(f"依赖检查失败：{e}")
+            self.append_output(f"[错误] 依赖检查时出错：{e}")
+            messagebox.showerror("初始化错误", f"依赖检查时出错：\n{e}\n\n详细信息已写入 logs/error_log.txt")
             sys.exit(1)
         self.scan_data_directory()
         self.setup_drag_drop()
@@ -52,6 +60,27 @@ class ScriptManager:
         if hasattr(self, 'output_text'):
             self.output_text.insert(tk.END, message + '\n')
             self.output_text.see(tk.END)
+
+    def _resolve_path(self, rel_path):
+        return resolve_path(self.data_dir, rel_path)
+
+    def _get_unique_path(self, directory, filename):
+        return get_unique_path(directory, filename)
+
+    def get_selected_item(self):
+        return get_selected_item(self)
+
+    def update_listbox(self):
+        update_listbox(self)
+
+    def scan_data_directory(self):
+        scan_data_directory(self)
+
+    def add_script_from_path(self, src_path):
+        add_script_from_path(self, src_path)
+
+    def move_script_to_group(self, item, target_group):
+        move_script_to_group(self, item, target_group)
 
     # ------------------ 界面 ------------------
     def create_widgets(self):
@@ -90,7 +119,7 @@ class ScriptManager:
             self.listbox = tk.Listbox(list_frame, selectmode=tk.SINGLE, font=('Consolas', 10), width=25)
             self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             self.listbox.bind('<Double-Button-1>', lambda e: run_selected(self))
-            self.listbox.bind("<Button-3>", self.show_context_menu)
+            self.listbox.bind("<Button-3>", lambda e: show_context_menu(self, e))
             self.listbox.bind("<<ListboxSelect>>", self.on_script_selected)
 
             scrollbar = tk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.listbox.yview)
@@ -118,6 +147,18 @@ class ScriptManager:
 
             self.root.geometry("950x600")
 
+            win_cfg = self.settings.get("window", {})
+            win_w = win_cfg.get("width", 950)
+            win_h = win_cfg.get("height", 600)
+            win_x = win_cfg.get("x")
+            win_y = win_cfg.get("y")
+            if win_x is not None and win_y is not None:
+                self.root.geometry(f"{win_w}x{win_h}+{win_x}+{win_y}")
+            else:
+                self.root.geometry(f"{win_w}x{win_h}")
+
+            self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
             self.status_var = tk.StringVar()
             self.status_var.set("就绪 | 拖拽 .py 文件自动复制存储，并检查依赖")
             status_bar = tk.Label(self.root, textvariable=self.status_var, bd=1, relief=tk.SUNKEN, anchor=tk.W)
@@ -128,10 +169,10 @@ class ScriptManager:
             version_bar = tk.Label(self.root, textvariable=self.version_var, bd=1, relief=tk.SUNKEN, anchor=tk.E, font=('Arial', 8))
             version_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
-        except Exception as e:
-            log_error(f"创建界面失败：{str(e)}")
-            self.append_output(f"[错误] 无法创建界面：{str(e)}")
-            messagebox.showerror("界面错误", f"无法创建界面：{str(e)}\n\n详细信息已写入 logs/error_log.txt")
+        except (tk.TclError, OSError) as e:
+            log_error(f"创建界面失败：{e}")
+            self.append_output(f"[错误] 无法创建界面：{e}")
+            messagebox.showerror("界面错误", f"无法创建界面：{e}\n\n详细信息已写入 logs/error_log.txt")
             sys.exit(1)
 
     def on_group_changed(self, new_group):
@@ -146,7 +187,7 @@ class ScriptManager:
             return
 
         abs_path = self._resolve_path(item["storage_path"])
-        docstring = self._extract_docstring(abs_path)
+        docstring = extract_docstring(abs_path)
 
         if hasattr(self, 'output_text'):
             self.output_text.delete(1.0, 'end')
@@ -157,118 +198,6 @@ class ScriptManager:
             else:
                 self.append_output(f"📄 {item['display']}")
                 self.append_output("（该脚本无头注释）")
-
-    @staticmethod
-    def _extract_docstring(file_path):
-        if not os.path.isfile(file_path):
-            return None
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-        except Exception:
-            return None
-
-        stripped = [l.strip() for l in lines]
-        non_empty = [i for i, l in enumerate(stripped) if l and not l.startswith('#')]
-        if not non_empty:
-            comments = [l for l in stripped if l.startswith('#')]
-            return '\n'.join(l.lstrip('#').strip() for l in comments if l) or None
-
-        first = non_empty[0]
-        line = stripped[first]
-        if line.startswith('"""') or line.startswith("'''"):
-            quote = line[:3]
-            rest = line[3:]
-            if rest.endswith(quote) and len(rest) > 0:
-                return rest[:-3].strip() or None
-            parts = [rest]
-            for l in lines[first + 1:]:
-                s = l.strip()
-                if s.endswith(quote):
-                    parts.append(s[:-3])
-                    break
-                parts.append(s)
-            return '\n'.join(parts).strip() or None
-
-        comments = []
-        for l in stripped[:first]:
-            if l.startswith('#'):
-                comments.append(l.lstrip('#').strip())
-        return '\n'.join(comments) if comments else None
-
-    # ------------------ 右键菜单 ------------------
-    def show_context_menu(self, event):
-        selected = self.listbox.curselection()
-        if not selected:
-            return
-        item = self.get_selected_item()
-        if not item:
-            return
-
-        current_group = item.get("group", DEFAULT_GROUP)
-        menu = tk.Menu(self.root, tearoff=0)
-
-        move_menu = tk.Menu(menu, tearoff=0)
-        other_groups = [g for g in self.group_manager.groups if g != current_group]
-
-        for group in other_groups:
-            move_menu.add_command(label=group, command=lambda g=group: self.move_script_to_group(item, g))
-
-        if not other_groups:
-            move_menu.add_command(label="无其他分组", state="disabled")
-
-        move_menu.add_separator()
-        move_menu.add_command(label="新建分组...", command=lambda: self.create_group_and_move(item))
-
-        menu.add_cascade(label="移动到分组", menu=move_menu)
-        menu.add_separator()
-        menu.add_command(label="运行", command=lambda: run_selected(self))
-        menu.add_command(label="编辑内容", command=lambda: edit_content(self))
-        menu.add_command(label="重命名", command=lambda: rename_selected(self))
-        menu.add_command(label="删除", command=lambda: delete_selected(self))
-        menu.add_separator()
-        menu.add_command(label="刷新列表", command=self.scan_data_directory)
-
-        menu.post(event.x_root, event.y_root)
-
-    def move_script_to_group(self, item, target_group):
-        if item["group"] == target_group:
-            return
-        old_group = item["group"]
-
-        old_rel_path = item["storage_path"]
-        old_abs_path = self._resolve_path(old_rel_path)
-        file_name = os.path.basename(old_abs_path)
-
-        if target_group == DEFAULT_GROUP:
-            target_dir = self.data_dir
-        else:
-            target_dir = os.path.join(self.data_dir, target_group)
-            os.makedirs(target_dir, exist_ok=True)
-
-        new_abs_path = self._get_unique_path(target_dir, file_name)
-
-        try:
-            shutil.move(old_abs_path, new_abs_path)
-
-            item["group"] = target_group
-            item["storage_path"] = os.path.relpath(new_abs_path, self.data_dir).replace('\\', '/')
-            item["display"] = item["storage_path"]
-
-            self.group_manager.save_groups()
-
-            self.update_listbox()
-            self.status_var.set(f"已将「{item['display']}」从「{old_group}」移动到「{target_group}」")
-
-        except Exception as e:
-            log_error(f"移动文件失败: {str(e)}")
-            self.append_output(f"[错误] 移动文件失败：{str(e)}")
-            messagebox.showerror("错误", f"移动文件失败：{str(e)}")
-
-    def create_group_and_move(self, item):
-        new_group = self.group_manager.new_group(self.root)
-        if new_group:
-            self.move_script_to_group(item, new_group)
 
     # ------------------ 拖拽 ------------------
     def setup_drag_drop(self):
@@ -293,141 +222,6 @@ class ScriptManager:
         self.status_var.set(f"拖拽完成：添加 {added} 个脚本，跳过 {skipped} 个非.py文件")
         self.append_output(f"拖拽完成：添加 {added} 个脚本，跳过 {skipped} 个非.py文件")
 
-    # ------------------ 路径工具 ------------------
-
-    def _resolve_path(self, rel_path):
-        if os.path.isabs(rel_path):
-            return rel_path
-        return os.path.join(self.data_dir, rel_path)
-
-    def _get_unique_path(self, directory, filename):
-        path = os.path.join(directory, filename)
-        if not os.path.exists(path):
-            return path
-
-        name_without_ext, ext = os.path.splitext(filename)
-        counter = 1
-        while True:
-            new_filename = f"{name_without_ext}_{counter}{ext}"
-            path = os.path.join(directory, new_filename)
-            if not os.path.exists(path):
-                return path
-            counter += 1
-
-    # ------------------ 核心数据操作 ------------------
-
-    def add_script_from_path(self, src_path):
-        if not os.path.isfile(src_path):
-            self.status_var.set(f"文件不存在：{src_path}")
-            self.append_output(f"[错误] 文件不存在：{src_path}")
-            return
-
-        base_name = os.path.basename(src_path)
-
-        dest_abs_path = self._get_unique_path(self.data_dir, base_name)
-        dest_name = os.path.basename(dest_abs_path)
-
-        try:
-            shutil.copy2(src_path, dest_abs_path)
-        except Exception as e:
-            log_error(f"复制脚本失败: {str(e)}")
-            self.append_output(f"[错误] 无法复制脚本：{e}")
-            messagebox.showerror("复制失败", f"无法复制脚本：{e}")
-            return
-
-        rel_path = os.path.relpath(dest_abs_path, self.data_dir).replace('\\', '/')
-
-        new_script = {
-            "display": rel_path,
-            "storage_path": rel_path,
-            "group": self.group_manager.current_group
-        }
-
-        self.scripts.append(new_script)
-        self.update_listbox()
-        self.status_var.set(f"已添加：{rel_path} (分组：{self.group_manager.current_group})")
-        self.append_output(f"已添加：{rel_path} (分组：{self.group_manager.current_group})")
-
-        self.group_manager.save_groups()
-
-        def output_to_console(message):
-            self.root.after(0, lambda: self.append_output(message))
-
-        try:
-            check_script_deps_and_install(dest_abs_path, rel_path, self.root, output_callback=output_to_console)
-        except Exception as e:
-            log_error(f"依赖检查异常: {str(e)}")
-
-    def get_selected_item(self):
-        sel = self.listbox.curselection()
-        if not sel:
-            return None
-
-        display_name = self.listbox.get(sel[0])
-        for item in self.scripts:
-            if item["display"] == display_name and item.get("group") == self.group_manager.current_group:
-                return item
-        return None
-
-    def update_listbox(self):
-        self.listbox.delete(0, tk.END)
-        for item in self.scripts:
-            if item.get("group") == self.group_manager.current_group:
-                self.listbox.insert(tk.END, item["display"])
-
-    def scan_data_directory(self):
-        added = 0
-        updated = 0
-
-        for root, dirs, files in os.walk(self.data_dir):
-            for file_name in files:
-                if file_name.endswith('.py'):
-                    file_path = os.path.join(root, file_name)
-                    relative_path = os.path.relpath(file_path, self.data_dir).replace('\\', '/')
-
-                    relative_dir = os.path.dirname(relative_path)
-                    if relative_dir == '.' or relative_dir == '':
-                        group = DEFAULT_GROUP
-                    else:
-                        group = relative_dir.split('/')[0]
-
-                    existing_index = None
-                    for i, script in enumerate(self.scripts):
-                        if script['storage_path'] == relative_path:
-                            existing_index = i
-                            break
-
-                    if existing_index is not None:
-                        self.scripts[existing_index]["display"] = relative_path
-                        self.scripts[existing_index]["group"] = group
-                        updated += 1
-                    else:
-                        self.scripts.append({
-                            "display": relative_path,
-                            "storage_path": relative_path,
-                            "group": group
-                        })
-                        added += 1
-
-        groups_set = set()
-        for script in self.scripts:
-            groups_set.add(script.get("group", DEFAULT_GROUP))
-
-        groups_changed = False
-        for g in groups_set:
-            if g not in self.group_manager.groups:
-                self.group_manager.groups.append(g)
-                groups_changed = True
-
-        if groups_changed:
-            self.group_manager.save_groups()
-            self.group_manager.refresh_combo()
-
-        if added > 0 or updated > 0:
-            self.update_listbox()
-            self.status_var.set(f"扫描完成：添加 {added} 个脚本，更新 {updated} 个脚本")
-            self.append_output(f"扫描完成：添加 {added} 个脚本，更新 {updated} 个脚本")
-
     def show_version_info(self):
         def check_version_thread():
             try:
@@ -439,8 +233,8 @@ class ScriptManager:
                     msg = f"当前版本：{current_version} | 最新版本：{latest_version} | {status}"
                 else:
                     msg = f"当前版本：{current_version} | 检查更新失败"
-            except Exception as e:
-                log_error(f"版本检查异常: {str(e)}")
+            except (OSError, ValueError) as e:
+                log_error(f"版本检查异常: {e}")
                 msg = f"当前版本：1.0.0 | 检查更新失败"
 
             self.root.after(0, lambda: self.version_var.set(msg))
@@ -465,6 +259,22 @@ class ScriptManager:
         program_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
         subprocess.Popen(f'explorer "{program_dir}"')
 
+    def on_close(self):
+        try:
+            self.root.update_idletasks()
+            geometry = self.root.geometry()
+            parts = geometry.replace('+', 'x').replace('-', 'x').split('x')
+            if len(parts) >= 4:
+                self.settings.setdefault("window", {})
+                self.settings["window"]["width"] = int(parts[0])
+                self.settings["window"]["height"] = int(parts[1])
+                self.settings["window"]["x"] = int(parts[2])
+                self.settings["window"]["y"] = int(parts[3])
+                save_settings(self.settings)
+        except (tk.TclError, ValueError, OSError):
+            pass
+        self.root.destroy()
+
 # ================== 启动入口 ==================
 if __name__ == "__main__":
     cleanup_logs()
@@ -488,21 +298,22 @@ if __name__ == "__main__":
             )
             log_info("安装成功，程序将自动重启。")
             restart_app()
-        except Exception as install_err:
-            log_error(f"自动安装失败：{str(install_err)}")
+        except (subprocess.SubprocessError, OSError) as install_err:
+            log_error(f"自动安装失败：{install_err}")
             log_error("自动安装失败，请手动执行：pip install tkinterdnd2 -i https://pypi.tuna.tsinghua.edu.cn/simple")
         sys.exit(1)
-    except Exception as e:
-        log_error(f"Tkinter 初始化失败：{str(e)}")
+    except (ImportError, tk.TclError) as e:
+        log_error(f"Tkinter 初始化失败：{e}")
         sys.exit(1)
 
     try:
         app = ScriptManager(root)
         root.mainloop()
     except Exception as e:
-        log_error(f"程序运行时发生未捕获异常：{str(e)}")
+        import traceback
+        log_error(f"程序运行时发生未捕获异常：{e}\n{traceback.format_exc()}")
         try:
-            messagebox.showerror("致命错误", f"程序发生错误：\n{str(e)}\n\n详细信息已写入 logs/error_log.txt")
-        except:
+            messagebox.showerror("致命错误", f"程序发生错误：\n{e}\n\n详细信息已写入 logs/error_log.txt")
+        except (tk.TclError, OSError):
             pass
         sys.exit(1)

@@ -34,7 +34,7 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 # 配置文件路径
-CONFIG_FILE = os.path.join(os.path.dirname(THIS_FILE), 'pdf_tool_config.json')
+CONFIG_FILE = os.path.join(_PROJECT_ROOT, 'config', 'pdf_tool.json')
 
 # 尝试导入依赖检查模块
 try:

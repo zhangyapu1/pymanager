@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 from .check_deps import check_and_install_deps
+from .script_manager import resolve_path
 
 def run_selected(manager):
     item = manager.get_selected_item()
@@ -20,7 +21,7 @@ def run_selected(manager):
         messagebox.showerror("运行错误", "未找到可执行文件路径")
         return
 
-    abs_path = manager._resolve_path(storage_path)
+    abs_path = resolve_path(manager.data_dir, storage_path)
 
     if not os.path.isfile(abs_path):
         manager.append_output(f"[错误] 文件不存在: {storage_path}")
@@ -33,7 +34,7 @@ def run_selected(manager):
                 manager.append_output("[提示] 已有脚本正在运行，请先停止当前运行")
                 messagebox.showwarning("提示", "已有脚本正在运行，请先停止当前运行")
                 return
-        except Exception:
+        except (OSError, subprocess.SubprocessError):
             pass
 
     def _run():
@@ -93,12 +94,12 @@ def _launch_script(manager, abs_path, storage_path, display_name):
     except FileNotFoundError:
         manager.append_output(f"[错误] 无法找到 Python 解释器或文件: {storage_path}")
         messagebox.showerror("运行错误", f"无法找到 Python 解释器或文件: {storage_path}")
+    except PermissionError as e:
+        manager.append_output(f"[错误] 权限不足，无法运行: {e}")
+        messagebox.showerror("运行错误", f"权限不足，无法运行: {e}")
     except OSError as e:
-        manager.append_output(f"[错误] 启动失败: {str(e)}")
-        messagebox.showerror("运行错误", f"启动失败: {str(e)}")
-    except Exception as e:
-        manager.append_output(f"[错误] 发生未知错误: {str(e)}")
-        messagebox.showerror("运行错误", f"发生未知错误: {str(e)}")
+        manager.append_output(f"[错误] 启动失败: {e}")
+        messagebox.showerror("运行错误", f"启动失败: {e}")
 
 def _insert_output(manager, line):
     manager.append_output(line.rstrip('\n'))
@@ -119,7 +120,7 @@ def stop_running(manager):
                 manager._process_stopped = True
                 manager.running_process.terminate()
                 manager.root.after(0, lambda: _on_stopped(manager))
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             err = str(e)
             manager.root.after(0, lambda: manager.status_var.set(f"停止失败: {err}"))
         finally:

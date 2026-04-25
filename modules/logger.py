@@ -10,12 +10,25 @@ OUTPUT_LOG_FILE = os.path.join(LOG_DIR, 'output_log.txt')
 LOG_RETENTION_DAYS = 7
 LOG_MAX_SIZE = 1 * 1024 * 1024
 
+
+def _get_log_settings():
+    try:
+        from modules.settings_manager import load_settings
+        settings = load_settings()
+        log_cfg = settings.get("log", {})
+        return {
+            "retain_days": log_cfg.get("retain_days", LOG_RETENTION_DAYS),
+            "max_file_size_mb": log_cfg.get("max_file_size_mb", LOG_MAX_SIZE // (1024 * 1024))
+        }
+    except (ImportError, OSError, ValueError):
+        return {"retain_days": LOG_RETENTION_DAYS, "max_file_size_mb": LOG_MAX_SIZE // (1024 * 1024)}
+
 def _ensure_dir(log_file):
     log_dir = os.path.dirname(log_file)
     if log_dir and not os.path.exists(log_dir):
         try:
             os.makedirs(log_dir, exist_ok=True)
-        except Exception:
+        except OSError:
             pass
 
 def log_error(error_msg, log_file=None):
@@ -33,7 +46,7 @@ def log_output(message):
     try:
         with open(OUTPUT_LOG_FILE, "a", encoding="utf-8") as f:
             f.write(f"[{timestamp}] {message}\n")
-    except Exception:
+    except OSError:
         pass
 
 def _log(level, message, log_file):
@@ -50,13 +63,16 @@ def _log(level, message, log_file):
     try:
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(full_log)
-    except Exception:
+    except OSError:
         pass
 
 def cleanup_logs(log_dir=None, retention_days=None, max_size=None):
     log_dir = log_dir or LOG_DIR
-    retention_days = retention_days if retention_days is not None else LOG_RETENTION_DAYS
-    max_size = max_size if max_size is not None else LOG_MAX_SIZE
+
+    log_settings = _get_log_settings()
+    retention_days = retention_days if retention_days is not None else log_settings["retain_days"]
+    if max_size is None:
+        max_size = log_settings["max_file_size_mb"] * 1024 * 1024
 
     if not os.path.isdir(log_dir):
         return
@@ -74,7 +90,7 @@ def cleanup_logs(log_dir=None, retention_days=None, max_size=None):
                 if os.path.getmtime(filepath) < cutoff:
                     os.remove(filepath)
                     continue
-            except Exception:
+            except OSError:
                 pass
 
             try:
@@ -87,7 +103,7 @@ def cleanup_logs(log_dir=None, retention_days=None, max_size=None):
                         remaining = f.read()
                     with open(filepath, 'w', encoding='utf-8') as f:
                         f.write(remaining)
-            except Exception:
+            except (OSError, UnicodeDecodeError):
                 pass
-    except Exception:
+    except OSError:
         pass

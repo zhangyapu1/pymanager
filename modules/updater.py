@@ -25,7 +25,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.2.1"
+CURRENT_VERSION = "1.3.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -43,7 +43,7 @@ def _output(callback, msg):
     if callback:
         try:
             callback(msg)
-        except Exception:
+        except (tk.TclError, RuntimeError):
             pass
 
 def _output_error(callback, msg):
@@ -51,7 +51,7 @@ def _output_error(callback, msg):
     if callback:
         try:
             callback(f"[错误] {msg}")
-        except Exception:
+        except (tk.TclError, RuntimeError):
             pass
 
 def prompt_for_token(parent):
@@ -91,7 +91,7 @@ def is_version_greater(v1, v2):
         a2 += [0] * (max_len - len(a2))
 
         return a1 > a2
-    except Exception:
+    except (ValueError, TypeError, AttributeError):
         return v1 > v2
 
 def build_auth_headers(parent=None):
@@ -185,7 +185,7 @@ def fetch_latest_version(parent=None, output_callback=None):
         if parent:
             messagebox.showwarning("API 限制", "内置Token的API请求次数已达上限。\n请输入您自己的GitHub Token以提高限额。", parent=parent)
         return CURRENT_VERSION, PROJECT_URL
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         _output_error(output_callback, f"获取版本失败: {e}")
         return CURRENT_VERSION, PROJECT_URL
 
@@ -254,7 +254,7 @@ def download_file(url, dest_path, parent, output_callback=None):
         progress_win.destroy()
         _output(output_callback, f"下载完成: {dest_path}")
         return True
-    except Exception as e:
+    except (urllib.error.URLError, OSError, TimeoutError) as e:
         if progress_win.winfo_exists():
             progress_win.destroy()
         msg = f"下载更新文件时出错：{e}\n\n请尝试手动下载：{url}"
@@ -298,7 +298,7 @@ def create_backup(output_callback=None):
                         zipf.write(file_path, arcname)
                     except PermissionError:
                         logger.debug(f"跳过权限不足文件：{file_path}")
-                    except Exception as e:
+                    except OSError as e:
                         logger.debug(f"跳过处理失败文件 {file_path}: {e}")
 
         _output(output_callback, f"备份创建成功：{backup_path}")
@@ -306,7 +306,7 @@ def create_backup(output_callback=None):
         cleanup_old_backups(backup_dir, output_callback)
 
         return backup_path
-    except Exception as e:
+    except (OSError, zipfile.BadZipFile) as e:
         _output_error(output_callback, f"备份创建失败：{e}")
         return None
 
@@ -329,7 +329,7 @@ def cleanup_old_backups(backup_dir, output_callback=None):
                 if backup_date < cutoff_date:
                     os.remove(file_path)
                     _output(output_callback, f"已删除过期备份：{file}")
-            except Exception as e:
+            except (ValueError, OSError) as e:
                 logger.debug(f"清理备份失败 {file}: {e}")
 
 def apply_update(download_path, parent, output_callback=None):
@@ -362,7 +362,7 @@ def apply_update(download_path, parent, output_callback=None):
             with zipfile.ZipFile(download_path, 'r') as zip_ref:
                 for member in zip_ref.infolist():
                     if member.filename.startswith('/') or '..' in member.filename:
-                        raise Exception(f"Unsafe zip path: {member.filename}")
+                        raise ValueError(f"Unsafe zip path: {member.filename}")
                 zip_ref.extractall(extract_dir)
 
             entries = os.listdir(extract_dir)
@@ -392,7 +392,7 @@ def apply_update(download_path, parent, output_callback=None):
                         logger.debug(f"已复制: {os.path.relpath(dst_file, current_dir)}")
                     except PermissionError:
                         logger.debug(f"跳过权限不足: {dst_file}")
-                    except Exception as e:
+                    except OSError as e:
                         logger.debug(f"复制失败 {dst_file}: {e}")
 
             _output(output_callback, f"共复制 {copied} 个文件")
@@ -436,7 +436,7 @@ del "%~f0"
                     os.remove(single_backup_path)
                 shutil.copy2(current_exe, single_backup_path)
                 _output(output_callback, f"已备份旧文件到：{single_backup_path}")
-            except Exception as e:
+            except OSError as e:
                 _output(output_callback, f"单文件备份失败：{e}")
 
             if sys.platform != 'win32':
@@ -497,7 +497,7 @@ del "%~f0"
                 parent.quit()
             sys.exit(0)
 
-    except Exception as e:
+    except (OSError, zipfile.BadZipFile, subprocess.SubprocessError) as e:
         _output_error(output_callback, f"应用更新过程中发生错误：{e}")
         messagebox.showerror("更新失败", f"应用更新时出错：{e}", parent=parent)
         return False
@@ -561,7 +561,7 @@ def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback
                 _output(output_callback, msg)
                 messagebox.showinfo("检查更新", msg, parent=parent_root)
             return False
-    except Exception as e:
+    except (ValueError, TypeError) as e:
         _output_error(output_callback, f"版本比较出错: {e}")
         if show_no_update_msg:
             messagebox.showerror("错误", f"版本检查出错: {e}", parent=parent_root)

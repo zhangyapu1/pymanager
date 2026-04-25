@@ -1,6 +1,7 @@
 import os
 import re
 from tkinter import messagebox, simpledialog
+from modules.script_manager import resolve_path
 
 def _sanitize_filename(name: str) -> str:
     sanitized = re.sub(r'[<>:"/\\|?*]', '_', name)
@@ -28,7 +29,7 @@ def rename_selected(manager):
 
     old_display = item["display"]
     old_rel_path = item["storage_path"]
-    old_abs_path = manager._resolve_path(old_rel_path)
+    old_abs_path = resolve_path(manager.data_dir, old_rel_path)
     dir_name = os.path.dirname(old_abs_path)
 
     new_name_input = simpledialog.askstring(
@@ -93,9 +94,4 @@ def rename_selected(manager):
         msg = f"无法重命名文件：{e}"
         manager.append_output(f"[错误] {msg}")
         messagebox.showerror("重命名失败", msg)
-        manager.status_var.set("重命名失败")
-    except Exception as e:
-        msg = f"发生未知错误：{e}"
-        manager.append_output(f"[错误] {msg}")
-        messagebox.showerror("未知错误", msg)
         manager.status_var.set("重命名失败")

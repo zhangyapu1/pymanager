@@ -64,8 +64,7 @@ class DependencyChecker:
         try:
             spec = importlib.util.find_spec(package_name)
             return spec is not None
-        except Exception:
-            # find_spec 在某些极端情况下（如元路径查找器出错）可能抛出异常
+        except (ModuleNotFoundError, ValueError, ImportError):
             return False
 
     @staticmethod
@@ -153,8 +152,8 @@ class DependencyChecker:
                 output(f"{error_msg}，尝试下一个源...")
                 log_warning(error_msg)
                 continue  # 尝试下一个源
-            except Exception as e:
-                error_msg = f"安装 {package_name} 异常 (源: {mirror or '官方源'}): {str(e)}"
+            except (FileNotFoundError, OSError) as e:
+                error_msg = f"安装 {package_name} 异常 (源: {mirror or '官方源'}): {e}"
                 output(f"{error_msg}，尝试下一个源...")
                 log_warning(error_msg)
                 continue  # 尝试下一个源
@@ -188,9 +187,8 @@ class DependencyChecker:
         except FileNotFoundError:
             log_error(f"脚本文件不存在: {script_path}")
             return set()
-        except Exception as e:
-            # 其他读取或解析错误
-            log_error(f"解析脚本 {script_path} 时出错: {str(e)}")
+        except (OSError, UnicodeDecodeError) as e:
+            log_error(f"解析脚本 {script_path} 时出错: {e}")
             return set()
         
         imports = set()
@@ -238,8 +236,8 @@ class DependencyChecker:
             origin_lower = spec.origin.lower()
             return 'site-packages' not in origin_lower and 'dist-packages' not in origin_lower
 
-        except Exception as e:
-            log_error(f"判断模块 {module_name} 是否为标准库时出错: {str(e)}")
+        except (ModuleNotFoundError, ValueError, ImportError, OSError) as e:
+            log_error(f"判断模块 {module_name} 是否为标准库时出错: {e}")
             return False
 
     @classmethod
