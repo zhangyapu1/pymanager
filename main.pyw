@@ -7,7 +7,7 @@ from tkinter import messagebox
 
 import modules.updater as updater
 from modules.config import BASE_DIR, DATA_DIR, DEFAULT_GROUP
-from modules.logger import log_error
+from modules.logger import log_error, log_info, log_output
 from modules.drag_drop import parse_dropped_files
 from modules.utils import update_title_mode
 from modules.group_manager import GroupManager
@@ -28,25 +28,27 @@ class ScriptManager:
         self.base_dir = BASE_DIR
         self.scripts = []
         self.running_process = None
-        self.group_manager = GroupManager(self.data_dir)
+        self.group_manager = GroupManager(self.data_dir, output_callback=self.append_output)
 
         self.create_widgets()
 
         try:
             def output_to_console(message):
-                self.root.after(0, lambda: self._append_output(message))
+                self.root.after(0, lambda: self.append_output(message))
 
             check_self_dependencies(self.root, output_callback=output_to_console)
         except Exception as e:
             log_error(f"依赖检查失败：{str(e)}")
-            messagebox.showerror("初始化错误", f"依赖检查时出错：\n{str(e)}\n\n详细信息已写入 error_log.txt")
+            self.append_output(f"[错误] 依赖检查时出错：{str(e)}")
+            messagebox.showerror("初始化错误", f"依赖检查时出错：\n{str(e)}\n\n详细信息已写入 logs/error_log.txt")
             sys.exit(1)
         self.scan_data_directory()
         self.setup_drag_drop()
         update_title_mode(self.root)
         self.show_version_info()
 
-    def _append_output(self, message):
+    def append_output(self, message):
+        log_output(message)
         if hasattr(self, 'output_text'):
             self.output_text.insert(tk.END, message + '\n')
             self.output_text.see(tk.END)
@@ -65,7 +67,7 @@ class ScriptManager:
             buttons = [
                 ("➕ 添加脚本", lambda: add_script(self)),
                 ("🔍 检查依赖", lambda: check_deps(self)),
-                ("🔄 检查更新", lambda: updater.check_for_updates(self.root, show_no_update_msg=True)),
+                ("🔄 检查更新", lambda: updater.check_for_updates(self.root, show_no_update_msg=True, output_callback=self.append_output)),
                 ("🔑 删除Token", lambda: self.delete_token()),
                 ("📁 打开程序目录", lambda: self.open_program_dir()),
             ]
@@ -128,12 +130,14 @@ class ScriptManager:
 
         except Exception as e:
             log_error(f"创建界面失败：{str(e)}")
-            messagebox.showerror("界面错误", f"无法创建界面：{str(e)}\n\n详细信息已写入 error_log.txt")
+            self.append_output(f"[错误] 无法创建界面：{str(e)}")
+            messagebox.showerror("界面错误", f"无法创建界面：{str(e)}\n\n详细信息已写入 logs/error_log.txt")
             sys.exit(1)
 
     def on_group_changed(self, new_group):
         self.group_manager.current_group = new_group
         self.update_listbox()
+        self.append_output(f"当前分组：{new_group}")
         self.status_var.set(f"当前分组：{new_group}")
 
     def on_script_selected(self, event):
@@ -147,12 +151,12 @@ class ScriptManager:
         if hasattr(self, 'output_text'):
             self.output_text.delete(1.0, 'end')
             if docstring:
-                self.output_text.insert('end', f"📄 {item['display']}\n")
-                self.output_text.insert('end', "─" * 40 + "\n")
-                self.output_text.insert('end', docstring + "\n")
+                self.append_output(f"📄 {item['display']}")
+                self.append_output("─" * 40)
+                self.append_output(docstring)
             else:
-                self.output_text.insert('end', f"📄 {item['display']}\n")
-                self.output_text.insert('end', "（该脚本无头注释）\n")
+                self.append_output(f"📄 {item['display']}")
+                self.append_output("（该脚本无头注释）")
 
     @staticmethod
     def _extract_docstring(file_path):
@@ -258,6 +262,7 @@ class ScriptManager:
 
         except Exception as e:
             log_error(f"移动文件失败: {str(e)}")
+            self.append_output(f"[错误] 移动文件失败：{str(e)}")
             messagebox.showerror("错误", f"移动文件失败：{str(e)}")
 
     def create_group_and_move(self, item):
@@ -286,6 +291,7 @@ class ScriptManager:
             else:
                 skipped += 1
         self.status_var.set(f"拖拽完成：添加 {added} 个脚本，跳过 {skipped} 个非.py文件")
+        self.append_output(f"拖拽完成：添加 {added} 个脚本，跳过 {skipped} 个非.py文件")
 
     # ------------------ 路径工具 ------------------
 
@@ -313,6 +319,7 @@ class ScriptManager:
     def add_script_from_path(self, src_path):
         if not os.path.isfile(src_path):
             self.status_var.set(f"文件不存在：{src_path}")
+            self.append_output(f"[错误] 文件不存在：{src_path}")
             return
 
         base_name = os.path.basename(src_path)
@@ -324,6 +331,7 @@ class ScriptManager:
             shutil.copy2(src_path, dest_abs_path)
         except Exception as e:
             log_error(f"复制脚本失败: {str(e)}")
+            self.append_output(f"[错误] 无法复制脚本：{e}")
             messagebox.showerror("复制失败", f"无法复制脚本：{e}")
             return
 
@@ -338,11 +346,12 @@ class ScriptManager:
         self.scripts.append(new_script)
         self.update_listbox()
         self.status_var.set(f"已添加：{rel_path} (分组：{self.group_manager.current_group})")
+        self.append_output(f"已添加：{rel_path} (分组：{self.group_manager.current_group})")
 
         self.group_manager.save_groups()
 
         def output_to_console(message):
-            self.root.after(0, lambda: self._append_output(message))
+            self.root.after(0, lambda: self.append_output(message))
 
         try:
             check_script_deps_and_install(dest_abs_path, rel_path, self.root, output_callback=output_to_console)
@@ -417,6 +426,7 @@ class ScriptManager:
         if added > 0 or updated > 0:
             self.update_listbox()
             self.status_var.set(f"扫描完成：添加 {added} 个脚本，更新 {updated} 个脚本")
+            self.append_output(f"扫描完成：添加 {added} 个脚本，更新 {updated} 个脚本")
 
     def show_version_info(self):
         def check_version_thread():
@@ -442,10 +452,12 @@ class ScriptManager:
     def delete_token(self):
         from modules.token_crypto import delete_api_token, get_api_token
         if not get_api_token():
+            self.append_output("[提示] 当前没有保存的 Token。")
             messagebox.showinfo("提示", "当前没有保存的 Token。")
             return
         if messagebox.askyesno("确认删除", "确定要删除已保存的 GitHub API Token 吗？"):
             delete_api_token()
+            self.append_output("已删除保存的 Token")
             self.status_var.set("已删除保存的 Token")
 
     def open_program_dir(self):
@@ -467,20 +479,19 @@ if __name__ == "__main__":
         log_error(f"缺少 tkinterdnd2：{str(e)}")
         try:
             import subprocess
-            print("正在尝试自动安装 tkinterdnd2...")
+            log_info("正在尝试自动安装 tkinterdnd2...")
             subprocess.run(
                 [sys.executable, '-m', 'pip', 'install', '-i', "https://pypi.tuna.tsinghua.edu.cn/simple", 'tkinterdnd2'],
                 check=True
             )
-            print("安装成功，程序将自动重启。")
+            log_info("安装成功，程序将自动重启。")
             restart_app()
         except Exception as install_err:
             log_error(f"自动安装失败：{str(install_err)}")
-            print("自动安装失败，请手动执行：pip install tkinterdnd2 -i https://pypi.tuna.tsinghua.edu.cn/simple")
+            log_error("自动安装失败，请手动执行：pip install tkinterdnd2 -i https://pypi.tuna.tsinghua.edu.cn/simple")
         sys.exit(1)
     except Exception as e:
         log_error(f"Tkinter 初始化失败：{str(e)}")
-        print(e)
         sys.exit(1)
 
     try:
@@ -489,7 +500,7 @@ if __name__ == "__main__":
     except Exception as e:
         log_error(f"程序运行时发生未捕获异常：{str(e)}")
         try:
-            messagebox.showerror("致命错误", f"程序发生错误：\n{str(e)}\n\n详细信息已写入 error_log.txt")
+            messagebox.showerror("致命错误", f"程序发生错误：\n{str(e)}\n\n详细信息已写入 logs/error_log.txt")
         except:
             pass
         sys.exit(1)

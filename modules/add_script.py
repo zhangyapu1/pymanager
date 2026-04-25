@@ -17,7 +17,9 @@ def add_script(manager):
 
 def add_script_from_path(manager, src_path):
     if not os.path.isfile(src_path):
-        manager.status_var.set(f"文件不存在：{src_path}")
+        msg = f"文件不存在：{src_path}"
+        manager.append_output(f"[错误] {msg}")
+        manager.status_var.set(msg)
         return
 
     base_name = os.path.basename(src_path)
@@ -27,7 +29,9 @@ def add_script_from_path(manager, src_path):
     try:
         shutil.copy2(src_path, dest_abs_path)
     except OSError as e:
-        messagebox.showerror("复制失败", f"无法复制脚本：{e}")
+        msg = f"无法复制脚本：{e}"
+        manager.append_output(f"[错误] {msg}")
+        messagebox.showerror("复制失败", msg)
         return
 
     rel_path = os.path.relpath(dest_abs_path, manager.data_dir).replace('\\', '/')
@@ -38,10 +42,14 @@ def add_script_from_path(manager, src_path):
         "group": manager.group_manager.current_group
     })
     manager.update_listbox()
-    manager.status_var.set(f"已添加：{rel_path}")
+    msg = f"已添加：{rel_path}"
+    manager.append_output(msg)
+    manager.status_var.set(msg)
 
     if check_script_deps_and_install:
         try:
             check_script_deps_and_install(dest_abs_path, rel_path, manager.root)
         except Exception as dep_e:
-            messagebox.showwarning("依赖警告", f"脚本已添加，但依赖安装失败：{dep_e}")
+            msg = f"脚本已添加，但依赖安装失败：{dep_e}"
+            manager.append_output(f"[警告] {msg}")
+            messagebox.showwarning("依赖警告", msg)

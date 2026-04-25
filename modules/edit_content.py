@@ -15,17 +15,23 @@ def edit_content(manager):
     script_path = manager._resolve_path(script_rel_path)
 
     if not os.path.isfile(script_path):
-        messagebox.showerror("错误", "脚本文件不存在")
+        msg = "脚本文件不存在"
+        manager.append_output(f"[错误] {msg}")
+        messagebox.showerror("错误", msg)
         return
 
     try:
         with open(script_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except UnicodeDecodeError:
-        messagebox.showerror("读取错误", "文件编码不是 UTF-8，无法编辑")
+        msg = "文件编码不是 UTF-8，无法编辑"
+        manager.append_output(f"[错误] {msg}")
+        messagebox.showerror("读取错误", msg)
         return
     except OSError as e:
-        messagebox.showerror("读取错误", f"无法读取脚本内容：{e}")
+        msg = f"无法读取脚本内容：{e}"
+        manager.append_output(f"[错误] {msg}")
+        messagebox.showerror("读取错误", msg)
         return
 
     win = tk.Toplevel(manager.root)
@@ -101,10 +107,13 @@ def edit_content(manager):
             cancel_btn.config(state=tk.NORMAL)
 
             if error_msg:
+                manager.append_output(f"[错误] {error_msg}")
                 messagebox.showerror("操作错误", error_msg)
                 manager.status_var.set("操作失败")
             else:
-                manager.status_var.set(f"已保存并更新依赖：{item['display']}")
+                msg = f"已保存并更新依赖：{item['display']}"
+                manager.append_output(msg)
+                manager.status_var.set(msg)
                 win.destroy()
 
         thread = threading.Thread(target=background_check, daemon=True)

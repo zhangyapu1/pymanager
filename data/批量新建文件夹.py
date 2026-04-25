@@ -6,6 +6,26 @@ import re
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+
+def _showinfo(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showinfo(title, msg, **kw)
+
+
+def _showerror(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showerror(title, msg, **kw)
+
+
+def _showwarning(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showwarning(title, msg, **kw)
+
+
+def _askyesno(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    return messagebox.askyesno(title, msg, **kw)
+
 class BatchCreateFoldersApp:
     def __init__(self, root):
         self.root = root
@@ -166,7 +186,7 @@ class BatchCreateFoldersApp:
                     raise ValueError("编号位数必须大于0")
 
                 if count > 10000:
-                    if not messagebox.askyesno("警告", f"您打算创建 {count} 个文件夹，这可能需要较长时间。是否继续？"):
+                    if not _askyesno("警告", f"您打算创建 {count} 个文件夹，这可能需要较长时间。是否继续？"):
                         return []
 
                 for i in range(start, start + count):
@@ -247,16 +267,16 @@ class BatchCreateFoldersApp:
     def execute_create(self):
         parent = self.parent_path.get()
         if not parent or not os.path.isdir(parent):
-            messagebox.showerror("错误", "请先选择一个有效的父目录")
+            _showerror("错误", "请先选择一个有效的父目录")
             return
 
         current_names = self.generate_folder_names()
         if not current_names:
-            messagebox.showwarning("警告", "没有可创建的文件夹名称，请检查参数并刷新预览")
+            _showwarning("警告", "没有可创建的文件夹名称，请检查参数并刷新预览")
             return
 
         confirm_msg = f"将在以下目录中创建 {len(current_names)} 个文件夹：\n{parent}\n\n是否继续？"
-        if not messagebox.askyesno("确认创建", confirm_msg):
+        if not _askyesno("确认创建", confirm_msg):
             return
 
         self.log("开始创建文件夹...")

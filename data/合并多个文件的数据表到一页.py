@@ -8,6 +8,26 @@ import re
 import time
 import tkinter as tk
 from tkinter import filedialog, Tk, simpledialog, messagebox, ttk
+
+
+def _showinfo(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showinfo(title, msg, **kw)
+
+
+def _showerror(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showerror(title, msg, **kw)
+
+
+def _showwarning(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showwarning(title, msg, **kw)
+
+
+def _askyesno(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    return messagebox.askyesno(title, msg, **kw)
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils.exceptions import InvalidFileException
@@ -162,7 +182,7 @@ def 汇总Excel文件_按条件():
     root = Tk()
     root.withdraw()
 
-    messagebox.showinfo(
+    _showinfo(
         "使用说明",
         "本工具将汇总多个 Excel 文件中符合条件的工作表\n\n"
         "1. 输入工作表关键词（支持模糊匹配）\n"
@@ -196,7 +216,7 @@ def 汇总Excel文件_按条件():
     if end_row is None:
         return
 
-    include_header = messagebox.askyesno(
+    include_header = _askyesno(
         "是否包含表头",
         "是否在汇总结果中包含原始数据的表头行？\n\n"
         "【是】：复制原始数据第 1 行作为表头\n"
@@ -218,7 +238,7 @@ def 汇总Excel文件_按条件():
         ],
     )
     if not files:
-        messagebox.showwarning("提示", "未选择任何文件，程序退出")
+        _showwarning("提示", "未选择任何文件，程序退出")
         return
 
     print(f"\n{'='*60}")
@@ -279,7 +299,7 @@ def 汇总Excel文件_按条件():
         progress.set_file(file_path, file_index)
 
         if progress.cancelled:
-            messagebox.showinfo("已取消", "用户终止了汇总操作。")
+            _showinfo("已取消", "用户终止了汇总操作。")
             break
 
         wb_src = None
@@ -442,7 +462,7 @@ def 汇总Excel文件_按条件():
         print()
 
         if progress.cancelled:
-            messagebox.showinfo("已取消", "用户终止了汇总操作。")
+            _showinfo("已取消", "用户终止了汇总操作。")
             break
 
     # ── 关闭进度对话框 ──────────────────────────────────────────────
@@ -530,10 +550,10 @@ def 汇总Excel文件_按条件():
                 # 保存文件到备用位置
                 wb_result.save(output_path)
                 print(f"[INFO] 保存到备用位置: {output_path}")
-                messagebox.showinfo("保存成功", f"由于权限限制，文件已保存到桌面:\n{output_path}")
+                _showinfo("保存成功", f"由于权限限制，文件已保存到桌面:\n{output_path}")
             except Exception as backup_error:
                 print(f"备用位置保存失败: {backup_error}")
-                messagebox.showerror("保存失败", f"无法保存输出文件:\n{save_error}\n\n备用位置也无法保存:\n{backup_error}\n\n请手动选择一个可写的输出目录。")
+                _showerror("保存失败", f"无法保存输出文件:\n{save_error}\n\n备用位置也无法保存:\n{backup_error}\n\n请手动选择一个可写的输出目录。")
                 return
 
         # 完成进度条
@@ -562,7 +582,7 @@ def 汇总Excel文件_按条件():
             print(f"\n[LIST] 共处理 {len(processed_sheets)} 个工作表")
         print(f"{'='*60}")
 
-        messagebox.showinfo(
+        _showinfo(
             "完成",
             f"汇总完成！\n\n"
             f"输出文件：{os.path.basename(output_path)}\n"
@@ -572,7 +592,7 @@ def 汇总Excel文件_按条件():
         )
 
     elif not cancelled and total_rows == 0:
-        messagebox.showwarning(
+        _showwarning(
             "警告",
             "未提取到任何有效数据！\n\n"
             "请检查：\n"

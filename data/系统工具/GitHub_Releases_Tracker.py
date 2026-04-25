@@ -7,6 +7,26 @@ import urllib.request
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 
+
+def _showinfo(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showinfo(title, msg, **kw)
+
+
+def _showerror(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showerror(title, msg, **kw)
+
+
+def _showwarning(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showwarning(title, msg, **kw)
+
+
+def _askyesno(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    return messagebox.askyesno(title, msg, **kw)
+
 sys.dont_write_bytecode = True
 
 # 添加日志功能
@@ -31,10 +51,12 @@ CONFIG_DIR = os.path.join(_PROJECT_ROOT, "config")
 DATA_FILE = os.path.join(CONFIG_DIR, "github_releases.json")
 
 try:
-    from modules.token_crypto import get_api_token
+    from modules.token_crypto import get_api_token, get_default_token
 except ImportError:
     def get_api_token():
         return os.environ.get("GITHUB_TOKEN", "")
+    def get_default_token():
+        return ""
 
 
 def get_download_dir():
@@ -66,7 +88,7 @@ def save_data(data):
 
 
 def fetch_releases(owner, repo):
-    token = get_api_token()
+    token = get_api_token() or get_default_token()
     url = f"https://api.github.com/repos/{owner}/{repo}/releases?per_page=20"
     headers = {"User-Agent": "PyManager/1.0", "Accept": "application/vnd.github+json"}
     if token:
@@ -444,12 +466,12 @@ class GitHubReleasesApp:
             return
         owner, repo = parse_repo_url(url)
         if not owner or not repo:
-            messagebox.showerror("错误", "无法解析项目地址，请检查格式。")
+            _showerror("错误", "无法解析项目地址，请检查格式。")
             return
         full_name = f"{owner}/{repo}"
         for p in self.data["projects"]:
             if p.get("owner") == owner and p.get("repo") == repo:
-                messagebox.showinfo("提示", f"项目 {full_name} 已存在。")
+                _showinfo("提示", f"项目 {full_name} 已存在。")
                 return
         self.data["projects"].append({"owner": owner, "repo": repo})
         save_data(self.data)
@@ -513,16 +535,16 @@ class GitHubReleasesApp:
         if save_to_source_code(export_data):
             save_data(self.data)
             self.status_var.set("已保存到源代码和配置文件")
-            messagebox.showinfo("保存成功", "项目信息已写入源代码文件中的 EMBEDDED_DATA 区域。")
+            _showinfo("保存成功", "项目信息已写入源代码文件中的 EMBEDDED_DATA 区域。")
         else:
-            messagebox.showerror("保存失败", "写入源代码失败，请检查文件权限。")
+            _showerror("保存失败", "写入源代码失败，请检查文件权限。")
 
     def delete_selected(self):
         to_delete = [fn for fn, var in self.select_vars.items() if var.get()]
         if not to_delete:
-            messagebox.showinfo("提示", "请先勾选要删除的项目。")
+            _showinfo("提示", "请先勾选要删除的项目。")
             return
-        confirm = messagebox.askyesno("确认删除", f"确定要删除以下 {len(to_delete)} 个项目吗？\n\n" + "\n".join(to_delete))
+        confirm = _askyesno("确认删除", f"确定要删除以下 {len(to_delete)} 个项目吗？\n\n" + "\n".join(to_delete))
         if not confirm:
             return
         for full_name in to_delete:
@@ -537,6 +559,21 @@ class GitHubReleasesApp:
         self.refresh_projects()
         self.status_var.set(f"已删除 {len(to_delete)} 个项目")
 
+    def _prompt_token_and_retry(self, owner, repo, full_name):
+        from tkinter import simpledialog
+        token = simpledialog.askstring(
+            "API 限流",
+            "内置Token的API请求次数已达上限。\n请输入您自己的GitHub Personal Access Token以提高限额：\n\n"
+            "获取方式：https://github.com/settings/tokens",
+            parent=self.root
+        )
+        if token:
+            from modules.token_crypto import save_api_token
+            save_api_token(token)
+            self.fetch_one(owner, repo)
+        else:
+            self.status_var.set(f"获取失败：{full_name}（未提供Token）")
+
     def fetch_one(self, owner, repo):
         full_name = f"{owner}/{repo}"
         self.status_var.set(f"正在获取 {full_name} 的版本列表...")
@@ -549,10 +586,14 @@ class GitHubReleasesApp:
                 self.root.after(0, lambda: self._update_year_options())
                 self.root.after(0, lambda: self.status_var.set(f"已获取 {full_name} 的 {len(releases)} 个版本"))
             except RuntimeError as e:
-                self.root.after(0, lambda: messagebox.showerror("获取失败", str(e)))
-                self.root.after(0, lambda: self.status_var.set(f"获取失败：{full_name}"))
+                err_msg = str(e)
+                if "限流" in err_msg and not get_api_token():
+                    self.root.after(0, lambda: self._prompt_token_and_retry(owner, repo, full_name))
+                else:
+                    self.root.after(0, lambda: _showerror("获取失败", err_msg))
+                    self.root.after(0, lambda: self.status_var.set(f"获取失败：{full_name}"))
             except Exception as e:
-                self.root.after(0, lambda: messagebox.showerror("获取失败", f"获取 {full_name} 版本列表失败：\n{e}"))
+                self.root.after(0, lambda: _showerror("获取失败", f"获取 {full_name} 版本列表失败：\n{e}"))
                 self.root.after(0, lambda: self.status_var.set(f"获取 {full_name} 版本列表失败"))
 
         threading.Thread(target=worker, daemon=True).start()
@@ -601,7 +642,7 @@ class GitHubReleasesApp:
         full_name = f"{owner}/{repo}"
         display_text = release_var.get()
         if not display_text:
-            messagebox.showwarning("提示", "请先选择要下载的版本。")
+            _showwarning("提示", "请先选择要下载的版本。")
             return
 
         tag = self._parse_tag_from_display(display_text)
@@ -614,7 +655,7 @@ class GitHubReleasesApp:
                 break
 
         if not target_release:
-            messagebox.showerror("错误", f"未找到版本 {tag} 的信息，请先刷新。")
+            _showerror("错误", f"未找到版本 {tag} 的信息，请先刷新。")
             return
 
         assets = target_release.get("assets", [])
@@ -623,7 +664,7 @@ class GitHubReleasesApp:
             if zipball:
                 self._do_download(zipball, f"{repo}-{tag}.zip")
             else:
-                messagebox.showinfo("提示", f"版本 {tag} 没有可下载的文件。")
+                _showinfo("提示", f"版本 {tag} 没有可下载的文件。")
             return
 
         if len(assets) == 1:
@@ -642,7 +683,7 @@ class GitHubReleasesApp:
                 if a["name"] == choice:
                     self._do_download(a["browser_download_url"], a["name"])
                     return
-            messagebox.showerror("错误", "未找到所选文件。")
+            _showerror("错误", "未找到所选文件。")
 
     def _do_download(self, url, filename):
         download_dir = get_download_dir()
@@ -658,7 +699,7 @@ class GitHubReleasesApp:
 
         def worker():
             try:
-                token = get_api_token()
+                token = get_api_token() or get_default_token()
                 headers = {"User-Agent": "PyManager/1.0"}
                 if token:
                     headers["Authorization"] = f"Bearer {token}"
@@ -677,9 +718,9 @@ class GitHubReleasesApp:
                                 pct = int(downloaded * 100 / total)
                                 self.root.after(0, lambda p=pct: self.status_var.set(f"下载中... {p}%"))
                 self.root.after(0, lambda: self.status_var.set(f"下载完成：{dest_path}"))
-                self.root.after(0, lambda: messagebox.showinfo("下载完成", f"文件已保存到：\n{dest_path}"))
+                self.root.after(0, lambda: _showinfo("下载完成", f"文件已保存到：\n{dest_path}"))
             except Exception as e:
-                self.root.after(0, lambda: messagebox.showerror("下载失败", f"下载失败：\n{e}"))
+                self.root.after(0, lambda: _showerror("下载失败", f"下载失败：\n{e}"))
                 self.root.after(0, lambda: self.status_var.set("下载失败"))
 
         threading.Thread(target=worker, daemon=True).start()

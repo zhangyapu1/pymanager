@@ -11,12 +11,13 @@ class GroupManager:
     # 禁止路径分隔符和点号开头，防止路径遍历和隐藏文件问题
     VALID_GROUP_NAME_PATTERN = re.compile(r'^[\w\u4e00-\u9fa5\s\-]+$')
 
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, output_callback=None):
         self.data_dir = data_dir
         self.groups_file = os.path.join(data_dir, "groups.dat")
         self.groups = []
         self.current_group = DEFAULT_GROUP
-        self.combo = None          # 保存 Combobox 引用，用于自动刷新
+        self.combo = None
+        self._output = output_callback
         self.load_groups()
 
     def _is_valid_group_name(self, name):
@@ -50,6 +51,8 @@ class GroupManager:
                         self.groups.append(item)
             except OSError as e:
                 log_error(f"加载分组列表失败: {str(e)}")
+                if self._output:
+                    self._output(f"[错误] 无法读取数据目录：{str(e)}")
                 messagebox.showerror("错误", f"无法读取数据目录：{str(e)}")
         
         # 保存分组信息（可选，用于向后兼容）
@@ -71,10 +74,14 @@ class GroupManager:
         
         # 安全性检查：验证分组名称
         if not self._is_valid_group_name(new_name):
+            if self._output:
+                self._output("[警告] 分组名称包含非法字符或格式不正确")
             messagebox.showwarning("提示", "分组名称包含非法字符或格式不正确。\n仅支持字母、数字、中文、下划线、连字符和空格。", parent=parent)
             return None
 
         if new_name in self.groups:
+            if self._output:
+                self._output(f"[警告] 分组「{new_name}」已存在")
             messagebox.showwarning("提示", "分组已存在", parent=parent)
             return None
         
@@ -85,6 +92,8 @@ class GroupManager:
         except Exception as e:
             error_msg = f"创建分组文件夹失败：{str(e)}"
             log_error(error_msg)
+            if self._output:
+                self._output(f"[错误] {error_msg}")
             messagebox.showerror("错误", error_msg, parent=parent)
             return None
         
@@ -97,6 +106,8 @@ class GroupManager:
 
     def delete_group(self, parent=None):
         if self.current_group == DEFAULT_GROUP:
+            if self._output:
+                self._output("[提示] 默认分组不能删除")
             messagebox.showwarning("提示", "默认分组不能删除", parent=parent)
             return False
         
@@ -154,6 +165,8 @@ class GroupManager:
             except Exception as e:
                 error_msg = f"移动文件失败：{str(e)}"
                 log_error(error_msg)
+                if self._output:
+                    self._output(f"[错误] {error_msg}")
                 messagebox.showerror("错误", error_msg, parent=parent)
                 # 如果移动失败，不应该从列表中移除分组，以免数据丢失且无法访问
                 return False

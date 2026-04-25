@@ -7,6 +7,26 @@ import tkinter as tk
 import json
 from tkinter import messagebox, filedialog, ttk, colorchooser
 
+
+def _showinfo(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showinfo(title, msg, **kw)
+
+
+def _showerror(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showerror(title, msg, **kw)
+
+
+def _showwarning(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showwarning(title, msg, **kw)
+
+
+def _askyesno(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    return messagebox.askyesno(title, msg, **kw)
+
 THIS_FILE = os.path.abspath(__file__)
 sys.dont_write_bytecode = True
 _PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(THIS_FILE), "..", ".."))
@@ -99,7 +119,7 @@ def _check_dependencies():
                     def copy_cmd(cmd):
                         win.clipboard_clear()
                         win.clipboard_append(cmd)
-                        messagebox.showinfo("复制成功", f"已复制命令到剪贴板\n\n{cmd}")
+                        _showinfo("复制成功", f"已复制命令到剪贴板\n\n{cmd}")
                     
                     ttk.Button(frame, text="复制", command=lambda c=cmd_with_mirror: copy_cmd(c)).pack(side=tk.LEFT, padx=5)
                 
@@ -353,7 +373,7 @@ class PDFToolApp:
         if pdfs:
             self._add_files(pdfs)
         else:
-            messagebox.showinfo("提示", "该文件夹中没有PDF文件")
+            _showinfo("提示", "该文件夹中没有PDF文件")
 
     def _add_files(self, paths):
         existing = {self.tree.item(item, 'values')[4] for item in self.tree.get_children()}
@@ -373,7 +393,7 @@ class PDFToolApp:
                 self.pdf_files.append(p)
                 added += 1
             except Exception as e:
-                messagebox.showwarning("无法读取", f"{os.path.basename(p)}\n{e}")
+                _showwarning("无法读取", f"{os.path.basename(p)}\n{e}")
         self._update_status()
 
     def _get_pdf_info(self, path):
@@ -428,7 +448,7 @@ class PDFToolApp:
         to_remove = [item for item in self.tree.get_children()
                      if self.tree.item(item, 'values')[0] == '✔']
         if not to_remove:
-            messagebox.showinfo("提示", "请先勾选要移除的文件")
+            _showinfo("提示", "请先勾选要移除的文件")
             return
         for item in to_remove:
             path = self.tree.item(item, 'values')[4]
@@ -529,7 +549,7 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
 
         config = {'files': files}
@@ -839,7 +859,7 @@ class PDFToolApp:
             msg = f"水印添加完成！\n\n成功：{success} 个"
             if errors:
                 msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: messagebox.showinfo("完成", msg))
+            self.root.after(0, lambda: _showinfo("完成", msg))
             self.root.after(0, lambda: self.status_var.set(f"水印完成：{success} 成功，{len(errors)} 失败"))
             self.processing = False
 
@@ -947,10 +967,10 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
         if len(files) < 2:
-            messagebox.showinfo("提示", "合并至少需要2个PDF文件")
+            _showinfo("提示", "合并至少需要2个PDF文件")
             return
 
         win = tk.Toplevel(self.root)
@@ -1080,11 +1100,11 @@ class PDFToolApp:
                     os.replace(out_path + '.tmp.pdf', out_path)
 
                 self.root.after(0, lambda: self.progress.configure(value=100))
-                self.root.after(0, lambda: messagebox.showinfo("完成", f"PDF合并完成！\n\n保存至：{out_path}"))
+                self.root.after(0, lambda: _showinfo("完成", f"PDF合并完成！\n\n保存至：{out_path}"))
                 self.root.after(0, lambda: self.status_var.set("合并完成"))
 
             except Exception as e:
-                self.root.after(0, lambda: messagebox.showerror("合并失败", str(e)))
+                self.root.after(0, lambda: _showerror("合并失败", str(e)))
                 self.root.after(0, lambda: self.status_var.set("合并失败"))
             finally:
                 self.processing = False
@@ -1098,7 +1118,7 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
 
         win = tk.Toplevel(self.root)
@@ -1195,7 +1215,7 @@ class PDFToolApp:
             msg = f"拆分完成！\n\n成功：{success} 个"
             if errors:
                 msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: messagebox.showinfo("完成", msg))
+            self.root.after(0, lambda: _showinfo("完成", msg))
             self.root.after(0, lambda: self.status_var.set(f"拆分完成：{success} 成功"))
             self.processing = False
 
@@ -1221,7 +1241,7 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
 
         win = tk.Toplevel(self.root)
@@ -1282,7 +1302,7 @@ class PDFToolApp:
             msg = f"提取完成！\n\n成功：{success} 个"
             if errors:
                 msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: messagebox.showinfo("完成", msg))
+            self.root.after(0, lambda: _showinfo("完成", msg))
             self.root.after(0, lambda: self.status_var.set(f"提取完成：{success} 成功"))
             self.processing = False
 
@@ -1295,7 +1315,7 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
 
         win = tk.Toplevel(self.root)
@@ -1374,7 +1394,7 @@ class PDFToolApp:
             msg = f"{'加密' if mode == 'encrypt' else '解密'}完成！\n\n成功：{success} 个"
             if errors:
                 msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: messagebox.showinfo("完成", msg))
+            self.root.after(0, lambda: _showinfo("完成", msg))
             self.root.after(0, lambda: self.status_var.set(f"处理完成：{success} 成功"))
             self.processing = False
 
@@ -1387,7 +1407,7 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
 
         win = tk.Toplevel(self.root)
@@ -1459,7 +1479,7 @@ class PDFToolApp:
             msg = f"旋转完成！\n\n成功：{success} 个"
             if errors:
                 msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: messagebox.showinfo("完成", msg))
+            self.root.after(0, lambda: _showinfo("完成", msg))
             self.root.after(0, lambda: self.status_var.set(f"旋转完成：{success} 成功"))
             self.processing = False
 
@@ -1472,7 +1492,7 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
 
         win = tk.Toplevel(self.root)
@@ -1497,7 +1517,7 @@ class PDFToolApp:
         )).pack(side=tk.LEFT)
 
         def do_delete():
-            if not messagebox.askyesno("确认", "确定要删除指定页面吗？此操作不可撤销。"):
+            if not _askyesno("确认", "确定要删除指定页面吗？此操作不可撤销。"):
                 return
             win.destroy()
             self._do_delete_pages(files, pages_var.get(), out_dir_del.get())
@@ -1541,7 +1561,7 @@ class PDFToolApp:
             msg = f"删除页面完成！\n\n成功：{success} 个"
             if errors:
                 msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: messagebox.showinfo("完成", msg))
+            self.root.after(0, lambda: _showinfo("完成", msg))
             self.root.after(0, lambda: self.status_var.set(f"删页完成：{success} 成功"))
             self.processing = False
 
@@ -1554,7 +1574,7 @@ class PDFToolApp:
         if not files:
             files = self._get_all_files()
         if not files:
-            messagebox.showinfo("提示", "请先打开PDF文件")
+            _showinfo("提示", "请先打开PDF文件")
             return
 
         win = tk.Toplevel(self.root)
@@ -1630,7 +1650,7 @@ class PDFToolApp:
             msg = f"转换完成！\n\n成功：{success} 个"
             if errors:
                 msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: messagebox.showinfo("完成", msg))
+            self.root.after(0, lambda: _showinfo("完成", msg))
             self.root.after(0, lambda: self.status_var.set(f"转换完成：{success} 成功"))
             self.processing = False
 
@@ -1639,7 +1659,7 @@ class PDFToolApp:
     # ==================== 关于 ====================
 
     def show_about(self):
-        messagebox.showinfo(
+        _showinfo(
             "关于 PDF 批处理工具",
             "PDF 批处理工具 v1.0\n\n"
             "功能列表：\n"

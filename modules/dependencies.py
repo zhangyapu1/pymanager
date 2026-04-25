@@ -5,9 +5,35 @@ import importlib.util
 import subprocess
 import re
 import time
+import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
 from modules.logger import log_info, log_warning, log_error
+
+def _safe_messagebox(method, title, msg, parent_root=None):
+    result_holder = [None]
+    event = threading.Event()
+    def _show():
+        try:
+            if method == 'askyesno':
+                result_holder[0] = messagebox.askyesno(title, msg, parent=parent_root)
+            elif method == 'showinfo':
+                messagebox.showinfo(title, msg, parent=parent_root)
+                result_holder[0] = True
+            elif method == 'showerror':
+                messagebox.showerror(title, msg, parent=parent_root)
+                result_holder[0] = True
+            elif method == 'showwarning':
+                messagebox.showwarning(title, msg, parent=parent_root)
+                result_holder[0] = True
+        finally:
+            event.set()
+    if parent_root:
+        parent_root.after(0, _show)
+    else:
+        _show()
+    event.wait()
+    return result_holder[0]
 
 # 定义常量
 # 国内镜像源列表（按响应时间排序，最快的在前）
@@ -56,14 +82,15 @@ class DependencyChecker:
         # 1. 安全性校验：验证包名格式
         if not package_name or not PACKAGE_NAME_PATTERN.match(package_name):
             error_msg = f"无效的包名: {package_name}"
+            output(f"[错误] {error_msg}")
             if parent_window:
-                messagebox.showerror("安装失败", error_msg)
+                _safe_messagebox('showerror', "安装失败", error_msg, parent_window)
             else:
                 log_error(error_msg)
             return False
 
         # 2. 准备安装命令
-        base_cmd = [sys.executable, '-m', 'pip', 'install', package_name, '--progress-bar', 'on', '--verbose']
+        base_cmd = [sys.executable, '-m', 'pip', 'install', package_name, '--progress-bar', 'on']
         
         # 3. 尝试安装的源列表
         sources_to_try = []
@@ -73,11 +100,9 @@ class DependencyChecker:
         
         # 4. 输出初始化信息
         def output(message):
-            """输出信息到运行输出窗口"""
+            log_info(message)
             if output_callback:
                 output_callback(message)
-            else:
-                log_info(message)
         
         output(f"开始安装依赖: {package_name}")
         
@@ -95,7 +120,6 @@ class DependencyChecker:
                 cmd.extend(['-i', mirror])
             
             try:
-                # 执行安装命令，实时捕获输出
                 process = subprocess.Popen(
                     cmd,
                     stdout=subprocess.PIPE,
@@ -104,76 +128,17 @@ class DependencyChecker:
                     bufsize=1
                 )
                 
-                # 初始化进度信息
-                progress = 0
-                download_speed = "-"
-                current_file = ""
-                start_time = time.time()
-                last_update_time = start_time
-                last_bytes = 0
-                total_bytes = 0
-                last_output_time = 0
-                
-                # 读取输出
                 for line in iter(process.stdout.readline, ''):
-                    # 检查超时（10秒）
-                    if time.time() - start_time > 10:
-                        process.terminate()
-                        raise subprocess.TimeoutExpired(cmd, 10)
-                    
-                    # 解析进度信息
                     line = line.strip()
                     if line:
-                        # 进度条信息
-                        if 'Downloading' in line and 'of' in line:
-                            # 示例: Downloading https://files.pythonhosted.org/packages/... (1.2 MB of 3.4 MB)
-                            match = re.search(r'\((\d+\.\d+)\s+\w+\s+of\s+(\d+\.\d+)\s+\w+\)', line)
-                            if match:
-                                current = float(match.group(1))
-                                total = float(match.group(2))
-                                progress = int((current / total) * 100)
-                                current_file = line.split(' ')[1]
-                                current_file = current_file.split('/')[-1]
-                                
-                                # 计算下载速度
-                                current_time = time.time()
-                                if current_time - last_update_time > 1:
-                                    bytes_downloaded = current * 1024 * 1024  # 转换为字节
-                                    time_diff = current_time - last_update_time
-                                    speed = (bytes_downloaded - last_bytes) / time_diff
-                                    if speed > 0:
-                                        if speed < 1024:
-                                            download_speed = f"{speed:.2f} B/s"
-                                        elif speed < 1024 * 1024:
-                                            download_speed = f"{speed/1024:.2f} KB/s"
-                                        else:
-                                            download_speed = f"{speed/(1024*1024):.2f} MB/s"
-                                    last_update_time = current_time
-                                    last_bytes = bytes_downloaded
-                            
-                            # 控制输出频率，避免刷屏
-                            current_time = time.time()
-                            if current_time - last_output_time > 0.5:
-                                output(f"下载: {current_file} | 进度: {progress}% | 速度: {download_speed}")
-                                last_output_time = current_time
-                        
-                        # 安装信息
-                        elif 'Installing collected packages' in line:
-                            output("正在安装...")
-                        elif 'Successfully installed' in line:
-                            output("安装完成")
-                        
-                        # 其他重要信息
-                        elif 'ERROR:' in line or 'WARNING:' in line:
-                            output(f"警告: {line}")
+                        output(line)
                 
-                # 等待进程结束
-                process.wait(timeout=10)
+                process.stdout.close()
+                process.wait()
                 
                 if process.returncode == 0:
                     success_msg = f"成功安装包: {package_name} (源: {mirror or '官方源'})"
                     output(success_msg)
-                    log_info(success_msg)
                     return True
                 else:
                     raise subprocess.CalledProcessError(process.returncode, cmd)
@@ -198,7 +163,7 @@ class DependencyChecker:
         error_msg = f"所有源都无法安装 {package_name}"
         output(error_msg)
         if parent_window:
-            messagebox.showerror("安装失败", error_msg)
+            _safe_messagebox('showerror', "安装失败", error_msg, parent_window)
         else:
             log_error(error_msg)
         return False
@@ -303,49 +268,63 @@ class DependencyChecker:
         return missing
 
 def check_self_dependencies(parent_root=None, output_callback=None):
-    """检查主程序自身依赖，如果缺失则询问安装，安装后退出"""
     missing = []
     for pkg in SELF_DEPENDENCIES:
         if not DependencyChecker.is_package_installed(pkg):
             missing.append(pkg)
-    
+
     if missing:
         msg = f"缺少必要依赖：{', '.join(missing)}，是否立即安装？（将使用加速镜像源）"
-        if messagebox.askyesno("缺少依赖", msg):
+        if output_callback:
+            output_callback(msg)
+        if _safe_messagebox('askyesno', "缺少依赖", msg, parent_root):
             all_success = True
             for pkg in missing:
                 success = DependencyChecker.install_package(pkg, parent_root, output_callback=output_callback)
                 if success:
-                    messagebox.showinfo("安装成功", f"{pkg} 安装成功，请重启程序。")
+                    info_msg = f"{pkg} 安装成功，请重启程序。"
+                    if output_callback:
+                        output_callback(info_msg)
+                    _safe_messagebox('showinfo', "安装成功", info_msg, parent_root)
                 else:
-                    messagebox.showerror("安装失败", f"{pkg} 安装失败，请手动安装。")
+                    err_msg = f"{pkg} 安装失败，请手动安装。"
+                    if output_callback:
+                        output_callback(f"[错误] {err_msg}")
+                    _safe_messagebox('showerror', "安装失败", err_msg, parent_root)
                     all_success = False
-            
-            # 无论成功与否，都退出，让用户重启以确保环境干净
-            # 如果部分失败，用户重启后再次运行仍会提示，或者用户需手动处理
+
             sys.exit(0)
         else:
-            messagebox.showwarning("警告", "缺少依赖，程序可能无法正常工作。")
+            warn_msg = "缺少依赖，程序可能无法正常工作。"
+            if output_callback:
+                output_callback(f"[警告] {warn_msg}")
+            _safe_messagebox('showwarning', "警告", warn_msg, parent_root)
 
 def check_script_deps_and_install(script_path, display_name, parent_root=None, output_callback=None):
-    """检查单个脚本的依赖并安装"""
     missing = DependencyChecker.get_missing_dependencies(script_path)
     if not missing:
         return True
-    
+
     msg = f"脚本「{display_name}」缺少以下依赖：\n{', '.join(missing)}\n是否立即安装？（将使用加速镜像源）"
-    if messagebox.askyesno("缺少依赖", msg):
+    if output_callback:
+        output_callback(msg.replace('\n', ' '))
+    if _safe_messagebox('askyesno', "缺少依赖", msg, parent_root):
         for pkg in missing:
             DependencyChecker.install_package(pkg, parent_root, output_callback=output_callback)
-        
-        # 重新检查哪些还没装上
+
         still_missing = [p for p in missing if not DependencyChecker.is_package_installed(p)]
-        
+
         if still_missing:
-            messagebox.showwarning("部分依赖未安装", f"下列依赖未成功安装：{', '.join(still_missing)}")
+            warn_msg = f"下列依赖未成功安装：{', '.join(still_missing)}"
+            if output_callback:
+                output_callback(f"[警告] {warn_msg}")
+            _safe_messagebox('showwarning', "部分依赖未安装", warn_msg, parent_root)
             return False
         else:
-            messagebox.showinfo("完成", "所有缺失依赖已安装")
+            info_msg = "所有缺失依赖已安装"
+            if output_callback:
+                output_callback(info_msg)
+            _safe_messagebox('showinfo', "完成", info_msg, parent_root)
             return True
     else:
         return False

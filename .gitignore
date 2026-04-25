@@ -10,6 +10,7 @@ temp/
 *.tmp
 *.log
 error_log.txt
+logs/
 
 # 忽略备份文件
 backups/

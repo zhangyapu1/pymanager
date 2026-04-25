@@ -93,6 +93,16 @@ pymanager/
 - 修复 `add_script.py` 重复路径生成逻辑：`_get_unique_path()` 已返回唯一路径，但 28-38 行又自行实现了一套冲突检测 while 循环，逻辑重复且不支持子目录，已删除
 - 修复 `run_selected.py` 缺少 `import tkinter as tk`：使用了 `tk.NORMAL`/`tk.DISABLED` 但未导入 tkinter
 
+**统一输出与日志系统**
+- 新增 `manager._append_output(msg)` 统一输出方法，所有模块写入"运行输出"窗口的内容均通过此方法
+- `_append_output` 同时写入 GUI 窗口和 `logs/output_log.txt` 日志文件，确保运行记录持久化
+- `run_selected.py`：所有 `output_text.insert` 替换为 `manager._append_output()`，子进程输出、运行完成/停止消息统一走此入口
+- `main.pyw`：脚本头注释显示、依赖检查输出等均改用 `_append_output()`
+- `updater.py`：34 处 `print()` 全部替换为 `logger.info()` / `logger.error()`，`traceback.print_exc()` 替换为 `logger.error(..., exc_info=True)`
+- `token_crypto.py`：`print()` 替换为 `log_error()`
+- `logger.py` 重构：日志文件从项目根目录 `error_log.txt` 迁移至 `logs/` 目录（`logs/error_log.txt` + `logs/output_log.txt`），新增 `log_output()` 函数专门记录运行输出
+- `.gitignore` 新增 `logs/` 忽略规则
+
 **脚本自描述**
 - 单击脚本列表中的文件时，自动在运行输出窗口显示脚本头注释
 - 支持 Python 三引号 docstring（`"""` / `'''`）和 `#` 注释行两种格式

@@ -38,6 +38,7 @@ def rename_selected(manager):
     )
 
     if not new_name_input or not new_name_input.strip():
+        manager.append_output("重命名已取消")
         manager.status_var.set("重命名已取消")
         return
 
@@ -58,7 +59,9 @@ def rename_selected(manager):
     real_new_path = os.path.realpath(new_abs_path)
 
     if not real_new_path.startswith(real_dir + os.sep) and real_new_path != real_dir:
-        messagebox.showerror("安全错误", "无效的文件名：路径超出允许范围。")
+        msg = "无效的文件名：路径超出允许范围。"
+        manager.append_output(f"[错误] {msg}")
+        messagebox.showerror("安全错误", msg)
         manager.status_var.set("重命名失败：不安全的路径")
         return
 
@@ -75,19 +78,24 @@ def rename_selected(manager):
         item["storage_path"] = final_rel_path
 
         manager.update_listbox()
-        manager.status_var.set(f"已重命名：{old_display} -> {final_rel_path}")
+        msg = f"已重命名：{old_display} -> {final_rel_path}"
+        manager.append_output(msg)
+        manager.status_var.set(msg)
 
         expected_name = new_name_sanitized
         final_display_name = os.path.basename(final_rel_path)
         if final_display_name != expected_name:
-            messagebox.showinfo(
-                "提示",
-                f"由于文件名已存在或包含非法字符，\n实际保存为：{final_display_name}"
-            )
+            info_msg = f"由于文件名已存在或包含非法字符，实际保存为：{final_display_name}"
+            manager.append_output(f"[提示] {info_msg}")
+            messagebox.showinfo("提示", info_msg)
 
     except OSError as e:
-        messagebox.showerror("重命名失败", f"无法重命名文件：{e}")
+        msg = f"无法重命名文件：{e}"
+        manager.append_output(f"[错误] {msg}")
+        messagebox.showerror("重命名失败", msg)
         manager.status_var.set("重命名失败")
     except Exception as e:
-        messagebox.showerror("未知错误", f"发生未知错误：{e}")
+        msg = f"发生未知错误：{e}"
+        manager.append_output(f"[错误] {msg}")
+        messagebox.showerror("未知错误", msg)
         manager.status_var.set("重命名失败")

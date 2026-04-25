@@ -5,6 +5,26 @@ import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+
+def _showinfo(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showinfo(title, msg, **kw)
+
+
+def _showerror(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showerror(title, msg, **kw)
+
+
+def _showwarning(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    messagebox.showwarning(title, msg, **kw)
+
+
+def _askyesno(title, msg, **kw):
+    print(f"[{title}] {msg}")
+    return messagebox.askyesno(title, msg, **kw)
+
 class BatchRenameApp:
     def __init__(self, root):
         self.root = root
@@ -163,16 +183,16 @@ class BatchRenameApp:
         """根据当前模式和参数执行重命名"""
         folder = self.folder_path.get()
         if not os.path.isdir(folder):
-            messagebox.showerror("错误", "请先选择一个有效的文件夹")
+            _showerror("错误", "请先选择一个有效的文件夹")
             return
 
         if not self.original_files:
-            messagebox.showwarning("警告", "文件夹中没有文件，请刷新列表")
+            _showwarning("警告", "文件夹中没有文件，请刷新列表")
             return
 
         mode = self.rename_mode.get()
         # 确认对话框
-        if not messagebox.askyesno("确认", f"即将对 {len(self.original_files)} 个文件执行重命名操作，是否继续？"):
+        if not _askyesno("确认", f"即将对 {len(self.original_files)} 个文件执行重命名操作，是否继续？"):
             return
 
         self.log("开始执行重命名...")
