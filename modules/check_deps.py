@@ -1,5 +1,6 @@
 import logging
 import threading
+import tkinter as tk
 # 假设 manager 有 access to a logger, or define one here
 logger = logging.getLogger(__name__)
 
@@ -38,11 +39,18 @@ def check_deps(manager):
             except Exception:
                 pass
 
+            # 定义输出回调函数
+            def output_to_console(message):
+                """输出信息到运行输出窗口"""
+                manager.root.after(0, lambda: manager.output_text.insert(tk.END, message + '\n'))
+                manager.root.after(0, lambda: manager.output_text.see(tk.END))
+            
             # 执行依赖检查 (耗时操作)
             result = check_script_deps_and_install(
                 storage_path,
                 display_name,
-                manager.root
+                manager.root,
+                output_callback=output_to_console
             )
 
             # 2. 明确处理结果状态

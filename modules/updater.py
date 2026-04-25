@@ -1,6 +1,8 @@
 import os
 import sys
+import logging
 import urllib.request
+import urllib.error
 import json
 import webbrowser
 import shutil
@@ -13,8 +15,10 @@ import glob
 from tkinter import messagebox, simpledialog, ttk
 import tkinter as tk
 
+logger = logging.getLogger(__name__)
+
 # ================== 配置区域 ==================
-CURRENT_VERSION = "1.0.8"
+CURRENT_VERSION = "1.1.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -82,75 +86,86 @@ def is_version_greater(v1, v2):
         # 极端情况下的后备，虽然不准确但防止崩溃
         return v1 > v2
 
-def fetch_latest_version(parent=None):
+def build_auth_headers(parent=None):
+    """构建认证头，返回认证头和认证状态"""
     token = get_api_token()
     if not token and parent:
         token = prompt_for_token(parent)
 
     headers = {"User-Agent": f"ScriptManager/{CURRENT_VERSION}"}
+    auth_status = "未认证"
+
     if token:
         headers["Authorization"] = f"Bearer {token}"
-        # 日志脱敏
-        log_headers = {k: ("***" if k == "Authorization" else v) for k, v in headers.items()}
         auth_status = "已认证"
-    else:
-        log_headers = headers
-        auth_status = "未认证"
 
+    return headers, auth_status
+
+def fetch_release_data(headers):
+    """获取发布数据，处理网络请求和异常"""
+    logger.debug(f"请求URL: {RELEASE_API_URL}")
+    safe_headers = {k: ("***" if k == "Authorization" else v) for k, v in headers.items()}
+    logger.debug(f"请求头: {safe_headers}")
+
+    req = urllib.request.Request(RELEASE_API_URL, headers=headers)
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        logger.debug(f"响应状态码: {resp.status}")
+        if resp.status != 200:
+            raise Exception(f"HTTP {resp.status}")
+        return json.loads(resp.read().decode('utf-8'))
+
+def parse_latest_version(data):
+    """从发布数据中解析最新版本号"""
+    latest = data.get("tag_name", "") or data.get("name", "")
+    if latest.startswith("v"):
+        latest = latest[1:]
+    return latest
+
+def select_download_url(data):
+    """根据优先级选择下载 URL"""
+    assets = data.get("assets", [])
+    preferred_exts = ('.exe', '.zip', '.rar')
+
+    for asset in assets:
+        name = asset.get("name", "")
+        url = asset.get("browser_download_url", "")
+        if any(name.endswith(ext) for ext in preferred_exts):
+            logger.debug(f"选择首选资产: {name}")
+            return url, name
+
+    if assets:
+        first_asset = assets[0]
+        logger.debug(f"选择第一个资产: {first_asset.get('name', '')}")
+        return first_asset.get("browser_download_url", ""), first_asset.get("name", "")
+
+    download_url = data.get("zipball_url", "")
+    if download_url:
+        logger.debug("使用 zipball_url")
+        return download_url, "源码包(zip)"
+
+    download_url = data.get("tarball_url", "")
+    if download_url:
+        logger.debug("使用 tarball_url")
+        return download_url, "源码包(tar)"
+
+    logger.debug("使用 html_url 作为兜底")
+    return data.get("html_url", PROJECT_URL), "项目主页"
+
+def fetch_latest_version(parent=None):
+    """获取最新版本信息和下载链接"""
     try:
-        print(f"请求URL: {RELEASE_API_URL}")
-        print(f"请求头: {log_headers}")
-        req = urllib.request.Request(RELEASE_API_URL, headers=headers)
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            print(f"响应状态码: {resp.status}")
-            data = json.loads(resp.read().decode('utf-8'))
-            
-            # 优先使用tag_name，确保获取到的是版本号而不是标题文字
-            latest = data.get("tag_name", "") or data.get("name", "")
-            if latest.startswith("v"):
-                latest = latest[1:]
-            
-            assets = data.get("assets", [])
-            
-            # 优先选择 .exe 或 .zip 文件，否则取第一个
-            download_url = ""
-            selected_asset_name = ""
-            
-            # 定义优先级扩展名
-            preferred_exts = ('.exe', '.zip', '.rar')
-            
-            for asset in assets:
-                name = asset.get("name", "")
-                url = asset.get("browser_download_url", "")
-                
-                # 优先匹配首选扩展名
-                if any(name.endswith(ext) for ext in preferred_exts):
-                    download_url = url
-                    selected_asset_name = name
-                    break
-            
-            # 如果没有找到首选扩展名，但有资产，取第一个
-            if not download_url and assets:
-                first_asset = assets[0]
-                download_url = first_asset.get("browser_download_url", "")
-                selected_asset_name = first_asset.get("name", "")
+        headers, auth_status = build_auth_headers(parent)
+        safe_headers = {k: ("***" if k == "Authorization" else v) for k, v in headers.items()}
+        logger.debug(f"请求头: {safe_headers}")
 
-            # 如果仍然没有找到资产（例如只有源码包），使用zipball_url
-            if not download_url:
-                download_url = data.get("zipball_url", "")
-                if not download_url:
-                    download_url = data.get("tarball_url", "")
-                
-            # 最后的兜底
-            if not download_url:
-                download_url = data.get("html_url", PROJECT_URL)
+        data = fetch_release_data(headers)
+        latest = parse_latest_version(data)
+        download_url, asset_name = select_download_url(data)
 
-            print(f"最终下载链接: {download_url}")
-            print(f"[{auth_status}] 最新版本: {latest}, 下载链接: {download_url}")
-            return latest, download_url
+        logger.info(f"[{auth_status}] 最新版本: {latest}, 下载链接: {download_url}")
+        return latest, download_url
     except Exception as e:
-        print(f"获取版本失败: {e}")
-        # 即使失败，也返回当前版本和项目URL，以便用户手动更新
+        logger.error(f"获取版本失败: {e}")
         return CURRENT_VERSION, PROJECT_URL
 
 def download_file(url, dest_path, parent):

@@ -4,6 +4,7 @@ import copy
 import math
 import threading
 import tkinter as tk
+import json
 from tkinter import messagebox, filedialog, ttk, colorchooser
 
 THIS_FILE = os.path.abspath(__file__)
@@ -12,28 +13,115 @@ _PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(THIS_FILE), "..", 
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-try:
-    import fitz
-except ImportError:
-    messagebox.showerror(
-        "缺少依赖",
-        "PDF工具需要 PyMuPDF 库。\n请运行：pip install PyMuPDF\n或：pip install PyMuPDF -i https://pypi.tuna.tsinghua.edu.cn/simple"
-    )
-    sys.exit(1)
+# 配置文件路径
+CONFIG_FILE = os.path.join(os.path.dirname(THIS_FILE), 'pdf_tool_config.json')
 
+# 尝试导入依赖检查模块
 try:
-    from reportlab.lib.pagesizes import A4
-    from reportlab.pdfgen import canvas as rl_canvas
-    from reportlab.lib.units import mm
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.lib.colors import Color
+    from modules.dependencies import DependencyChecker
 except ImportError:
-    messagebox.showerror(
-        "缺少依赖",
-        "PDF工具需要 reportlab 库。\n请运行：pip install reportlab\n或：pip install reportlab -i https://pypi.tuna.tsinghua.edu.cn/simple"
-    )
-    sys.exit(1)
+    DependencyChecker = None
+
+def _install_dependency(package, parent_window=None, output_callback=None):
+        """安装依赖包"""
+        if DependencyChecker:
+            return DependencyChecker.install_package(package, parent_window=parent_window, output_callback=output_callback)
+        else:
+            # 没有依赖检查模块，使用手动安装提示
+            import subprocess
+            cmd = [sys.executable, '-m', 'pip', 'install', package, '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple']
+            try:
+                if output_callback:
+                    output_callback(f"安装 {package}...")
+                result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=300)
+                if output_callback:
+                    output_callback(f"成功安装 {package}")
+                return True
+            except Exception as e:
+                if output_callback:
+                    output_callback(f"安装 {package} 失败: {str(e)}")
+                return False
+
+def _check_dependencies():
+    """检查并安装必要依赖"""
+    missing = []
+    
+    # 检查 PyMuPDF
+    try:
+        import fitz
+    except ImportError:
+        missing.append('PyMuPDF')
+    
+    # 检查 reportlab
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfgen import canvas as rl_canvas
+        from reportlab.lib.units import mm
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        from reportlab.lib.colors import Color
+    except ImportError:
+        missing.append('reportlab')
+    
+    if missing:
+        # 自动安装
+        all_success = True
+        for pkg in missing:
+            success = _install_dependency(pkg)
+            if not success:
+                all_success = False
+        
+        if all_success:
+            # 安装成功，重启程序
+            import subprocess
+            subprocess.Popen([sys.executable] + sys.argv)
+            sys.exit(0)
+        else:
+            # 安装失败，显示手动安装提示
+            def show_install_dialog():
+                win = tk.Toplevel()
+                win.title("安装依赖")
+                win.geometry("500x300")
+                win.transient()
+                win.grab_set()
+                
+                ttk.Label(win, text="缺少以下依赖：", font=('', 11, 'bold')).pack(anchor=tk.W, padx=20, pady=10)
+                
+                for pkg in missing:
+                    frame = ttk.Frame(win)
+                    frame.pack(fill=tk.X, padx=20, pady=5)
+                    
+                    cmd_with_mirror = f"pip install {pkg} -i https://pypi.tuna.tsinghua.edu.cn/simple"
+                    
+                    ttk.Label(frame, text=pkg, width=15).pack(side=tk.LEFT)
+                    ttk.Entry(frame, text=cmd_with_mirror, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+                    
+                    def copy_cmd(cmd):
+                        win.clipboard_clear()
+                        win.clipboard_append(cmd)
+                        messagebox.showinfo("复制成功", f"已复制命令到剪贴板\n\n{cmd}")
+                    
+                    ttk.Button(frame, text="复制", command=lambda c=cmd_with_mirror: copy_cmd(c)).pack(side=tk.LEFT, padx=5)
+                
+                ttk.Label(win, text="\n安装完成后请重启程序", foreground='blue').pack(anchor=tk.W, padx=20, pady=10)
+                
+                ttk.Button(win, text="确定", command=win.destroy).pack(pady=10)
+                win.wait_window()
+            
+            show_install_dialog()
+            sys.exit(1)
+
+# 检查依赖
+_check_dependencies()
+
+# 现在导入依赖
+import fitz
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas as rl_canvas
+from reportlab.lib.units import mm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.colors import Color
 
 from pypdf import PdfReader, PdfWriter
 
@@ -79,6 +167,30 @@ _register_fonts()
 _CN_FONT = 'SimHei' if 'SimHei' in pdfmetrics.getRegisteredFontNames() else 'Helvetica'
 
 
+def load_config():
+    """加载配置文件"""
+    default_config = {
+        'output_dir': os.path.join(os.path.expanduser('~'), 'Desktop')
+    }
+    if not os.path.exists(CONFIG_FILE):
+        return default_config
+    try:
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        return {**default_config, **config}
+    except Exception:
+        return default_config
+
+def save_config(config):
+    """保存配置文件"""
+    try:
+        os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception:
+        return False
+
 def _center_window(win, parent, w, h):
     win.geometry(f"{w}x{h}")
     win.update_idletasks()
@@ -93,15 +205,18 @@ class PDFToolApp:
     def __init__(self, root):
         self.root = root
         self.root.title("PDF 批处理工具")
-        self.root.geometry("960x680")
-        self.root.minsize(800, 550)
+        self.root.geometry("1000x680")  # 增加宽度
+        self.root.minsize(900, 550)  # 增加最小宽度
 
+        # 加载配置
+        self.config = load_config()
         self.pdf_files = []
-        self.output_dir = tk.StringVar(value=os.path.join(os.path.expanduser('~'), 'Desktop'))
+        self.output_dir = tk.StringVar(value=self.config.get('output_dir', os.path.join(os.path.expanduser('~'), 'Desktop')))
         self.processing = False
 
         self._build_menu()
         self._build_ui()
+        self._setup_drag_drop()  # 添加拖放支持
         self._update_status()
 
     # ==================== UI 构建 ====================
@@ -243,6 +358,12 @@ class PDFToolApp:
     def _add_files(self, paths):
         existing = {self.tree.item(item, 'values')[4] for item in self.tree.get_children()}
         added = 0
+        # 如果是第一次添加文件，设置默认输出目录为第一个文件的所在目录
+        if not self.pdf_files and paths:
+            first_file_dir = os.path.dirname(paths[0])
+            self.output_dir.set(first_file_dir)
+            self.config['output_dir'] = first_file_dir
+            save_config(self.config)
         for p in paths:
             if p in existing:
                 continue
@@ -343,6 +464,9 @@ class PDFToolApp:
         d = filedialog.askdirectory(title="选择输出目录", initialdir=self.output_dir.get())
         if d:
             self.output_dir.set(d)
+            # 保存配置
+            self.config['output_dir'] = d
+            save_config(self.config)
 
     def _get_checked_files(self):
         result = []
@@ -363,6 +487,40 @@ class PDFToolApp:
         total = len(self.tree.get_children())
         checked = len(self._get_checked_files())
         self.status_var.set(f"共 {total} 个文件，已选 {checked} 个")
+
+    def _setup_drag_drop(self):
+        """设置拖放支持"""
+        try:
+            from tkinterdnd2 import DND_FILES, TkinterDnD
+            if isinstance(self.root, TkinterDnD.Tk):
+                self.tree.drop_target_register(DND_FILES)
+                self.tree.dnd_bind('<<Drop>>', self._on_drop)
+                self.status_var.set("就绪 - 可拖拽PDF文件到列表中")
+        except ImportError:
+            pass
+
+    def _on_drop(self, event):
+        """处理拖放事件"""
+        files = self._parse_dropped_files(event.data)
+        if files:
+            self._add_files(files)
+
+    def _parse_dropped_files(self, data):
+        """解析拖放的文件路径"""
+        files = []
+        if data:
+            # 处理不同格式的拖放数据
+            if data.startswith('{') and data.endswith('}'):
+                # Windows 格式: {C:\path\to\file.pdf}
+                paths = data.strip('{}').split('} {')
+            else:
+                # 其他格式，按空格分割
+                paths = data.split()
+            for path in paths:
+                path = path.strip()
+                if path and path.lower().endswith('.pdf') and os.path.exists(path):
+                    files.append(path)
+        return files
 
     # ==================== 水印功能 ====================
 
@@ -900,7 +1058,7 @@ class PDFToolApp:
                         'font_size': 30,
                         'color': '#808080',
                         'opacity': 0.2,
-                        'layer': 'under',
+                        'layer': 'over',
                         'angle': 45,
                         'output_dir': out_dir,
                         'save_mode': 'overwrite',
@@ -1497,7 +1655,11 @@ class PDFToolApp:
         )
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
+if __name__ == '__main__':
+    try:
+        from tkinterdnd2 import TkinterDnD
+        root = TkinterDnD.Tk()
+    except ImportError:
+        root = tk.Tk()
     app = PDFToolApp(root)
     root.mainloop()

@@ -31,14 +31,20 @@ class ScriptManager:
         self.scripts = []
         self.group_manager = GroupManager(self.data_dir)
 
+        self.create_widgets()
+
         try:
-            check_self_dependencies(self.root)
+            # 定义输出回调函数
+            def output_to_console(message):
+                """输出信息到运行输出窗口"""
+                self.output_text.insert(tk.END, message + '\n')
+                self.output_text.see(tk.END)
+            
+            check_self_dependencies(self.root, output_callback=output_to_console)
         except Exception as e:
             log_error(f"依赖检查失败：{str(e)}")
             messagebox.showerror("初始化错误", f"依赖检查时出错：\n{str(e)}\n\n详细信息已写入 error_log.txt")
             sys.exit(1)
-
-        self.create_widgets()
         self.scan_data_directory()
         self.setup_drag_drop()
         update_title_mode(self.root)
@@ -281,10 +287,13 @@ class ScriptManager:
         self.group_manager.save_groups()
         
         # 异步检查依赖，避免阻塞 UI
-        # 注意：原代码是同步调用，如果检查耗时会卡住 UI。
-        # 这里保持原逻辑，但建议在实际 check_script_deps_and_install 内部处理异步或快速返回
+        def output_to_console(message):
+            """输出信息到运行输出窗口"""
+            self.output_text.insert(tk.END, message + '\n')
+            self.output_text.see(tk.END)
+        
         try:
-            check_script_deps_and_install(dest_path, display_name, self.root)
+            check_script_deps_and_install(dest_path, display_name, self.root, output_callback=output_to_console)
         except Exception as e:
             log_error(f"依赖检查异常: {str(e)}")
 

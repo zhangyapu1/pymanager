@@ -1,14 +1,25 @@
 import os
 import sys
-
-sys.dont_write_bytecode = True
-
 import json
 import re
 import threading
 import urllib.request
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
+
+sys.dont_write_bytecode = True
+
+# 添加日志功能
+try:
+    from modules.logger import log_info, log_warning, log_error
+except ImportError:
+    # 如果没有logger模块，使用print作为备选
+    def log_info(msg):
+        print(f"[INFO] {msg}")
+    def log_warning(msg):
+        print(f"[WARNING] {msg}")
+    def log_error(msg):
+        print(f"[ERROR] {msg}")
 
 THIS_FILE = os.path.abspath(__file__)
 
@@ -51,7 +62,7 @@ def save_data(data):
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"保存数据失败: {e}")
+        log_error(f"保存数据失败: {e}")
 
 
 def fetch_releases(owner, repo):
@@ -66,11 +77,11 @@ def fetch_releases(owner, repo):
             remaining = resp.headers.get("X-RateLimit-Remaining", "?")
             limit = resp.headers.get("X-RateLimit-Limit", "?")
             reset_ts = resp.headers.get("X-RateLimit-Reset", "")
-            print(f"API 限额: {remaining}/{limit} 剩余")
+            log_info(f"API 限额: {remaining}/{limit} 剩余")
             if reset_ts:
                 import time
                 reset_time = time.strftime("%H:%M:%S", time.localtime(int(reset_ts)))
-                print(f"限额重置时间: {reset_time}")
+                log_info(f"限额重置时间: {reset_time}")
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         if e.code == 403:
@@ -178,7 +189,7 @@ def save_to_source_code(data):
             f.write(content)
         return True
     except Exception as e:
-        print(f"保存到源代码失败: {e}")
+        log_error(f"保存到源代码失败: {e}")
         return False
 
 
