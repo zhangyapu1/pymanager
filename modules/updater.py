@@ -18,7 +18,7 @@ import tkinter as tk
 logger = logging.getLogger(__name__)
 
 # ================== 配置区域 ==================
-CURRENT_VERSION = "1.1.0"
+CURRENT_VERSION = "1.2.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"

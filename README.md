@@ -6,10 +6,28 @@
 
 ```
 pymanager/
-├── data/                    # 脚本存放目录
-│   └── 系统工具/            # 工具脚本子目录
+├── data/                    # 脚本存放目录（按分组组织子目录）
+│   └── 系统工具/            # 分组子目录
+│       ├── Disable_Windows_Update.py
+│       └── GitHub_Releases_Tracker.py
 ├── modules/                 # 功能模块
+│   ├── __init__.py
+│   ├── add_script.py        # 添加脚本
+│   ├── check_deps.py        # 依赖检查
+│   ├── config.py            # 路径与配置常量
+│   ├── delete_selected.py   # 删除脚本
+│   ├── dependencies.py      # 依赖解析与安装
+│   ├── drag_drop.py         # 拖拽支持
+│   ├── edit_content.py      # 编辑脚本内容
+│   ├── group_manager.py     # 分组管理
+│   ├── logger.py            # 日志记录
+│   ├── rename_selected.py   # 重命名脚本
+│   ├── run_selected.py      # 运行与停止脚本
+│   ├── token_crypto.py      # Token 加密存储
+│   ├── updater.py           # 自动更新
+│   └── utils.py             # 通用工具
 ├── main.pyw                 # 程序入口
+├── REQUIREMENTS.md          # 需求文档
 ├── README.md
 └── .gitignore
 ```
@@ -29,7 +47,6 @@ pymanager/
 | `logger` | 日志记录 |
 | `rename_selected` | 重命名选中脚本 |
 | `run_selected` | 运行选中脚本 |
-| `storage` | 数据存储 |
 | `token_crypto` | API Token 加密 |
 | `updater` | 自动更新检查 |
 | `utils` | 通用工具函数 |
@@ -43,6 +60,43 @@ pymanager/
 - **自动更新**：检查并更新到最新版本
 
 ## 更新日志
+
+### v1.2.0
+
+**废弃代码清理**
+- 删除 `storage.py` 模块（主流程已改用目录扫描，pickle 序列化不再使用）
+- 清理 `config.py` 中与 pickle 存储相关的 `CONFIG_FILE`、`CONFIG_FILE_NAME` 常量
+- 移除 README 模块说明表中已删除的 `storage` 条目
+
+**线程安全修复**
+- 所有耗时操作的 UI 更新统一通过 `root.after(0, callback)` 调度，杜绝跨线程直接操作 Tkinter 控件
+  - `run_selected.py`：后台线程的输出插入、状态栏更新、按钮状态变更全部改为 `root.after` 调度
+  - `check_deps.py`：后台线程中所有 `status_var.set` 和输出回调改为 `root.after` 调度
+  - `main.pyw`：`output_to_console` 回调统一使用 `root.after`，新增 `_append_output()` 线程安全入口
+- 修复 `stop_running()` 直接操作 UI 控件的线程安全问题，提取 `_on_stopped()` 函数通过 `root.after` 调度
+- 修复 `_on_stopped` 与 `_on_run_complete` 竞态条件：用户停止脚本后，后台线程仍会调度"运行完成"回调，导致输出窗口同时出现"已停止"和"运行完成"两条消息。新增 `_process_stopped` 标志，`_on_run_complete` 检测到该标志后跳过执行
+
+**运行控制增强**
+- 保存 `subprocess.Popen` 引用到 `manager.running_process`
+- 新增 **⏹ 停止运行** 按钮，调用 `process.terminate()` 终止正在运行的脚本
+- 运行时自动启用停止按钮，运行完成后自动禁用
+- 运行前检查是否已有进程在执行，防止重复启动
+
+**路径系统重构**
+- `storage_path` 字段统一改为相对路径（基于 `data_dir`），如 `"脚本.py"` 或 `"工具组/脚本.py"`
+- 新增 `manager._resolve_path(rel_path)` 方法，在需要绝对路径时统一解析
+- 所有模块（`add_script`、`delete_selected`、`rename_selected`、`edit_content`、`check_deps`、`run_selected`）均已适配相对路径
+- 路径分隔符统一使用 `/`，确保跨平台一致性
+- 修复 `run_selected.py` 路径解析不一致问题：内联的 `os.path.join` + `os.path.isabs` 替换为 `manager._resolve_path()`，与其他模块保持统一入口
+
+**代码质量修复**
+- 修复 `add_script.py` 重复路径生成逻辑：`_get_unique_path()` 已返回唯一路径，但 28-38 行又自行实现了一套冲突检测 while 循环，逻辑重复且不支持子目录，已删除
+- 修复 `run_selected.py` 缺少 `import tkinter as tk`：使用了 `tk.NORMAL`/`tk.DISABLED` 但未导入 tkinter
+
+**脚本自描述**
+- 单击脚本列表中的文件时，自动在运行输出窗口显示脚本头注释
+- 支持 Python 三引号 docstring（`"""` / `'''`）和 `#` 注释行两种格式
+- 无头注释的脚本显示"该脚本无头注释"提示
 
 ### v1.1.0
 

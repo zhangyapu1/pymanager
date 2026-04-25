@@ -91,24 +91,8 @@ class BatchRenameApp:
                   bg="lightgreen", width=15).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="退出", command=self.root.quit, width=10).pack(side=tk.LEFT, padx=5)
 
-        # 6. 日志/状态区域
-        frame_log = tk.LabelFrame(self.root, text="操作日志", padx=5, pady=5)
-        frame_log.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
-        self.log_text = tk.Text(frame_log, height=8, state=tk.DISABLED, wrap=tk.WORD)
-        scrollbar_log = tk.Scrollbar(frame_log, command=self.log_text.yview)
-        self.log_text.configure(yscrollcommand=scrollbar_log.set)
-        scrollbar_log.pack(side=tk.RIGHT, fill=tk.Y)
-        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
     def log(self, message):
-        """在日志区域追加消息"""
-        self.log_text.config(state=tk.NORMAL)
-        self.log_text.insert(tk.END, message + "\n")
-        self.log_text.see(tk.END)
-        self.log_text.config(state=tk.DISABLED)
-        # 强制更新UI以显示最新日志，防止长任务时界面无响应感
-        self.root.update_idletasks()
+        print(message, flush=True)
 
     def select_folder(self):
         """弹出文件夹选择对话框"""
@@ -191,10 +175,6 @@ class BatchRenameApp:
         if not messagebox.askyesno("确认", f"即将对 {len(self.original_files)} 个文件执行重命名操作，是否继续？"):
             return
 
-        # 清空日志，开始操作
-        self.log_text.config(state=tk.NORMAL)
-        self.log_text.delete(1.0, tk.END)
-        self.log_text.config(state=tk.DISABLED)
         self.log("开始执行重命名...")
 
         try:

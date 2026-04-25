@@ -1,5 +1,5 @@
 from .add_script import add_script, add_script_from_path
-from .run_selected import run_selected
+from .run_selected import run_selected, stop_running
 from .rename_selected import rename_selected
 from .edit_content import edit_content
 from .check_deps import check_deps
@@ -10,6 +10,7 @@ __all__ = [
     "add_script",
     "add_script_from_path",
     "run_selected",
+    "stop_running",
     "rename_selected",
     "edit_content",
     "check_deps",
