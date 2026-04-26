@@ -116,6 +116,16 @@ pymanager/
 
 ## 更新日志
 
+### v1.6.3
+
+**🔧 更新机制修复**
+- 修复下载更新后空目录未清理的问题：循环清理嵌套空目录，直到无新空目录产生
+- 修复下载更新后未自动重启的问题：重启脚本添加 `taskkill /f /pid` 强制终止旧进程（支持 .pyw 入口）
+- .exe 更新增加文件复制重试机制（最多5次），防止进程未完全退出导致文件被占用
+- manifest.json 移入 config/ 目录，不再放在项目根目录
+- 更新时强制清理 `.trae/`、`tests/`、`.gitignore`、`REQUIREMENTS.md`、根目录 `manifest.json`
+- manifest 生成排除 `.trae/`、`tests/`、`.gitignore`、`REQUIREMENTS.md`，不纳入发布包
+
 ### v1.6.2
 
 **📝 文档改进**

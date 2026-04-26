@@ -5,15 +5,16 @@
     1. 扫描项目目录下所有文件，生成相对路径列表
     2. 排除受保护目录和文件（data/、config/、用户配置等）
     3. 从 updater.py 读取当前版本号
-    4. 输出 JSON 格式的清单文件
+    4. 输出 JSON 格式的清单文件到 config/manifest.json
 
 常量：
     PROTECTED_DIRS - 受保护目录集合，扫描时跳过
         data, config, logs, backups, __pycache__, .git, .idea, .vscode,
-        .pytest_cache, node_modules
+        .pytest_cache, node_modules, .trae, tests
 
     PROTECTED_FILES - 受保护文件集合，不纳入清单
-        manifest.json, settings.json, groups_meta.json
+        manifest.json, settings.json, groups_meta.json,
+        .gitignore, REQUIREMENTS.md
 
     SKIP_EXTENSIONS - 跳过的文件扩展名
         .pyc, .pyo, .log, .tmp
@@ -27,7 +28,7 @@
         base_dir 默认为项目根目录
 
     write_manifest(base_dir=None, output_path=None)：
-        生成并写入 manifest.json 文件
+        生成并写入 config/manifest.json 文件
         返回输出文件路径
 
     _read_version(base_dir)：
@@ -37,7 +38,7 @@
     python -m modules.manifest_generator [base_dir]
 
 更新流程中的使用：
-    1. 发布新版本前运行生成 manifest.json
+    1. 发布新版本前运行生成 config/manifest.json
     2. 更新时下载新版本清单
     3. 对比本地清单与新清单，删除新版本中不存在的文件
 
@@ -51,10 +52,12 @@ PROTECTED_DIRS = {
     "data", "config", "logs", "backups",
     "__pycache__", ".git", ".idea", ".vscode",
     ".pytest_cache", "node_modules",
+    ".trae", "tests",
 }
 
 PROTECTED_FILES = {
     "manifest.json", "settings.json", "groups_meta.json",
+    ".gitignore", "REQUIREMENTS.md",
 }
 
 SKIP_EXTENSIONS = {
@@ -124,7 +127,9 @@ def write_manifest(base_dir=None, output_path=None):
             parent = os.path.dirname(base_dir)
             if os.path.basename(base_dir) == "modules":
                 base_dir = parent
-        output_path = os.path.join(base_dir, "manifest.json")
+        config_dir = os.path.join(base_dir, "config")
+        os.makedirs(config_dir, exist_ok=True)
+        output_path = os.path.join(config_dir, "manifest.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
     return output_path

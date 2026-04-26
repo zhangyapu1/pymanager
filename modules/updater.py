@@ -2,7 +2,7 @@
 自动更新 - 检查 GitHub Releases 并提示或执行应用更新，支持清单对比清理。
 
 常量：
-    CURRENT_VERSION - 当前版本号 "1.6.2"
+    CURRENT_VERSION - 当前版本号 "1.6.3"
     PROJECT_URL     - 项目主页 https://github.com/zhangyapu1/pymanager
     REPO_OWNER      - GitHub 仓库所有者
     REPO_NAME       - GitHub 仓库名
@@ -82,7 +82,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.6.2"
+CURRENT_VERSION = "1.6.3"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -396,7 +396,9 @@ def cleanup_old_backups(backup_dir, output_callback=None):
 
 
 def _load_manifest(directory):
-    manifest_path = os.path.join(directory, "manifest.json")
+    manifest_path = os.path.join(directory, "config", "manifest.json")
+    if not os.path.exists(manifest_path):
+        manifest_path = os.path.join(directory, "manifest.json")
     if not os.path.exists(manifest_path):
         return None
     try:
@@ -423,6 +425,9 @@ def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
     protected_dirs = {"data", "config", "logs", "backups", "__pycache__", ".git", ".idea", ".vscode"}
     protected_files = {"settings.json", "groups_meta.json"}
 
+    force_remove_dirs = {".trae", "tests"}
+    force_remove_files = {".gitignore", "REQUIREMENTS.md", "manifest.json"}
+
     removed = 0
     for rel_path in sorted(obsolete):
         parts = rel_path.replace("\\", "/").split("/")
@@ -440,6 +445,25 @@ def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
             except OSError as e:
                 logger.debug(f"删除失败 {rel_path}: {e}")
 
+    for fname in force_remove_files:
+        abs_path = os.path.join(current_dir, fname)
+        if os.path.isfile(abs_path):
+            try:
+                os.remove(abs_path)
+                removed += 1
+                _output(output_callback, f"已删除废弃文件: {fname}")
+            except OSError as e:
+                logger.debug(f"删除失败 {fname}: {e}")
+
+    for dname in force_remove_dirs:
+        abs_path = os.path.join(current_dir, dname)
+        if os.path.isdir(abs_path):
+            try:
+                shutil.rmtree(abs_path)
+                _output(output_callback, f"已删除废弃目录: {dname}")
+            except OSError as e:
+                logger.debug(f"删除目录失败 {dname}: {e}")
+
     empty_dirs = []
     for root, dirs, files in os.walk(current_dir, topdown=False):
         skip = False
@@ -455,16 +479,44 @@ def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
         if not dirs and not files:
             empty_dirs.append(root)
 
+    removed_dirs = 0
     for d in empty_dirs:
         try:
             os.rmdir(d)
+            removed_dirs += 1
             _output(output_callback, f"已删除空目录: {os.path.relpath(d, current_dir)}")
         except OSError:
             pass
 
+    for _ in range(10):
+        found_parent = False
+        for root, dirs, files in os.walk(current_dir, topdown=False):
+            skip = False
+            rel = os.path.relpath(root, current_dir).replace("\\", "/")
+            if rel == ".":
+                continue
+            for p in rel.split("/"):
+                if p in protected_dirs:
+                    skip = True
+                    break
+            if skip:
+                continue
+            if not dirs and not files:
+                try:
+                    os.rmdir(root)
+                    removed_dirs += 1
+                    _output(output_callback, f"已删除空目录: {os.path.relpath(root, current_dir)}")
+                    found_parent = True
+                except OSError:
+                    pass
+        if not found_parent:
+            break
+
     if removed > 0:
         _output(output_callback, f"共清理 {removed} 个废弃文件")
-    else:
+    if removed_dirs > 0:
+        _output(output_callback, f"共清理 {removed_dirs} 个空目录")
+    if removed == 0 and removed_dirs == 0:
         _output(output_callback, "无需清理废弃文件")
 
 
@@ -537,13 +589,18 @@ def apply_update(download_path, parent=None, output_callback=None, ui_callback=N
             _cleanup_obsolete_files(current_dir, extract_dir, output_callback)
 
             current_exe_name = os.path.basename(current_exe)
+            current_pid = os.getpid()
             script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
             safe_current_exe = f'"{current_exe}"'
 
             bat_content = f"""@echo off
 chcp 65001 >nul
-echo 更新完成，正在重启程序...
+echo 更新完成，正在关闭旧进程...
+taskkill /f /pid {current_pid} 2>nul
+taskkill /f /im "{current_exe_name}" 2>nul
 timeout /t 2 /nobreak >nul
+
+echo 正在重启程序...
 start "" {safe_current_exe}
 del "%~f0"
 """
@@ -591,23 +648,37 @@ del "%~f0"
             safe_new_exe = f'"{new_exe}"'
             safe_single_backup = f'"{single_backup_path}"'
             exe_basename = os.path.basename(current_exe)
+            current_pid = os.getpid()
 
             bat_content = f"""@echo off
+setlocal enabledelayedexpansion
 chcp 65001 >nul
 echo 正在更新程序...
 timeout /t 2 /nobreak >nul
 
+taskkill /f /pid {current_pid} 2>nul
 taskkill /f /im "{exe_basename}" 2>nul
-timeout /t 1 /nobreak >nul
+timeout /t 2 /nobreak >nul
 
-copy /y {safe_new_exe} {safe_current_exe}
-if %errorlevel% equ 0 (
+set COPY_OK=0
+for /L %%i in (1,1,5) do (
+    if !COPY_OK! equ 0 (
+        copy /y {safe_new_exe} {safe_current_exe} >nul 2>&1
+        if !errorlevel! equ 0 (
+            set COPY_OK=1
+        ) else (
+            timeout /t 1 /nobreak >nul
+        )
+    )
+)
+
+if !COPY_OK! equ 1 (
     echo 更新成功！
     start "" {safe_current_exe}
 ) else (
     echo 更新失败，尝试恢复备份...
     if exist {safe_single_backup} (
-        copy /y {safe_single_backup} {safe_current_exe}
+        copy /y {safe_single_backup} {safe_current_exe} >nul 2>&1
         start "" {safe_current_exe}
     ) else (
         echo 严重错误：更新失败且无备份。
@@ -615,6 +686,7 @@ if %errorlevel% equ 0 (
     )
 )
 
+endlocal
 del "%~f0"
 """
             with open(script_path, "w", encoding='gbk') as f:
