@@ -61,6 +61,7 @@ import sys
 import logging
 import urllib.request
 import urllib.error
+import urllib.parse
 import json
 import ssl
 import webbrowser
@@ -82,7 +83,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.6.4"
+CURRENT_VERSION = "1.7.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -396,7 +397,9 @@ def cleanup_old_backups(backup_dir, output_callback=None):
 
 
 def _load_manifest(directory):
-    manifest_path = os.path.join(directory, "config", "manifest.json")
+    manifest_path = os.path.join(directory, "modules", "manifest.json")
+    if not os.path.exists(manifest_path):
+        manifest_path = os.path.join(directory, "config", "manifest.json")
     if not os.path.exists(manifest_path):
         manifest_path = os.path.join(directory, "manifest.json")
     if not os.path.exists(manifest_path):
@@ -410,8 +413,11 @@ def _load_manifest(directory):
 
 
 def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
+    old_manifest = _load_manifest(current_dir)
+    new_manifest = _load_manifest(new_extract_dir)
+
     force_remove_dirs = {".trae", "tests"}
-    force_remove_files = {".gitignore", "REQUIREMENTS.md", "manifest.json"}
+    force_remove_files = {".gitignore", "REQUIREMENTS.md", "manifest.json", "config/manifest.json"}
 
     removed = 0
     for fname in force_remove_files:
@@ -432,9 +438,6 @@ def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
                 _output(output_callback, f"已删除废弃目录: {dname}")
             except OSError as e:
                 logger.debug(f"删除目录失败 {dname}: {e}")
-
-    old_manifest = _load_manifest(current_dir)
-    new_manifest = _load_manifest(new_extract_dir)
 
     if old_manifest is None or new_manifest is None:
         _output(output_callback, "缺少清单文件，跳过废弃文件清理")
@@ -782,10 +785,13 @@ def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback
             return True
         else:
             if show_no_update_msg:
-                msg = f"当前已是最新版本 v{CURRENT_VERSION}"
-                _output(output_callback, msg)
+                msg = f"当前已是最新版本 v{CURRENT_VERSION}\n\n是否重新安装当前版本？"
+                _output(output_callback, f"当前已是最新版本 v{CURRENT_VERSION}")
+                confirmed = False
                 if ui_callback:
-                    ui_callback.show_info("检查更新", msg, parent=parent_root)
+                    confirmed = ui_callback.ask_yes_no("检查更新", msg, parent=parent_root)
+                if confirmed:
+                    auto_update(parent_root, download_url, output_callback, ui_callback=ui_callback)
             return False
     except (ValueError, TypeError) as e:
         _output_error(output_callback, f"版本比较出错: {e}")
@@ -860,6 +866,18 @@ def create_github_release(version, changelog, output_callback=None):
 
         html_url = result.get("html_url", "")
         _output(output_callback, f"Release 发布成功: {html_url}")
+
+        upload_url = result.get("upload_url", "")
+        if upload_url:
+            upload_url = upload_url.split("{?")[0]
+            zip_path = _create_release_zip(version)
+            if zip_path and os.path.exists(zip_path):
+                _upload_release_asset(upload_url, zip_path, token, output_callback)
+                try:
+                    os.remove(zip_path)
+                except OSError:
+                    pass
+
         return True
 
     except urllib.error.HTTPError as e:
@@ -872,4 +890,82 @@ def create_github_release(version, changelog, output_callback=None):
         return False
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         _output_error(output_callback, f"发布 Release 失败: {e}")
+        return False
+
+
+def _create_release_zip(version):
+    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    zip_filename = f"pymanager-v{version}.zip"
+    zip_path = os.path.join(tempfile.gettempdir(), zip_filename)
+
+    exclude_dirs = {
+        "data", "config", "logs", "backups",
+        "__pycache__", ".git", ".idea", ".vscode",
+        ".pytest_cache", "node_modules", ".trae", "tests",
+    }
+    exclude_files = {
+        "manifest.json", "settings.json", "groups_meta.json",
+        ".gitignore", "REQUIREMENTS.md",
+    }
+    exclude_exts = {".pyc", ".pyo", ".log", ".tmp"}
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(project_dir):
+            dirs[:] = [d for d in dirs if d not in exclude_dirs]
+            rel_root = os.path.relpath(root, project_dir)
+            for f in files:
+                if f in exclude_files:
+                    continue
+                _, ext = os.path.splitext(f)
+                if ext.lower() in exclude_exts:
+                    continue
+                full_path = os.path.join(root, f)
+                arc_name = os.path.join(rel_root, f) if rel_root != "." else f
+                zf.write(full_path, arc_name)
+
+    return zip_path
+
+
+def _upload_release_asset(upload_url, file_path, token, output_callback=None):
+    file_name = os.path.basename(file_path)
+    file_size = os.path.getsize(file_path)
+
+    url = f"{upload_url}?name={urllib.parse.quote(file_name)}"
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": f"ScriptManager/{CURRENT_VERSION}",
+        "Content-Type": "application/zip",
+        "Content-Length": str(file_size),
+    }
+
+    try:
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+
+        req = urllib.request.Request(url, data=file_data, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                resp.read()
+        except ssl.SSLError:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            with urllib.request.urlopen(req, timeout=120, context=ctx) as resp:
+                resp.read()
+
+        _output(output_callback, f"已上传发布包: {file_name}")
+        return True
+
+    except urllib.error.HTTPError as e:
+        error_body = ""
+        try:
+            error_body = e.read().decode("utf-8")
+        except (OSError, UnicodeDecodeError):
+            pass
+        _output_error(output_callback, f"上传发布包失败 (HTTP {e.code}): {error_body}")
+        return False
+    except (urllib.error.URLError, OSError) as e:
+        _output_error(output_callback, f"上传发布包失败: {e}")
         return False

@@ -116,6 +116,16 @@ pymanager/
 
 ## 更新日志
 
+### v1.7.0
+
+**🚀 更新机制重构**
+- manifest.json 移入 `modules/` 目录（解决 `config/` 被排除导致发布包缺少 manifest 的问题）
+- 发布 Release 时自动打包干净 zip 并上传为 asset（排除 `.trae/`、`tests/`、`.gitignore`、`REQUIREMENTS.md`、`config/` 等）
+- 更新时优先下载 asset zip，回退到 zipball
+- 修复 `_load_manifest` 在强制删除 manifest 后无法读取旧版 manifest 导致对比清理跳过的问题
+- 从 GitHub 仓库移除 `.trae/`、`tests/`、`REQUIREMENTS.md`（添加到 .gitignore）
+- 更新时强制清理 `config/manifest.json`（旧版遗留）
+
 ### v1.6.4
 
 **🐛 更新清理修复**

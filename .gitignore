@@ -26,6 +26,12 @@ backups/
 *.swo
 *~
 
+# 忽略测试文件
+tests/
+
+# 忽略需求文档
+REQUIREMENTS.md
+
 # 忽略操作系统文件
 Thumbs.db
 .DS_Store

@@ -127,9 +127,9 @@ def write_manifest(base_dir=None, output_path=None):
             parent = os.path.dirname(base_dir)
             if os.path.basename(base_dir) == "modules":
                 base_dir = parent
-        config_dir = os.path.join(base_dir, "config")
-        os.makedirs(config_dir, exist_ok=True)
-        output_path = os.path.join(config_dir, "manifest.json")
+        modules_dir = os.path.join(base_dir, "modules")
+        os.makedirs(modules_dir, exist_ok=True)
+        output_path = os.path.join(modules_dir, "manifest.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
     return output_path
