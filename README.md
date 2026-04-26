@@ -33,6 +33,7 @@ pymanager/
 │   ├── list_display.py      # 列表显示与排序
 │   ├── logger.py            # 日志记录
 │   ├── encrypt_utils.py    # API Key 加密存储
+│   ├── manifest_generator.py # 清单生成器（更新时对比清理废弃文件）
 │   ├── process_manager.py   # 进程管理
 │   ├── recent_runs.py       # 最近运行记录
 │   ├── rename_selected.py   # 重命名脚本
@@ -87,6 +88,7 @@ pymanager/
 | `script_selector` | 脚本选择器 |
 | `settings_manager` | JSON 配置管理 |
 | `encrypt_utils` | API Key 加密存储（XOR + Base64，内置默认密钥） |
+| `manifest_generator` | 清单生成器（扫描项目文件生成 manifest.json，更新时对比清理废弃文件） |
 | `script_market` | 脚本市场（GitHub 仓库浏览/搜索、项目下载、README 翻译、AI 项目分析） |
 | `token_crypto` | API Token 加密 |
 | `ui_builder` | UI 组件构建（主界面布局、搜索框） |
@@ -113,6 +115,17 @@ pymanager/
 - **日志管理**：自动清理过期日志（7天过期，单文件1MB截断）
 
 ## 更新日志
+
+### v1.6.1
+
+**📦 更新机制增强**
+- 清单对比清理：新增 `manifest.json` 和 `manifest_generator.py`，更新时自动对比新旧清单，删除废弃文件，清理空目录
+- GitHub Release 自动发布：新增 `create_github_release()` 函数，通过 GitHub API 自动创建 Release
+- 白名单保护：`data/`、`config/`、`logs/`、`backups/` 等用户数据目录更新时永不删除
+
+**🐛 Bug 修复**
+- 修复 `scan_data_directory` 返回 None 导致 TypeError（不再赋值给 `ctx.scripts`）
+- 修复 AI 面板按钮不可见（改用 grid 布局，去掉 `pack_propagate(False)`）
 
 ### v1.6.0
 

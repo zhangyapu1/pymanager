@@ -25,7 +25,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.6.0"
+CURRENT_VERSION = "1.6.1"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -338,6 +338,79 @@ def cleanup_old_backups(backup_dir, output_callback=None):
                 logger.debug(f"清理备份失败 {file}: {e}")
 
 
+def _load_manifest(directory):
+    manifest_path = os.path.join(directory, "manifest.json")
+    if not os.path.exists(manifest_path):
+        return None
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        logger.debug(f"读取清单失败: {e}")
+        return None
+
+
+def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
+    old_manifest = _load_manifest(current_dir)
+    new_manifest = _load_manifest(new_extract_dir)
+
+    if old_manifest is None or new_manifest is None:
+        _output(output_callback, "缺少清单文件，跳过废弃文件清理")
+        return
+
+    old_files = set(old_manifest.get("files", []))
+    new_files = set(new_manifest.get("files", []))
+
+    obsolete = old_files - new_files
+
+    protected_dirs = {"data", "config", "logs", "backups", "__pycache__", ".git", ".idea", ".vscode"}
+    protected_files = {"settings.json", "groups_meta.json"}
+
+    removed = 0
+    for rel_path in sorted(obsolete):
+        parts = rel_path.replace("\\", "/").split("/")
+        if any(p in protected_dirs for p in parts):
+            continue
+        if os.path.basename(rel_path) in protected_files:
+            continue
+
+        abs_path = os.path.join(current_dir, rel_path.replace("/", os.sep))
+        if os.path.isfile(abs_path):
+            try:
+                os.remove(abs_path)
+                removed += 1
+                _output(output_callback, f"已删除废弃文件: {rel_path}")
+            except OSError as e:
+                logger.debug(f"删除失败 {rel_path}: {e}")
+
+    empty_dirs = []
+    for root, dirs, files in os.walk(current_dir, topdown=False):
+        skip = False
+        rel = os.path.relpath(root, current_dir).replace("\\", "/")
+        if rel == ".":
+            continue
+        for p in rel.split("/"):
+            if p in protected_dirs:
+                skip = True
+                break
+        if skip:
+            continue
+        if not dirs and not files:
+            empty_dirs.append(root)
+
+    for d in empty_dirs:
+        try:
+            os.rmdir(d)
+            _output(output_callback, f"已删除空目录: {os.path.relpath(d, current_dir)}")
+        except OSError:
+            pass
+
+    if removed > 0:
+        _output(output_callback, f"共清理 {removed} 个废弃文件")
+    else:
+        _output(output_callback, "无需清理废弃文件")
+
+
 def apply_update(download_path, parent=None, output_callback=None, ui_callback=None):
     current_exe = os.path.abspath(sys.argv[0])
     current_dir = os.path.dirname(current_exe)
@@ -403,6 +476,8 @@ def apply_update(download_path, parent=None, output_callback=None, ui_callback=N
                         logger.debug(f"复制失败 {dst_file}: {e}")
 
             _output(output_callback, f"共复制 {copied} 个文件")
+
+            _cleanup_obsolete_files(current_dir, extract_dir, output_callback)
 
             current_exe_name = os.path.basename(current_exe)
             script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
@@ -610,3 +685,62 @@ def show_version_info(ctx):
     thread = threading.Thread(target=check_version_thread)
     thread.daemon = True
     thread.start()
+
+
+def create_github_release(version, changelog, output_callback=None):
+    token = get_api_token()
+    if not token:
+        default = get_default_token()
+        if default:
+            token = default
+    if not token:
+        _output_error(output_callback, "没有可用的 GitHub Token，无法发布 Release")
+        return False
+
+    tag_name = f"v{version}"
+    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases"
+
+    body = {
+        "tag_name": tag_name,
+        "target_commitish": "main",
+        "name": tag_name,
+        "body": changelog,
+        "draft": False,
+        "prerelease": False,
+    }
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": f"ScriptManager/{CURRENT_VERSION}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        data = json.dumps(body).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+        except ssl.SSLError:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            with urllib.request.urlopen(req, timeout=30, context=ctx) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+
+        html_url = result.get("html_url", "")
+        _output(output_callback, f"Release 发布成功: {html_url}")
+        return True
+
+    except urllib.error.HTTPError as e:
+        error_body = ""
+        try:
+            error_body = e.read().decode("utf-8")
+        except (OSError, UnicodeDecodeError):
+            pass
+        _output_error(output_callback, f"发布 Release 失败 (HTTP {e.code}): {error_body}")
+        return False
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
+        _output_error(output_callback, f"发布 Release 失败: {e}")
+        return False
