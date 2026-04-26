@@ -56,8 +56,12 @@ PROTECTED_DIRS = {
 }
 
 PROTECTED_FILES = {
-    "manifest.json", "settings.json", "groups_meta.json",
+    "settings.json", "groups_meta.json",
     ".gitignore", "REQUIREMENTS.md",
+}
+
+ROOT_PROTECTED_FILES = {
+    "manifest.json",
 }
 
 SKIP_EXTENSIONS = {
@@ -72,6 +76,8 @@ def should_skip(rel_path):
             return True
     name = os.path.basename(rel_path)
     if name in PROTECTED_FILES:
+        return True
+    if name in ROOT_PROTECTED_FILES and len(parts) == 1:
         return True
     _, ext = os.path.splitext(name)
     if ext.lower() in SKIP_EXTENSIONS:

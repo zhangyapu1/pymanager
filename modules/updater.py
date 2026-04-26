@@ -2,7 +2,7 @@
 自动更新 - 检查 GitHub Releases 并提示或执行应用更新，支持清单对比清理。
 
 常量：
-    CURRENT_VERSION - 当前版本号 "1.6.3"
+    CURRENT_VERSION - 当前版本号 "1.7.0"
     PROJECT_URL     - 项目主页 https://github.com/zhangyapu1/pymanager
     REPO_OWNER      - GitHub 仓库所有者
     REPO_NAME       - GitHub 仓库名
@@ -867,17 +867,6 @@ def create_github_release(version, changelog, output_callback=None):
         html_url = result.get("html_url", "")
         _output(output_callback, f"Release 发布成功: {html_url}")
 
-        upload_url = result.get("upload_url", "")
-        if upload_url:
-            upload_url = upload_url.split("{?")[0]
-            zip_path = _create_release_zip(version)
-            if zip_path and os.path.exists(zip_path):
-                _upload_release_asset(upload_url, zip_path, token, output_callback)
-                try:
-                    os.remove(zip_path)
-                except OSError:
-                    pass
-
         return True
 
     except urllib.error.HTTPError as e:
@@ -892,80 +881,3 @@ def create_github_release(version, changelog, output_callback=None):
         _output_error(output_callback, f"发布 Release 失败: {e}")
         return False
 
-
-def _create_release_zip(version):
-    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    zip_filename = f"pymanager-v{version}.zip"
-    zip_path = os.path.join(tempfile.gettempdir(), zip_filename)
-
-    exclude_dirs = {
-        "data", "config", "logs", "backups",
-        "__pycache__", ".git", ".idea", ".vscode",
-        ".pytest_cache", "node_modules", ".trae", "tests",
-    }
-    exclude_files = {
-        "manifest.json", "settings.json", "groups_meta.json",
-        ".gitignore", "REQUIREMENTS.md",
-    }
-    exclude_exts = {".pyc", ".pyo", ".log", ".tmp"}
-
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for root, dirs, files in os.walk(project_dir):
-            dirs[:] = [d for d in dirs if d not in exclude_dirs]
-            rel_root = os.path.relpath(root, project_dir)
-            for f in files:
-                if f in exclude_files:
-                    continue
-                _, ext = os.path.splitext(f)
-                if ext.lower() in exclude_exts:
-                    continue
-                full_path = os.path.join(root, f)
-                arc_name = os.path.join(rel_root, f) if rel_root != "." else f
-                zf.write(full_path, arc_name)
-
-    return zip_path
-
-
-def _upload_release_asset(upload_url, file_path, token, output_callback=None):
-    file_name = os.path.basename(file_path)
-    file_size = os.path.getsize(file_path)
-
-    url = f"{upload_url}?name={urllib.parse.quote(file_name)}"
-
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": f"ScriptManager/{CURRENT_VERSION}",
-        "Content-Type": "application/zip",
-        "Content-Length": str(file_size),
-    }
-
-    try:
-        with open(file_path, "rb") as f:
-            file_data = f.read()
-
-        req = urllib.request.Request(url, data=file_data, headers=headers, method="POST")
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                resp.read()
-        except ssl.SSLError:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            with urllib.request.urlopen(req, timeout=120, context=ctx) as resp:
-                resp.read()
-
-        _output(output_callback, f"已上传发布包: {file_name}")
-        return True
-
-    except urllib.error.HTTPError as e:
-        error_body = ""
-        try:
-            error_body = e.read().decode("utf-8")
-        except (OSError, UnicodeDecodeError):
-            pass
-        _output_error(output_callback, f"上传发布包失败 (HTTP {e.code}): {error_body}")
-        return False
-    except (urllib.error.URLError, OSError) as e:
-        _output_error(output_callback, f"上传发布包失败: {e}")
-        return False

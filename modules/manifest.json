@@ -21,6 +21,7 @@
     "modules/group_manager.py",
     "modules/list_display.py",
     "modules/logger.py",
+    "modules/manifest.json",
     "modules/manifest_generator.py",
     "modules/process_manager.py",
     "modules/recent_runs.py",
