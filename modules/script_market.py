@@ -1421,7 +1421,7 @@ class ScriptMarketWindow:
 
         from modules.script_manager import scan_data_directory
         from modules.settings_manager import save_settings
-        self.ctx.scripts = scan_data_directory(self.ctx)
+        scan_data_directory(self.ctx)
         self.ctx.update_listbox()
         save_settings(self.ctx.settings)
 
@@ -1552,7 +1552,7 @@ class ScriptMarketWindow:
 
         from modules.script_manager import scan_data_directory
         from modules.settings_manager import save_settings
-        self.ctx.scripts = scan_data_directory(self.ctx)
+        scan_data_directory(self.ctx)
         self.ctx.update_listbox()
         save_settings(self.ctx.settings)
 
