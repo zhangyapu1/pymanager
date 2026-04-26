@@ -82,7 +82,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.6.3"
+CURRENT_VERSION = "1.6.4"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -410,41 +410,10 @@ def _load_manifest(directory):
 
 
 def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
-    old_manifest = _load_manifest(current_dir)
-    new_manifest = _load_manifest(new_extract_dir)
-
-    if old_manifest is None or new_manifest is None:
-        _output(output_callback, "缺少清单文件，跳过废弃文件清理")
-        return
-
-    old_files = set(old_manifest.get("files", []))
-    new_files = set(new_manifest.get("files", []))
-
-    obsolete = old_files - new_files
-
-    protected_dirs = {"data", "config", "logs", "backups", "__pycache__", ".git", ".idea", ".vscode"}
-    protected_files = {"settings.json", "groups_meta.json"}
-
     force_remove_dirs = {".trae", "tests"}
     force_remove_files = {".gitignore", "REQUIREMENTS.md", "manifest.json"}
 
     removed = 0
-    for rel_path in sorted(obsolete):
-        parts = rel_path.replace("\\", "/").split("/")
-        if any(p in protected_dirs for p in parts):
-            continue
-        if os.path.basename(rel_path) in protected_files:
-            continue
-
-        abs_path = os.path.join(current_dir, rel_path.replace("/", os.sep))
-        if os.path.isfile(abs_path):
-            try:
-                os.remove(abs_path)
-                removed += 1
-                _output(output_callback, f"已删除废弃文件: {rel_path}")
-            except OSError as e:
-                logger.debug(f"删除失败 {rel_path}: {e}")
-
     for fname in force_remove_files:
         abs_path = os.path.join(current_dir, fname)
         if os.path.isfile(abs_path):
@@ -463,6 +432,37 @@ def _cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
                 _output(output_callback, f"已删除废弃目录: {dname}")
             except OSError as e:
                 logger.debug(f"删除目录失败 {dname}: {e}")
+
+    old_manifest = _load_manifest(current_dir)
+    new_manifest = _load_manifest(new_extract_dir)
+
+    if old_manifest is None or new_manifest is None:
+        _output(output_callback, "缺少清单文件，跳过废弃文件清理")
+        return
+
+    old_files = set(old_manifest.get("files", []))
+    new_files = set(new_manifest.get("files", []))
+
+    obsolete = old_files - new_files
+
+    protected_dirs = {"data", "config", "logs", "backups", "__pycache__", ".git", ".idea", ".vscode"}
+    protected_files = {"settings.json", "groups_meta.json"}
+
+    for rel_path in sorted(obsolete):
+        parts = rel_path.replace("\\", "/").split("/")
+        if any(p in protected_dirs for p in parts):
+            continue
+        if os.path.basename(rel_path) in protected_files:
+            continue
+
+        abs_path = os.path.join(current_dir, rel_path.replace("/", os.sep))
+        if os.path.isfile(abs_path):
+            try:
+                os.remove(abs_path)
+                removed += 1
+                _output(output_callback, f"已删除废弃文件: {rel_path}")
+            except OSError as e:
+                logger.debug(f"删除失败 {rel_path}: {e}")
 
     empty_dirs = []
     for root, dirs, files in os.walk(current_dir, topdown=False):

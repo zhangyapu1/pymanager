@@ -116,6 +116,13 @@ pymanager/
 
 ## 更新日志
 
+### v1.6.4
+
+**🐛 更新清理修复**
+- 修复更新时强制清理（`.trae/`、`tests/`、`.gitignore`、`REQUIREMENTS.md`、`manifest.json`）未执行的问题
+- 原因：强制清理逻辑位于 manifest 缺失检查之后，旧版无 manifest 时直接 return 导致跳过
+- 修复：将强制清理逻辑提前到函数开头，确保无论有无 manifest 都会执行
+
 ### v1.6.3
 
 **🔧 更新机制修复**
