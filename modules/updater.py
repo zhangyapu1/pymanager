@@ -25,7 +25,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.5.0"
+CURRENT_VERSION = "1.6.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"

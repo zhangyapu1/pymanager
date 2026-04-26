@@ -32,6 +32,7 @@ pymanager/
 │   ├── group_manager.py     # 分组管理
 │   ├── list_display.py      # 列表显示与排序
 │   ├── logger.py            # 日志记录
+│   ├── encrypt_utils.py    # API Key 加密存储
 │   ├── process_manager.py   # 进程管理
 │   ├── recent_runs.py       # 最近运行记录
 │   ├── rename_selected.py   # 重命名脚本
@@ -39,6 +40,7 @@ pymanager/
 │   ├── script_collection.py # 脚本集合管理
 │   ├── script_icons.py      # 脚本图标
 │   ├── script_manager.py    # 脚本数据 CRUD
+│   ├── script_market.py     # 脚本市场（GitHub 仓库浏览、下载、翻译、AI 分析）
 │   ├── script_selector.py   # 脚本选择器
 │   ├── settings_manager.py  # JSON 配置管理
 │   ├── token_crypto.py      # Token 加密存储
@@ -84,6 +86,8 @@ pymanager/
 | `script_manager` | 脚本数据 CRUD |
 | `script_selector` | 脚本选择器 |
 | `settings_manager` | JSON 配置管理 |
+| `encrypt_utils` | API Key 加密存储（XOR + Base64，内置默认密钥） |
+| `script_market` | 脚本市场（GitHub 仓库浏览/搜索、项目下载、README 翻译、AI 项目分析） |
 | `token_crypto` | API Token 加密 |
 | `ui_builder` | UI 组件构建（主界面布局、搜索框） |
 | `ui_callback` | UI 操作抽象层（messagebox / filedialog / simpledialog） |
@@ -100,12 +104,47 @@ pymanager/
 - **分组管理**：按类别组织脚本
 - **快速运行**：直接运行 Python 脚本
 - **批量操作**：Ctrl/Shift 多选，批量删除/移动/导出
+- **脚本市场**：浏览 GitHub 仓库，搜索项目，下载项目/文件，README 翻译，AI 项目分析
+- **多翻译服务**：有道翻译、百度翻译、腾讯翻译君，支持分段翻译逐段显示
+- **AI 分析**：智谱AI / 通义千问 项目分析，API Key 加密存储
 - **依赖检查**：自动检测和安装依赖，运行前自动检查，详细状态输出，Python 2 兼容性自动修复，包冲突自动替换
 - **自动更新**：检查并更新到最新版本
 - **统一输出**：所有模块通过 `append_output` 统一输出到"运行输出"窗口和日志文件
 - **日志管理**：自动清理过期日志（7天过期，单文件1MB截断）
 
 ## 更新日志
+
+### v1.6.0
+
+**脚本市场**
+- GitHub 仓库浏览与搜索：浏览热门 Python 仓库，支持关键词搜索
+- 项目下载：支持下载整个项目到 `data/` 目录，或下载单个文件/文件夹
+- 下载进度条：实时显示下载进度
+- 三栏可调布局：仓库列表、文件列表、README 预览宽度可手动拖拽调节（PanedWindow）
+
+**README 翻译**
+- 多翻译服务：有道翻译、百度翻译、腾讯翻译君，可手动切换
+- 分段翻译逐段显示：长文本分段翻译，翻译一段显示一段，无需等待全文完成
+- 翻译滚动条不自动跟随：翻译时不强制滚动到底部，方便阅读已翻译部分
+
+**AI 项目分析**
+- 双 AI 引擎：智谱AI / 通义千问，默认通义千问
+- API Key 加密存储：XOR + Base64 加密，内置默认 Key，失败时弹窗让用户输入
+- Key 管理：保存/删除 Key 按钮，支持切换 AI 时自动加载对应 Key
+- 手动选择 AI 自动设为默认
+
+**UI 改进**
+- 统一按钮配色：所有按钮使用 ttkbootstrap primary 样式
+- 统一窗口底色：所有窗口和组件背景色一致
+- 窗口闪烁修复：翻译进度节流（500ms 间隔），减少 UI 重绘
+- AI 面板 grid 布局：确保所有按钮完整显示
+
+**Bug 修复**
+- 修复 `scan_data_directory` 返回 None 导致 TypeError
+- 修复 GitHub API 403 错误（集成主程序 GitHub Token）
+- 修复翻译卡在"正在翻译中"（增加超时、文本分段、错误日志）
+- 修复窗口关闭后 TclError（添加窗口存活检查）
+- 修复 README 预览显示源代码而非渲染内容
 
 ### v1.5.0
 
