@@ -58,3 +58,10 @@ def test_extract_imports_from_script_from_import(tmp_path):
 def test_extract_imports_from_script_nonexistent():
     result = DependencyChecker.extract_imports_from_script("/nonexistent/script.py")
     assert result == set()
+
+
+def test_extract_imports_from_script_empty(tmp_path):
+    script = tmp_path / "empty.py"
+    script.write_text("", encoding="utf-8")
+    result = DependencyChecker.extract_imports_from_script(str(script))
+    assert result == set()

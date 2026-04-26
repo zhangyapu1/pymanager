@@ -1,3 +1,4 @@
+"""设置管理 - 应用配置和分组元数据的读写。"""
 import json
 import os
 from modules.config import BASE_DIR
@@ -41,7 +42,9 @@ SETTINGS_DEFAULTS = {
     "log": {
         "retain_days": 7,
         "max_file_size_mb": 1
-    }
+    },
+    "favorites": [],
+    "script_icons": {}
 }
 
 
@@ -49,7 +52,10 @@ def load_settings():
     saved = load_json("settings.json", {})
     merged = {}
     for section, defaults in SETTINGS_DEFAULTS.items():
-        merged[section] = {**defaults, **saved.get(section, {})}
+        if isinstance(defaults, dict) and not isinstance(defaults, list):
+            merged[section] = {**defaults, **saved.get(section, {})}
+        else:
+            merged[section] = saved.get(section, defaults)
     return merged
 
 

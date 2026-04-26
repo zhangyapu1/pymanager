@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+"""文件夹内批量重命名 - 批量重命名指定文件夹内的文件。"""
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk

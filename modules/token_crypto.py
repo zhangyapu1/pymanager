@@ -1,3 +1,4 @@
+"""Token 加密 - GitHub API Token 的加密存储与 Windows DPAPI 保护。"""
 import os
 import base64
 import ctypes
@@ -90,3 +91,14 @@ def delete_api_token():
             os.remove(TOKEN_FILE)
         except OSError:
             pass
+
+
+def delete_token_ui(ctx):
+    if not get_api_token():
+        ctx.append_output("[提示] 当前没有保存的 Token。")
+        ctx.ui.show_info("提示", "当前没有保存的 Token。")
+        return
+    if ctx.ui.ask_yes_no("确认删除", "确定要删除已保存的 GitHub API Token 吗？"):
+        delete_api_token()
+        ctx.append_output("已删除保存的 Token")
+        ctx.set_status("已删除保存的 Token")

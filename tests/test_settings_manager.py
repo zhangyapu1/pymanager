@@ -92,3 +92,12 @@ def test_ensure_config_dir(tmp_path, monkeypatch):
     monkeypatch.setattr("modules.settings_manager.CONFIG_DIR", new_dir)
     ensure_config_dir()
     assert os.path.isdir(new_dir)
+
+
+def test_save_json_unicode(tmp_path, monkeypatch):
+    monkeypatch.setattr("modules.settings_manager.CONFIG_DIR", str(tmp_path))
+    data = {"中文": "值", "emoji": "🎉"}
+    assert save_json("unicode.json", data) is True
+    result = load_json("unicode.json")
+    assert result["中文"] == "值"
+    assert result["emoji"] == "🎉"

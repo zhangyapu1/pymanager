@@ -1,32 +1,49 @@
+"""拖放支持 - 解析 Windows 拖放操作传入的文件路径。"""
+import os
 import re
 
-# 预编译正则表达式以提高性能（如果函数被频繁调用）
-# 匹配模式：
-# 1. \{([^{}]*)\} : 匹配花括号内的内容（不支持嵌套花括号），捕获组1
-# 2. ([^\s]+)     : 匹配非空白字符序列，捕获组2
-# 注意：原代码逻辑中，如果花括号内为空，match[0]为空字符串，if p: 会过滤掉。
-# 这里使用 * 允许空匹配，随后通过 if p 过滤，行为与原代码一致但更健壮。
 _PATTERN = re.compile(r'\{([^{}]*)\}|([^\s]+)')
 
+
 def parse_dropped_files(raw):
-    """解析拖拽事件返回的文件路径字符串，返回路径列表"""
-    # 1. 输入验证
     if not isinstance(raw, str):
         return []
-    
     files = []
-    # 2. 直接使用正则查找，移除不安全的 strip 操作
-    # findall 返回元组列表: [('path_in_braces', ''), ('', 'path_no_spaces'), ...]
     matches = _PATTERN.findall(raw)
-    
     for match in matches:
-        # match[0] 是花括号内的内容，match[1] 是非空白内容
-        # 如果花括号匹配成功，match[0] 有值，match[1] 为空
-        # 如果非空白匹配成功，match[0] 为空，match[1] 有值
         p = match[0] if match[0] else match[1]
-        
-        # 3. 过滤空字符串（例如空花括号 {} 或纯空白）
         if p:
             files.append(p)
-            
     return files
+
+
+def setup_drag_drop(ctx):
+    try:
+        from tkinterdnd2 import DND_FILES
+    except ImportError:
+        ctx.append_output("[提示] tkinterdnd2 未安装，拖拽功能不可用。安装后将自动启用。")
+        return
+    listbox = ctx.ui_state.listbox
+    if not listbox:
+        return
+    listbox.drop_target_register(DND_FILES)
+    listbox.dnd_bind('<<Drop>>', lambda e: on_drop(ctx, e))
+
+
+def on_drop(ctx, event):
+    from modules.script_manager import add_script_from_path
+    files = parse_dropped_files(event.data)
+    added = 0
+    skipped = 0
+    for f in files:
+        if not f or not os.path.exists(f):
+            skipped += 1
+            continue
+        if f.lower().endswith('.py'):
+            add_script_from_path(ctx, f)
+            added += 1
+        else:
+            skipped += 1
+    msg = f"拖拽完成：添加 {added} 个脚本，跳过 {skipped} 个非.py文件"
+    ctx.set_status(msg)
+    ctx.append_output(msg)

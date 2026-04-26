@@ -1,3 +1,4 @@
+"""合并多个文件到一个 Excel - 将多个 Excel/CSV 文件合并到一个工作簿的不同工作表中。"""
 import warnings
 # 抑制 openpyxl 相关的 UserWarning
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')

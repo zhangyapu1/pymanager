@@ -1,3 +1,4 @@
+"""GitHub Releases 追踪 - 监控指定仓库的最新 Release 版本。"""
 import os
 import sys
 import json

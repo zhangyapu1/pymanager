@@ -1,3 +1,4 @@
+"""UI 编辑器 - 脚本内容查看和编辑的弹出窗口。"""
 import tkinter as tk
 from tkinter import ttk
 
@@ -20,7 +21,7 @@ class EditorWindow:
         self._win = tk.Toplevel(parent)
         self._win.title(title)
         self._win.geometry("800x600")
-        self._win.configure(bg='#f3f3f3')
+        self._win.configure(bg='#f0f0f0')
 
         self._text = tk.Text(
             self._win, wrap=tk.NONE, font=("Consolas", 10),

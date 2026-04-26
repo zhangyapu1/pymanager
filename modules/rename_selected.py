@@ -1,3 +1,4 @@
+"""重命名脚本 - 重命名选中的脚本文件。"""
 import os
 import re
 

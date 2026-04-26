@@ -1,3 +1,4 @@
+"""UI 回调 - 封装 Tkinter 对话框（错误、警告、输入等）。"""
 from tkinter import messagebox, simpledialog, filedialog
 
 

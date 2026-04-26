@@ -1,3 +1,4 @@
+"""模块包初始化，导出核心功能接口。"""
 from .add_script import add_script
 from .run_selected import run_selected, stop_running
 from .rename_selected import rename_selected

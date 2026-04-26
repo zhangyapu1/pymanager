@@ -1,3 +1,4 @@
+"""合并多个文件的数据表到一页 - 将多个文件的数据表合并到同一个工作表中。"""
 import warnings
 # 抑制所有 openpyxl 相关的 UserWarning
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')

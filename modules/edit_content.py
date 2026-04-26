@@ -1,3 +1,4 @@
+"""编辑脚本 - 用外部编辑器打开脚本并自动检查依赖。"""
 import threading
 import os
 import subprocess

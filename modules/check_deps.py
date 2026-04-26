@@ -1,3 +1,4 @@
+"""依赖检查 - 检查脚本依赖并自动安装缺失的包。"""
 import threading
 
 from .dependencies import DependencyChecker, check_script_deps_and_install
@@ -83,33 +84,53 @@ def check_and_install_deps(abs_path, display_name, parent_root=None, ui_callback
 def check_deps(ctx: AppContext):
     def _run_check():
         try:
-            item = ctx.get_selected_item()
+            items = ctx.get_selected_items()
 
-            if not item:
+            if not items:
                 ctx.schedule_callback(lambda: ctx.set_status("未选中任何脚本，无法检查依赖"))
                 return
 
-            display_name = item.get("display")
-            storage_path = item.get("storage_path")
-
-            if not display_name or not storage_path:
-                ctx.schedule_callback(lambda: ctx.set_status("选中脚本信息不完整，无法检查依赖"))
-                return
-
-            abs_path = resolve_path(ctx.data_dir, storage_path)
-
-            ctx.schedule_callback(lambda: ctx.set_status(f"正在检查脚本「{display_name}」的依赖"))
+            count = len(items)
+            if count == 1:
+                ctx.schedule_callback(lambda: ctx.set_status(f"正在检查脚本依赖..."))
+            else:
+                ctx.schedule_callback(lambda: ctx.set_status(f"正在检查 {count} 个脚本的依赖..."))
 
             def output_to_console(message):
                 log_info(f"[依赖检查] {message}")
                 ctx.schedule_callback(lambda: ctx.append_output(message))
 
-            ok = check_and_install_deps(abs_path, display_name, ctx.get_root_window(), ui_callback=ctx.ui, output_callback=output_to_console)
+            all_ok = True
+            for i, item in enumerate(items, 1):
+                display_name = item.get("display")
+                storage_path = item.get("storage_path")
 
-            if ok:
-                msg = f"依赖检查完成：{display_name} 所有依赖已满足"
+                if not display_name or not storage_path:
+                    output_to_console(f"[跳过] 第 {i} 个脚本信息不完整")
+                    all_ok = False
+                    continue
+
+                abs_path = resolve_path(ctx.data_dir, storage_path)
+
+                if count > 1:
+                    output_to_console(f"━━━ [{i}/{count}] {display_name} ━━━")
+
+                ok = check_and_install_deps(abs_path, display_name, ctx.get_root_window(), ui_callback=ctx.ui, output_callback=output_to_console)
+
+                if not ok:
+                    all_ok = False
+
+            if count == 1:
+                display_name = items[0].get("display", "未知")
+                if all_ok:
+                    msg = f"依赖检查完成：{display_name} 所有依赖已满足"
+                else:
+                    msg = f"依赖检查完成：{display_name} 仍缺少部分依赖"
             else:
-                msg = f"依赖检查完成：{display_name} 仍缺少部分依赖"
+                if all_ok:
+                    msg = f"依赖检查完成：{count} 个脚本所有依赖已满足"
+                else:
+                    msg = f"依赖检查完成：部分脚本仍缺少依赖"
 
             ctx.schedule_callback(lambda: ctx.append_output(msg))
             ctx.schedule_callback(lambda: ctx.set_status(msg))

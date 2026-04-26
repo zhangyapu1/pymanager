@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+"""批量新建文件夹 - 根据列表批量创建文件夹。"""
 import os
 import re
 import tkinter as tk

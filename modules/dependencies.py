@@ -1,3 +1,4 @@
+"""依赖管理 - 解析脚本 import 语句并自动安装缺失的第三方包。"""
 import sys
 import os
 import ast

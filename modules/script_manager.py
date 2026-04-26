@@ -1,3 +1,4 @@
+"""脚本管理 - 脚本文件的扫描、添加、移动和路径解析。"""
 import os
 import shutil
 
@@ -44,13 +45,13 @@ def scan_data_directory(ctx: AppContext):
                 else:
                     group = relative_dir.split('/')[0]
 
-                existing_index = ctx.find_script_by_path(relative_path)
+                existing_index = ctx.scripts.find_by_path(relative_path)
 
                 if existing_index is not None:
-                    ctx.update_script(existing_index, relative_path, group)
+                    ctx.scripts.update(existing_index, relative_path, group)
                     updated += 1
                 else:
-                    ctx.add_script({
+                    ctx.scripts.add({
                         "display": relative_path,
                         "storage_path": relative_path,
                         "group": group
@@ -63,8 +64,8 @@ def scan_data_directory(ctx: AppContext):
 
     groups_changed = False
     for g in groups_set:
-        ctx.add_group(g)
-        if g not in ctx.get_groups():
+        ctx.group_manager.add_group(g)
+        if g not in ctx.group_manager.groups:
             groups_changed = True
 
     if groups_changed:
@@ -106,13 +107,13 @@ def add_script_from_path(ctx: AppContext, src_path):
     new_script = {
         "display": rel_path,
         "storage_path": rel_path,
-        "group": ctx.get_current_group()
+        "group": ctx.group_manager.current_group
     }
 
-    ctx.add_script(new_script)
+    ctx.scripts.add(new_script)
     ctx.update_listbox()
-    ctx.set_status(f"已添加：{rel_path} (分组：{ctx.get_current_group()})")
-    ctx.append_output(f"已添加：{rel_path} (分组：{ctx.get_current_group()})")
+    ctx.set_status(f"已添加：{rel_path} (分组：{ctx.group_manager.current_group})")
+    ctx.append_output(f"已添加：{rel_path} (分组：{ctx.group_manager.current_group})")
 
     ctx.group_manager.save_groups()
 

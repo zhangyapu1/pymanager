@@ -1,4 +1,3 @@
-import os
 import pytest
 from modules.utils import extract_docstring
 
@@ -62,3 +61,8 @@ def test_only_hash_comments_no_code(write_tmp_py):
     result = extract_docstring(path)
     assert "注释1" in result
     assert "注释2" in result
+
+
+def test_chinese_docstring(write_tmp_py):
+    path = write_tmp_py('"""中文文档字符串测试"""\nprint("hello")\n')
+    assert extract_docstring(path) == "中文文档字符串测试"

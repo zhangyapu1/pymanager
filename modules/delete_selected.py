@@ -1,3 +1,4 @@
+"""删除脚本 - 删除选中的脚本文件。"""
 import os
 
 from modules.script_manager import resolve_path
@@ -31,7 +32,7 @@ def delete_selected(ctx: AppContext):
         ctx.ui.show_warning("删除警告", msg)
         return
 
-    ctx.remove_script(item)
+    ctx.scripts.remove(item)
 
     ctx.update_listbox()
     msg = f"已移除：{display_name}"

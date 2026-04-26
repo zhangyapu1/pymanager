@@ -1,3 +1,4 @@
+"""添加脚本 - 通过文件选择对话框将脚本添加到当前分组。"""
 from modules.script_manager import add_script_from_path as _add_script_from_path
 from modules.app_context import AppContext
 

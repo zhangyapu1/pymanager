@@ -1,4 +1,7 @@
+"""工具函数 - 窗口标题模式、docstring 提取等通用工具。"""
 import os
+import sys
+import subprocess
 import tkinter as tk
 
 
@@ -13,6 +16,11 @@ def update_title_mode(root):
         root.title("Python 脚本管理器")
     except (tk.TclError, AttributeError):
         pass
+
+
+def open_program_dir():
+    program_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    subprocess.Popen(f'explorer "{program_dir}"')
 
 
 def extract_docstring(file_path):

@@ -1,3 +1,4 @@
+"""分组管理 - 脚本分组的创建、删除、重命名和脚本移动。"""
 import os
 import shutil
 import re
@@ -176,6 +177,10 @@ class GroupManager:
         self.save_groups()
         self.current_group = DEFAULT_GROUP
         return deleted
+
+    def add_group(self, group_name):
+        if group_name not in self.groups:
+            self.groups.append(group_name)
 
     def set_current_group(self, group_name):
         if group_name in self.groups:

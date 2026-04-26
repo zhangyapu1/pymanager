@@ -1,3 +1,4 @@
+"""UI 构建 - 主界面窗口、控件布局和事件绑定。"""
 import tkinter as tk
 from tkinter import ttk
 
@@ -10,6 +11,9 @@ except ImportError:
 from modules.logger import log_error
 from modules.run_selected import run_selected, stop_running
 from modules.context_menu import show_context_menu
+from modules.token_crypto import delete_token_ui
+from modules.utils import open_program_dir
+from modules.script_manager import scan_data_directory
 from modules.app_context import AppContext
 
 
@@ -44,15 +48,19 @@ def create_widgets(ctx: AppContext):
 
         _create_group_widgets(ctx, top_frame)
 
+        button_frame = ttk.Frame(root)
+        button_frame.pack(fill=tk.X, padx=10, pady=(0, 5))
+
         buttons = [
-            ("\u2795 添加脚本", lambda: _add_script(ctx), "secondary"),
-            ("\U0001f50d 检查依赖", lambda: _check_deps(ctx), "secondary"),
-            ("\U0001f504 检查更新", lambda: _check_updates(ctx), "secondary"),
-            ("\U0001f511 删除Token", lambda: ctx.delete_token(), "secondary"),
-            ("\U0001f4c1 打开程序目录", lambda: ctx.open_program_dir(), "secondary"),
+            ("\u2795 添加脚本", lambda: _add_script(ctx)),
+            ("\U0001f310 脚本市场", lambda: _open_market(ctx)),
+            ("\U0001f50d 检查依赖", lambda: _check_deps(ctx)),
+            ("\U0001f504 检查更新", lambda: _check_updates(ctx)),
+            ("\U0001f511 删除Token", lambda: delete_token_ui(ctx)),
+            ("\U0001f4c1 打开程序目录", lambda: open_program_dir()),
         ]
-        for text, cmd, bootstyle in buttons:
-            btn = _button(top_frame, text=text, command=lambda c=cmd: c(), bootstyle=bootstyle)
+        for text, cmd in buttons:
+            btn = _button(button_frame, text=text, command=lambda c=cmd: c(), bootstyle="primary")
             btn.pack(side=tk.LEFT, padx=4, pady=2)
 
         content_frame = ttk.Frame(root)
@@ -64,12 +72,29 @@ def create_widgets(ctx: AppContext):
         left_label = ttk.Label(left_frame, text="已加载脚本:")
         left_label.pack(anchor=tk.W)
 
+        search_frame = ttk.Frame(left_frame)
+        search_frame.pack(fill=tk.X, pady=(2, 4))
+
+        search_var = tk.StringVar()
+        search_var.trace_add("write", lambda *_: ctx.update_listbox())
+        ctx.ui_state.set_search_var(search_var)
+
+        if HAS_TTKBOOTSTRAP:
+            search_entry = ttkb.Entry(search_frame, textvariable=search_var, width=22, bootstyle="secondary")
+            search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        else:
+            search_entry = ttk.Entry(search_frame, textvariable=search_var, width=22)
+            search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        clear_btn = _button(search_frame, text="\u2715", command=lambda: search_var.set(""), bootstyle="primary")
+        clear_btn.pack(side=tk.RIGHT, padx=(2, 0))
+
         list_frame = ttk.Frame(left_frame)
         list_frame.pack(fill=tk.BOTH, expand=True)
 
         listbox = tk.Listbox(
-            list_frame, selectmode=tk.SINGLE,
-            font=('Consolas', 10), width=25,
+            list_frame, selectmode=tk.EXTENDED,
+            font=('Consolas', 10), width=35,
             bg='#ffffff', fg='#1a1a1a',
             selectbackground='#e0e0e0', selectforeground='#1a1a1a',
             highlightthickness=1, highlightcolor='#cccccc', highlightbackground='#dcdcdc',
@@ -79,7 +104,7 @@ def create_widgets(ctx: AppContext):
         listbox.bind('<Double-Button-1>', lambda e: run_selected(ctx))
         listbox.bind("<Button-3>", lambda e: show_context_menu(ctx, e))
         listbox.bind("<<ListboxSelect>>", ctx.on_script_selected)
-        ctx.set_listbox(listbox)
+        ctx.ui_state.set_listbox(listbox)
 
         scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=listbox.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -94,10 +119,9 @@ def create_widgets(ctx: AppContext):
         output_label = ttk.Label(output_header, text="运行输出:")
         output_label.pack(side=tk.LEFT)
 
-        stop_btn = _button(output_header, text="\u23f9 停止运行", command=lambda: stop_running(ctx), bootstyle="secondary")
+        stop_btn = _button(output_header, text="\u23f9 停止所有", command=lambda: stop_running(ctx), bootstyle="primary")
         stop_btn.pack(side=tk.RIGHT, padx=5)
-        stop_btn.config(state=tk.DISABLED)
-        ctx.set_stop_button(stop_btn)
+        ctx.ui_state.set_stop_button(stop_btn)
 
         output_text = tk.Text(
             right_frame, font=('Consolas', 10),
@@ -108,7 +132,7 @@ def create_widgets(ctx: AppContext):
             highlightthickness=1, highlightcolor='#cccccc', highlightbackground='#dcdcdc'
         )
         output_text.pack(fill=tk.BOTH, expand=True)
-        ctx.set_output_text(output_text)
+        ctx.ui_state.set_output_text(output_text)
 
         output_scrollbar = ttk.Scrollbar(output_text, orient=tk.VERTICAL, command=output_text.yview)
         output_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -120,16 +144,16 @@ def create_widgets(ctx: AppContext):
 
         status_var = tk.StringVar()
         status_var.set("就绪 | 拖拽 .py 文件自动复制存储，并检查依赖")
-        ctx.set_status_var(status_var)
+        ctx.ui_state.set_status_var(status_var)
 
-        status_bar = _label(root, textvariable=status_var, anchor=tk.W, bootstyle="secondary")
+        status_bar = _label(root, textvariable=status_var, anchor=tk.W, bootstyle="secondary", style="Status.TLabel")
         status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
         version_var = tk.StringVar()
         version_var.set("版本信息加载中...")
-        ctx.set_version_var(version_var)
+        ctx.ui_state.set_version_var(version_var)
 
-        version_bar = _label(root, textvariable=version_var, anchor=tk.E, font=('Microsoft YaHei UI', 8), bootstyle="secondary")
+        version_bar = _label(root, textvariable=version_var, anchor=tk.E, font=('Microsoft YaHei UI', 8), bootstyle="secondary", style="Version.TLabel")
         version_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
     except (tk.TclError, OSError) as e:
@@ -170,43 +194,71 @@ def _check_updates(ctx: AppContext):
     updater.check_for_updates(ctx.get_root_window(), ui_callback=ctx.ui, show_no_update_msg=True, output_callback=ctx.append_output)
 
 
+def _open_market(ctx: AppContext):
+    from modules.script_market import open_script_market
+    open_script_market(ctx)
+
+
 def _create_group_widgets(ctx: AppContext, parent_frame):
     ttk.Label(parent_frame, text="分组：").pack(side=tk.LEFT, padx=5)
 
     combo = _combobox(parent_frame, state="readonly", width=20)
     combo.pack(side=tk.LEFT, padx=5)
-    combo['values'] = ctx.get_groups()
-    combo.set(ctx.get_current_group())
-    ctx.set_group_combo(combo)
+    combo['values'] = list(ctx.group_manager.groups)
+    combo.set(ctx.group_manager.current_group)
+    ctx.ui_state.set_group_combo(combo)
 
     def on_select(event):
         selected = combo.get()
-        groups = ctx.get_groups()
+        groups = list(ctx.group_manager.groups)
         if selected in groups:
             ctx.group_manager.set_current_group(selected)
             ctx.on_group_changed(selected)
             ctx.refresh_group_combo()
         else:
-            combo.set(ctx.get_current_group())
+            combo.set(ctx.group_manager.current_group)
 
     combo.bind("<<ComboboxSelected>>", on_select)
 
-    new_btn = _button(parent_frame, text="新建分组", command=lambda: _new_group_ui(ctx), bootstyle="secondary")
+    new_btn = _button(parent_frame, text="新建分组", command=lambda: _new_group_ui(ctx), bootstyle="primary")
     new_btn.pack(side=tk.LEFT, padx=4)
 
-    del_btn = _button(parent_frame, text="删除分组", command=lambda: _delete_group_ui(ctx), bootstyle="secondary")
+    del_btn = _button(parent_frame, text="删除分组", command=lambda: _delete_group_ui(ctx), bootstyle="primary")
     del_btn.pack(side=tk.LEFT, padx=4)
 
 
 def _new_group_ui(ctx: AppContext):
     new_name = ctx.group_manager.new_group(parent=ctx.get_root_window())
     if new_name:
-        ctx.on_group_changed(ctx.get_current_group())
+        ctx.on_group_changed(ctx.group_manager.current_group)
         ctx.refresh_group_combo()
 
 
 def _delete_group_ui(ctx: AppContext):
     result = ctx.group_manager.delete_group(parent=ctx.get_root_window())
     if result:
-        ctx.on_group_changed(ctx.get_current_group())
+        ctx.on_group_changed(ctx.group_manager.current_group)
         ctx.refresh_group_combo()
+
+
+def save_window_geometry(ctx):
+    try:
+        root = ctx.get_root_window()
+        root.update_idletasks()
+        geometry = root.geometry()
+        parts = geometry.replace('+', 'x').replace('-', 'x').split('x')
+        if len(parts) >= 4:
+            ctx.settings.setdefault("window", {})
+            ctx.settings["window"]["width"] = int(parts[0])
+            ctx.settings["window"]["height"] = int(parts[1])
+            ctx.settings["window"]["x"] = int(parts[2])
+            ctx.settings["window"]["y"] = int(parts[3])
+            from modules.settings_manager import save_settings
+            save_settings(ctx.settings)
+    except (tk.TclError, ValueError, OSError):
+        pass
+
+
+def on_close(ctx):
+    save_window_geometry(ctx)
+    ctx.get_root_window().destroy()

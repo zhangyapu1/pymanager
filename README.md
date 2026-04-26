@@ -17,24 +17,35 @@ pymanager/
 ├── modules/                 # 功能模块
 │   ├── __init__.py
 │   ├── add_script.py        # 添加脚本
+│   ├── app_bootstrap.py     # 应用启动工厂
 │   ├── app_context.py       # AppContext / UICallbackProtocol / GroupManagerInterface
+│   ├── batch_ops.py         # 批量操作（多选删除/移动/导出）
 │   ├── check_deps.py        # 依赖检查
 │   ├── config.py            # 路径与配置常量
 │   ├── context_menu.py      # 右键菜单
 │   ├── delete_selected.py   # 删除脚本
 │   ├── dependencies.py      # 依赖解析与安装
+│   ├── deps_init.py         # 依赖初始化
 │   ├── drag_drop.py         # 拖拽支持
 │   ├── edit_content.py      # 编辑脚本内容
+│   ├── favorites.py         # 脚本收藏/置顶
 │   ├── group_manager.py     # 分组管理
+│   ├── list_display.py      # 列表显示与排序
 │   ├── logger.py            # 日志记录
+│   ├── process_manager.py   # 进程管理
+│   ├── recent_runs.py       # 最近运行记录
 │   ├── rename_selected.py   # 重命名脚本
 │   ├── run_selected.py      # 运行与停止脚本
+│   ├── script_collection.py # 脚本集合管理
+│   ├── script_icons.py      # 脚本图标
 │   ├── script_manager.py    # 脚本数据 CRUD
+│   ├── script_selector.py   # 脚本选择器
 │   ├── settings_manager.py  # JSON 配置管理
 │   ├── token_crypto.py      # Token 加密存储
 │   ├── ui_builder.py        # UI 组件构建
 │   ├── ui_callback.py       # UI 操作抽象层（messagebox/filedialog）
 │   ├── ui_editor.py         # 编辑器窗口 UI（EditorWindow）
+│   ├── ui_state.py          # UI 状态管理
 │   ├── updater.py           # 自动更新
 │   └── utils.py             # 通用工具
 ├── tests/                   # 单元测试
@@ -49,32 +60,46 @@ pymanager/
 | 模块 | 功能 |
 |------|------|
 | `add_script` | 添加新脚本到管理库 |
+| `app_bootstrap` | 应用启动工厂（延迟导入避免循环依赖） |
 | `app_context` | 模块间接口协议（AppContext / UICallbackProtocol / GroupManagerInterface） |
+| `batch_ops` | 批量操作（Ctrl/Shift 多选，批量删除/移动/导出） |
 | `check_deps` | 检查脚本依赖 |
 | `config` | 配置管理 |
 | `context_menu` | 右键菜单 |
 | `delete_selected` | 删除选中的脚本 |
 | `dependencies` | 依赖解析和处理 |
+| `deps_init` | 依赖初始化 |
 | `drag_drop` | 拖拽功能支持 |
 | `edit_content` | 编辑脚本内容 |
+| `favorites` | 脚本收藏/置顶管理 |
 | `group_manager` | 脚本分组管理 |
+| `list_display` | 列表显示与排序（收藏→最近运行→其他） |
 | `logger` | 日志记录 |
+| `process_manager` | 运行进程管理（启动/停止/状态） |
+| `recent_runs` | 最近运行时间戳记录与查询 |
 | `rename_selected` | 重命名选中脚本 |
 | `run_selected` | 运行选中脚本 |
+| `script_collection` | 脚本集合封装（add/remove/find/update） |
+| `script_icons` | 脚本图标管理（20 个内置 emoji） |
 | `script_manager` | 脚本数据 CRUD |
+| `script_selector` | 脚本选择器 |
 | `settings_manager` | JSON 配置管理 |
 | `token_crypto` | API Token 加密 |
-| `ui_builder` | UI 组件构建（主界面布局） |
+| `ui_builder` | UI 组件构建（主界面布局、搜索框） |
 | `ui_callback` | UI 操作抽象层（messagebox / filedialog / simpledialog） |
 | `ui_editor` | 编辑器窗口 UI（EditorWindow 类） |
+| `ui_state` | UI 状态管理（选择、搜索、按钮状态） |
 | `updater` | 自动更新检查 |
 | `utils` | 通用工具函数 |
 
 ## 主要功能
 
-- **脚本管理**：添加、删除、重命名脚本
+- **脚本管理**：添加、删除、重命名脚本，收藏/置顶，自定义图标
+- **搜索过滤**：列表上方搜索框，实时模糊匹配脚本名称和路径
+- **智能排序**：收藏置顶 → 最近运行 → 其他脚本，最近运行按时间倒序
 - **分组管理**：按类别组织脚本
 - **快速运行**：直接运行 Python 脚本
+- **批量操作**：Ctrl/Shift 多选，批量删除/移动/导出
 - **依赖检查**：自动检测和安装依赖，运行前自动检查，详细状态输出，Python 2 兼容性自动修复，包冲突自动替换
 - **自动更新**：检查并更新到最新版本
 - **统一输出**：所有模块通过 `append_output` 统一输出到"运行输出"窗口和日志文件
@@ -82,7 +107,19 @@ pymanager/
 
 ## 更新日志
 
+### v1.5.0
+
+**搜索与排序**
+- 脚本搜索/过滤：列表上方搜索框，实时模糊匹配，支持按名称和路径过滤
+- 最近运行排序：脚本列表按 收藏→最近运行→其他 排序，最近运行脚本按时间倒序（🕒 标记）
+- 运行时间戳记录：`recent_runs` 模块，自动清理超过 50 条的旧记录
+
 ### v1.4.0
+
+**脚本管理增强**
+- 脚本收藏/置顶：右键收藏脚本，收藏脚本自动置顶显示（⭐ 标记）
+- 脚本图标：右键设置图标（20 个内置 emoji 图标），显示在脚本名前
+- 批量操作：Ctrl/Shift 多选脚本，右键批量删除/移动/导出
 
 **依赖管理系统增强**
 - Python 2 兼容性自动修复：检测到 Python 2 遗留模块（如 `exceptions`、`Queue`、`ConfigParser` 等 20+ 个）时，自动在 site-packages 创建兼容垫片

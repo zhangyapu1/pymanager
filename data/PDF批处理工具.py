@@ -1,3 +1,4 @@
+"""PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。"""
 import os
 import sys
 import copy

@@ -1,3 +1,4 @@
+"""日志模块 - 错误日志、输出日志的记录与自动清理。"""
 import time
 import traceback
 import sys

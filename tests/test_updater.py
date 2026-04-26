@@ -32,3 +32,11 @@ def test_with_v_prefix():
 
 def test_mixed_prefix():
     assert is_version_greater("1.3.0", "v1.2.0") is True
+
+
+def test_zero_versions():
+    assert is_version_greater("0.1.0", "0.0.1") is True
+
+
+def test_large_version():
+    assert is_version_greater("10.0.0", "9.99.99") is True

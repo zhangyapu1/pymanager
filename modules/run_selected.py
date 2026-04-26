@@ -1,12 +1,15 @@
+"""运行脚本 - 执行选中的脚本并管理运行状态。"""
 import os
 import subprocess
 import sys
 import threading
+import time
 
 from .check_deps import check_and_install_deps
 from .script_manager import resolve_path
 from .app_context import AppContext
 from .logger import log_info
+from .recent_runs import record_run
 
 
 def run_selected(ctx: AppContext):
@@ -28,16 +31,6 @@ def run_selected(ctx: AppContext):
         ctx.append_output(f"[错误] 文件不存在: {storage_path}")
         ctx.ui.show_error("运行错误", f"文件不存在: {storage_path}")
         return
-
-    running = ctx.get_running_process()
-    if running is not None:
-        try:
-            if running.poll() is None:
-                ctx.append_output("[提示] 已有脚本正在运行，请先停止当前运行")
-                ctx.ui.show_warning("提示", "已有脚本正在运行，请先停止当前运行")
-                return
-        except (OSError, subprocess.SubprocessError):
-            pass
 
     def _run():
         def output_to_console(message):
@@ -66,30 +59,47 @@ def _launch_script(ctx: AppContext, abs_path, storage_path, display_name):
             script_dir = os.getcwd()
         os.makedirs(script_dir, exist_ok=True)
 
+        creationflags = subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
+
         process = subprocess.Popen(
             [sys.executable, abs_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            cwd=script_dir
+            cwd=script_dir,
+            creationflags=creationflags
         )
 
-        ctx.set_running_process(process)
-        ctx.set_process_stopped(False)
-        ctx.set_status(f"正在运行：{display_name}")
-        ctx.set_stop_button_enabled(True)
+        pm = ctx.process_manager
+        pm.add_process(process, display_name)
+        record_run(ctx, storage_path)
+        ctx.schedule_callback(lambda: ctx.update_listbox())
+        ctx.schedule_callback(lambda: ctx.set_status(f"已启动：{display_name}（独立进程）"))
 
         def read_output():
-            for line in iter(process.stdout.readline, ''):
-                if line:
-                    ctx.schedule_callback(lambda l=line: _insert_output(ctx, l))
-            process.stdout.close()
-            process.wait()
-            exit_msg = f"运行完成，退出码：{process.returncode}"
+            while True:
+                try:
+                    line = process.stdout.readline()
+                except (OSError, ValueError):
+                    break
+                if not line:
+                    if process.poll() is not None:
+                        break
+                    time.sleep(0.05)
+                    continue
+                ctx.schedule_callback(lambda l=line: _insert_output(ctx, l))
+
+            try:
+                process.stdout.close()
+            except (OSError, ValueError):
+                pass
+
+            exit_code = process.returncode
+            pm.remove_process(process)
+            exit_msg = f"运行完成：{display_name}，退出码：{exit_code}"
             ctx.schedule_callback(lambda: _on_run_complete(ctx, display_name, exit_msg))
 
-        output_thread = threading.Thread(target=read_output)
-        output_thread.daemon = True
+        output_thread = threading.Thread(target=read_output, daemon=True)
         output_thread.start()
 
     except FileNotFoundError:
@@ -108,30 +118,20 @@ def _insert_output(ctx: AppContext, line):
 
 
 def _on_run_complete(ctx: AppContext, display_name, exit_msg):
-    if ctx.is_process_stopped():
-        return
     ctx.append_output(exit_msg)
-    ctx.set_running_process(None)
-    ctx.set_status(f"运行完成：{display_name}")
-    ctx.set_stop_button_enabled(False)
+    pm = ctx.process_manager
+    count = pm.running_count()
+    if count == 0:
+        ctx.set_status(f"运行完成：{display_name}")
+    else:
+        ctx.set_status(f"运行完成：{display_name}（还有 {count} 个脚本在运行）")
 
 
 def stop_running(ctx: AppContext):
-    running = ctx.get_running_process()
-    if running is not None:
-        try:
-            if running.poll() is None:
-                ctx.set_process_stopped(True)
-                running.terminate()
-                ctx.schedule_callback(lambda: _on_stopped(ctx))
-        except (OSError, subprocess.SubprocessError) as e:
-            err = str(e)
-            ctx.schedule_callback(lambda: ctx.set_status(f"停止失败: {err}"))
-        finally:
-            ctx.set_running_process(None)
-
-
-def _on_stopped(ctx: AppContext):
-    ctx.set_status("已停止运行")
-    ctx.append_output("运行已被用户停止")
-    ctx.set_stop_button_enabled(False)
+    pm = ctx.process_manager
+    names = pm.terminate_all()
+    if names:
+        ctx.set_status(f"已停止运行：{', '.join(names)}")
+        ctx.append_output(f"已停止运行：{', '.join(names)}")
+    else:
+        ctx.set_status("没有正在运行的脚本")

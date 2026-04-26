@@ -1,3 +1,4 @@
+"""自动更新 - 检查 GitHub Releases 并提示或执行应用更新。"""
 import os
 import sys
 import logging
@@ -24,7 +25,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.4.0"
+CURRENT_VERSION = "1.5.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -587,3 +588,25 @@ def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback
         if show_no_update_msg and ui_callback:
             ui_callback.show_error("错误", f"版本检查出错: {e}", parent=parent_root)
         return False
+
+
+def show_version_info(ctx):
+    import threading
+    from modules.logger import log_error
+
+    def check_version_thread():
+        try:
+            latest_version = get_latest_version()
+            if latest_version:
+                status = "最新版本" if CURRENT_VERSION == latest_version else "有新版本"
+                msg = f"当前版本：{CURRENT_VERSION} | 最新版本：{latest_version} | {status}"
+            else:
+                msg = f"当前版本：{CURRENT_VERSION} | 检查更新失败"
+        except (OSError, ValueError) as e:
+            log_error(f"版本检查异常: {e}")
+            msg = f"当前版本：1.0.0 | 检查更新失败"
+        ctx.schedule_callback(lambda: ctx.set_version_info(msg))
+
+    thread = threading.Thread(target=check_version_thread)
+    thread.daemon = True
+    thread.start()

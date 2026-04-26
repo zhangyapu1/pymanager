@@ -1,3 +1,4 @@
+"""全局配置 - 定义数据目录、配置目录等基础路径常量。"""
 import os
 import sys
 from pathlib import Path
