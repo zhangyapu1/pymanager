@@ -17,34 +17,42 @@ pymanager/
 ├── modules/                 # 功能模块
 │   ├── __init__.py
 │   ├── add_script.py        # 添加脚本
+│   ├── ai_analyzer.py       # AI 项目分析（智谱/通义/DeepSeek）
 │   ├── app_bootstrap.py     # 应用启动工厂
 │   ├── app_context.py       # AppContext / UICallbackProtocol / GroupManagerInterface
+│   ├── backup_manager.py    # 备份创建与清理
 │   ├── batch_ops.py         # 批量操作（多选删除/移动/导出）
 │   ├── check_deps.py        # 依赖检查
-│   ├── config.py            # 路径与配置常量
+│   ├── config.py            # 版本号、路径与配置常量
 │   ├── context_menu.py      # 右键菜单
 │   ├── delete_selected.py   # 删除脚本
 │   ├── dependencies.py      # 依赖解析与安装
 │   ├── deps_init.py         # 依赖初始化
 │   ├── drag_drop.py         # 拖拽支持
 │   ├── edit_content.py      # 编辑脚本内容
+│   ├── encrypt_utils.py     # API Key 加密存储
 │   ├── favorites.py         # 脚本收藏/置顶
+│   ├── github_api.py        # GitHub API 通信
+│   ├── github_repo.py       # GitHub 仓库 API（搜索/文件/README）
 │   ├── group_manager.py     # 分组管理
 │   ├── list_display.py      # 列表显示与排序
 │   ├── logger.py            # 日志记录
-│   ├── encrypt_utils.py    # API Key 加密存储
-│   ├── manifest_generator.py # 清单生成器（更新时对比清理废弃文件）
+│   ├── manifest_cleanup.py  # 清单加载与过时文件清理
+│   ├── manifest_generator.py # 清单生成器
+│   ├── markdown_renderer.py # Markdown/HTML 渲染
 │   ├── process_manager.py   # 进程管理
+│   ├── py2_compat.py        # Python 2 兼容垫片
 │   ├── recent_runs.py       # 最近运行记录
 │   ├── rename_selected.py   # 重命名脚本
 │   ├── run_selected.py      # 运行与停止脚本
 │   ├── script_collection.py # 脚本集合管理
 │   ├── script_icons.py      # 脚本图标
 │   ├── script_manager.py    # 脚本数据 CRUD
-│   ├── script_market.py     # 脚本市场（GitHub 仓库浏览、下载、翻译、AI 分析）
+│   ├── script_market.py     # 脚本市场 UI
 │   ├── script_selector.py   # 脚本选择器
 │   ├── settings_manager.py  # JSON 配置管理
 │   ├── token_crypto.py      # Token 加密存储
+│   ├── translate_service.py # 翻译服务（Google/百度/腾讯）
 │   ├── ui_builder.py        # UI 组件构建
 │   ├── ui_callback.py       # UI 操作抽象层（messagebox/filedialog）
 │   ├── ui_editor.py         # 编辑器窗口 UI（EditorWindow）
@@ -63,34 +71,42 @@ pymanager/
 | 模块 | 功能 |
 |------|------|
 | `add_script` | 添加新脚本到管理库 |
+| `ai_analyzer` | AI 项目分析（智谱AI / 通义千问 / DeepSeek） |
 | `app_bootstrap` | 应用启动工厂（延迟导入避免循环依赖） |
 | `app_context` | 模块间接口协议（AppContext / UICallbackProtocol / GroupManagerInterface） |
+| `backup_manager` | 更新前创建项目备份，自动清理过期备份 |
 | `batch_ops` | 批量操作（Ctrl/Shift 多选，批量删除/移动/导出） |
 | `check_deps` | 检查脚本依赖 |
-| `config` | 配置管理 |
+| `config` | 版本号、路径与配置常量（CURRENT_VERSION 唯一定义处） |
 | `context_menu` | 右键菜单 |
 | `delete_selected` | 删除选中的脚本 |
 | `dependencies` | 依赖解析和处理 |
 | `deps_init` | 依赖初始化 |
 | `drag_drop` | 拖拽功能支持 |
 | `edit_content` | 编辑脚本内容 |
+| `encrypt_utils` | API Key 加密存储（XOR + Base64，内置默认密钥） |
 | `favorites` | 脚本收藏/置顶管理 |
+| `github_api` | GitHub API 通信（版本查询、文件下载、Release 发布） |
+| `github_repo` | GitHub 仓库 API（搜索/文件列表/README 获取） |
 | `group_manager` | 脚本分组管理 |
 | `list_display` | 列表显示与排序（收藏→最近运行→其他） |
 | `logger` | 日志记录 |
+| `manifest_cleanup` | 更新时对比新旧 manifest.json，清理废弃文件和空目录 |
+| `manifest_generator` | 清单生成器（扫描项目文件生成 manifest.json） |
+| `markdown_renderer` | Markdown/HTML 转纯文本渲染 |
 | `process_manager` | 运行进程管理（启动/停止/状态） |
+| `py2_compat` | Python 2 兼容垫片（自动创建 site-packages 垫片） |
 | `recent_runs` | 最近运行时间戳记录与查询 |
 | `rename_selected` | 重命名选中脚本 |
 | `run_selected` | 运行选中脚本 |
 | `script_collection` | 脚本集合封装（add/remove/find/update） |
 | `script_icons` | 脚本图标管理（20 个内置 emoji） |
 | `script_manager` | 脚本数据 CRUD |
+| `script_market` | 脚本市场 UI（GitHub 仓库浏览/搜索、项目下载） |
 | `script_selector` | 脚本选择器 |
 | `settings_manager` | JSON 配置管理 |
-| `encrypt_utils` | API Key 加密存储（XOR + Base64，内置默认密钥） |
-| `manifest_generator` | 清单生成器（扫描项目文件生成 manifest.json，更新时对比清理废弃文件） |
-| `script_market` | 脚本市场（GitHub 仓库浏览/搜索、项目下载、README 翻译、AI 项目分析） |
 | `token_crypto` | API Token 加密 |
+| `translate_service` | 翻译服务（Google / 百度 / 腾讯，分段翻译） |
 | `ui_builder` | UI 组件构建（主界面布局、搜索框） |
 | `ui_callback` | UI 操作抽象层（messagebox / filedialog / simpledialog） |
 | `ui_editor` | 编辑器窗口 UI（EditorWindow 类） |
@@ -115,6 +131,24 @@ pymanager/
 - **日志管理**：自动清理过期日志（7天过期，单文件1MB截断）
 
 ## 更新日志
+
+### v1.8.2
+
+**🔧 版本号统一管理**
+- 版本号统一到 `config.py` 管理，所有模块从 `config.CURRENT_VERSION` 引用
+- 以后更新版本号只需修改 `config.py` 一处
+
+**📦 模块拆分解耦**
+- `updater.py`（883→305行）拆分为：`github_api.py`（GitHub API 通信）、`backup_manager.py`（备份创建与清理）、`manifest_cleanup.py`（清单加载与过时文件清理）
+- `script_market.py`（1374→963行）拆分为：`translate_service.py`（翻译服务）、`ai_analyzer.py`（AI 分析）、`github_repo.py`（GitHub 仓库 API）、`markdown_renderer.py`（Markdown 渲染）
+- `dependencies.py`（458→333行）拆分为：`py2_compat.py`（Python 2 兼容垫片）
+
+**🗑 冗余代码移除**
+- 移除 `PDF批处理工具.py` 中的自动依赖安装代码（由主程序统一管理）
+- 修正 `合并多个文件的数据表到一页.py` 过时的依赖描述
+
+**🐛 Bug 修复**
+- 修复 `group_manager.py` 中正则转义序列 SyntaxWarning
 
 ### v1.7.0
 
