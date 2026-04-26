@@ -132,6 +132,16 @@ pymanager/
 
 ## 更新日志
 
+### v1.8.5
+
+**🔧 发布排除规则统一**
+- 将 `PROTECTED_DIRS`、`PROTECTED_FILES`、`FORCE_REMOVE_DIRS`、`FORCE_REMOVE_FILES`、`SKIP_EXTENSIONS` 统一到 `config.py` 管理
+- `manifest_generator.py`、`updater.py`、`manifest_cleanup.py` 统一从 `config.py` 引用，避免规则不一致
+
+**🐛 更新修复**
+- 修复更新时受保护文件（`.gitignore`、`REQUIREMENTS.md`）被重新复制到用户目录的问题
+- 修复 `test_script_market.py` 测试导入路径未更新到拆分后模块的问题
+
 ### v1.8.4
 
 **🐛 更新修复**
