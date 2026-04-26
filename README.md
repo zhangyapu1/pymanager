@@ -17,6 +17,7 @@ pymanager/
 ├── modules/                 # 功能模块
 │   ├── __init__.py
 │   ├── add_script.py        # 添加脚本
+│   ├── app_context.py       # AppContext / UICallbackProtocol / GroupManagerInterface
 │   ├── check_deps.py        # 依赖检查
 │   ├── config.py            # 路径与配置常量
 │   ├── context_menu.py      # 右键菜单
@@ -31,6 +32,9 @@ pymanager/
 │   ├── script_manager.py    # 脚本数据 CRUD
 │   ├── settings_manager.py  # JSON 配置管理
 │   ├── token_crypto.py      # Token 加密存储
+│   ├── ui_builder.py        # UI 组件构建
+│   ├── ui_callback.py       # UI 操作抽象层（messagebox/filedialog）
+│   ├── ui_editor.py         # 编辑器窗口 UI（EditorWindow）
 │   ├── updater.py           # 自动更新
 │   └── utils.py             # 通用工具
 ├── tests/                   # 单元测试
@@ -45,6 +49,7 @@ pymanager/
 | 模块 | 功能 |
 |------|------|
 | `add_script` | 添加新脚本到管理库 |
+| `app_context` | 模块间接口协议（AppContext / UICallbackProtocol / GroupManagerInterface） |
 | `check_deps` | 检查脚本依赖 |
 | `config` | 配置管理 |
 | `context_menu` | 右键菜单 |
@@ -59,6 +64,9 @@ pymanager/
 | `script_manager` | 脚本数据 CRUD |
 | `settings_manager` | JSON 配置管理 |
 | `token_crypto` | API Token 加密 |
+| `ui_builder` | UI 组件构建（主界面布局） |
+| `ui_callback` | UI 操作抽象层（messagebox / filedialog / simpledialog） |
+| `ui_editor` | 编辑器窗口 UI（EditorWindow 类） |
 | `updater` | 自动更新检查 |
 | `utils` | 通用工具函数 |
 
@@ -67,12 +75,36 @@ pymanager/
 - **脚本管理**：添加、删除、重命名脚本
 - **分组管理**：按类别组织脚本
 - **快速运行**：直接运行 Python 脚本
-- **依赖检查**：自动检测和安装依赖，运行前自动检查，详细状态输出
+- **依赖检查**：自动检测和安装依赖，运行前自动检查，详细状态输出，Python 2 兼容性自动修复，包冲突自动替换
 - **自动更新**：检查并更新到最新版本
 - **统一输出**：所有模块通过 `append_output` 统一输出到"运行输出"窗口和日志文件
 - **日志管理**：自动清理过期日志（7天过期，单文件1MB截断）
 
 ## 更新日志
+
+### v1.4.0
+
+**依赖管理系统增强**
+- Python 2 兼容性自动修复：检测到 Python 2 遗留模块（如 `exceptions`、`Queue`、`ConfigParser` 等 20+ 个）时，自动在 site-packages 创建兼容垫片
+- 包冲突自动替换：检测到旧版 `docx` 包与 `python-docx` 冲突时，自动卸载旧版并安装正确版本
+- 传递依赖检测增强：`verify_imports` 支持三层自动修复（Python 2 垫片 → 包冲突替换 → 模块缓存清理后重试）
+- 依赖检查日志记录：`check_deps.py` 和 `run_selected.py` 中的依赖检查操作写入日志文件
+
+**性能优化**
+- 禁用 `__pycache__` 字节码缓存（`sys.dont_write_bytecode = True`），减少磁盘写入
+
+### v1.3.1
+
+- 代码解耦深化：定义 `AppContext Protocol`、`UICallbackProtocol`、`GroupManagerInterface` 三个接口协议，模块间依赖接口而非具体实现
+- `dependencies.py` / `updater.py` 移除所有直接 `tkinter` 调用，通过 `ui_callback` 参数注入 UI 操作
+- `updater.py` 移除 `Toplevel` 进度窗口，改用 `progress_callback` 回调
+- `scripts` 列表封装：新增 `add_script()`/`remove_script()`/`find_script_by_path()`/`update_script()` 方法，消除外部直接修改
+- `self.root` 改为 `self._root` 私有属性，通过 `get_root_window()` 访问
+- `add_script.py` 通过 `UICallback.ask_open_filename()` 替代直接 `filedialog` 调用
+- `group_manager.py` 移除未使用的 `messagebox`/`simpledialog` 导入
+- `edit_content.py` 编辑器 UI 提取到独立 `ui_editor.py`（`EditorWindow` 类），业务模块不再导入 tkinter
+- `group_manager.py` 移除 `self.combo` 和 `create_group_widgets()`，分组 UI 移至 `ui_builder.py`
+- 引入 `ttkbootstrap`（cosmo 主题），所有按钮/标签/组合框使用 `bootstyle` 样式，界面风格适配 Windows 11
 
 ### v1.3.0
 

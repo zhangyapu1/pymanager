@@ -4,6 +4,7 @@ import logging
 import urllib.request
 import urllib.error
 import json
+import ssl
 import webbrowser
 import shutil
 import tempfile
@@ -12,8 +13,6 @@ import zipfile
 import datetime
 import re
 import glob
-from tkinter import messagebox, simpledialog, ttk
-import tkinter as tk
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.3.0"
+CURRENT_VERSION = "1.4.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
@@ -38,37 +37,44 @@ MAX_BACKUP_FILE_SIZE = 100 * 1024 * 1024
 
 from modules.token_crypto import get_api_token, save_api_token, get_default_token
 
+
 def _output(callback, msg):
     logger.info(msg)
     if callback:
         try:
             callback(msg)
-        except (tk.TclError, RuntimeError):
+        except (RuntimeError, OSError):
             pass
+
 
 def _output_error(callback, msg):
     logger.error(msg)
     if callback:
         try:
             callback(f"[错误] {msg}")
-        except (tk.TclError, RuntimeError):
+        except (RuntimeError, OSError):
             pass
 
-def prompt_for_token(parent):
-    token = simpledialog.askstring(
-        "API Token",
-        "请输入GitHub Personal Access Token 以提高 API 限额。\n\n"
-        "如何获取？\n"
-        "1. 访问 https://github.com/settings/tokens\n"
-        "2. 生成新令牌，勾选 'repo' 或 'projects' 权限\n"
-        "3. 复制并粘贴到此处。\n\n"
-        "若跳过，匿名请求每小时限制 60 次。",
-        parent=parent
-    )
+
+def prompt_for_token(parent=None, ui_callback=None):
+    if ui_callback:
+        token = ui_callback.ask_string(
+            "API Token",
+            "请输入GitHub Personal Access Token 以提高 API 限额。\n\n"
+            "如何获取？\n"
+            "1. 访问 https://github.com/settings/tokens\n"
+            "2. 生成新令牌，勾选 'repo' 或 'projects' 权限\n"
+            "3. 复制并粘贴到此处。\n\n"
+            "若跳过，匿名请求每小时限制 60 次。",
+            parent=parent
+        )
+    else:
+        return ""
     if token:
         save_api_token(token)
         return token
     return ""
+
 
 def is_version_greater(v1, v2):
     def normalize_version(v):
@@ -94,6 +100,7 @@ def is_version_greater(v1, v2):
     except (ValueError, TypeError, AttributeError):
         return v1 > v2
 
+
 def build_auth_headers(parent=None):
     headers = {"User-Agent": f"ScriptManager/{CURRENT_VERSION}"}
     token = get_api_token()
@@ -105,6 +112,7 @@ def build_auth_headers(parent=None):
         headers["Authorization"] = f"Bearer {default_token}"
         return headers, "内置Token"
     return headers, "未认证"
+
 
 class RateLimitError(Exception):
     pass
@@ -121,12 +129,22 @@ def fetch_release_data(headers):
         if e.code in (403, 429):
             raise RateLimitError("GitHub API 速率限制已达上限")
         raise
+    except ssl.SSLError:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        with urllib.request.urlopen(req, timeout=15, context=ctx) as resp:
+            if resp.status != 200:
+                raise Exception(f"HTTP {resp.status}")
+            return json.loads(resp.read().decode('utf-8'))
+
 
 def parse_latest_version(data):
     latest = data.get("tag_name", "") or data.get("name", "")
     if latest.startswith("v"):
         latest = latest[1:]
     return latest
+
 
 def select_download_url(data):
     assets = data.get("assets", [])
@@ -157,7 +175,8 @@ def select_download_url(data):
     logger.debug("使用 html_url 作为兜底")
     return data.get("html_url", PROJECT_URL), "项目主页"
 
-def fetch_latest_version(parent=None, output_callback=None):
+
+def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
     try:
         headers, auth_status = build_auth_headers(parent)
         data = fetch_release_data(headers)
@@ -168,7 +187,7 @@ def fetch_latest_version(parent=None, output_callback=None):
         return latest, download_url
     except RateLimitError:
         if parent and not get_api_token():
-            token = prompt_for_token(parent)
+            token = prompt_for_token(parent, ui_callback=ui_callback)
             if token:
                 headers, auth_status = build_auth_headers(parent)
                 try:
@@ -179,17 +198,19 @@ def fetch_latest_version(parent=None, output_callback=None):
                     return latest, download_url
                 except RateLimitError:
                     _output_error(output_callback, "用户Token也已达速率限制")
-                    messagebox.showwarning("API 限制", "当前Token的API请求次数已达上限，请稍后再试。", parent=parent)
+                    if ui_callback:
+                        ui_callback.show_warning("API 限制", "当前Token的API请求次数已达上限，请稍后再试。", parent=parent)
                     return CURRENT_VERSION, PROJECT_URL
         _output_error(output_callback, "GitHub API 速率限制已达上限")
-        if parent:
-            messagebox.showwarning("API 限制", "内置Token的API请求次数已达上限。\n请输入您自己的GitHub Token以提高限额。", parent=parent)
+        if ui_callback:
+            ui_callback.show_warning("API 限制", "内置Token的API请求次数已达上限。\n请输入您自己的GitHub Token以提高限额。", parent=parent)
         return CURRENT_VERSION, PROJECT_URL
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         _output_error(output_callback, f"获取版本失败: {e}")
         return CURRENT_VERSION, PROJECT_URL
 
-def download_file(url, dest_path, parent, output_callback=None):
+
+def download_file(url, dest_path, parent=None, output_callback=None, ui_callback=None, progress_callback=None):
     _output(output_callback, f"开始下载文件，URL: {url}")
     _output(output_callback, f"目标路径: {dest_path}")
 
@@ -202,37 +223,21 @@ def download_file(url, dest_path, parent, output_callback=None):
 
     if not is_direct_download:
         _output(output_callback, f"URL不是标准的直接下载链接，引导手动下载: {url}")
-        progress_win = tk.Toplevel(parent)
-        progress_win.title("下载提示")
-        progress_win.geometry("400x150")
-        progress_win.transient(parent)
-        progress_win.grab_set()
-        tk.Label(progress_win, text="无法直接自动下载此链接。").pack(pady=10)
-        tk.Label(progress_win, text=f"请在浏览器中打开以下链接手动下载：").pack(pady=5)
-        tk.Label(progress_win, text=url, wraplength=350).pack(pady=5)
-
-        def open_browser():
-            webbrowser.open(url)
-            progress_win.destroy()
-
-        tk.Button(progress_win, text="打开浏览器", command=open_browser).pack(pady=10)
-        progress_win.wait_window()
+        if ui_callback:
+            ui_callback.show_info("下载提示", f"无法直接自动下载此链接。\n请在浏览器中手动下载：\n{url}")
+        webbrowser.open(url)
         return False
-
-    progress_win = tk.Toplevel(parent)
-    progress_win.title("正在下载更新")
-    progress_win.geometry("400x150")
-    progress_win.transient(parent)
-    progress_win.grab_set()
-    tk.Label(progress_win, text="正在下载新版本，请稍候...").pack(pady=10)
-    progress_bar = ttk.Progressbar(progress_win, length=300, mode='determinate')
-    progress_bar.pack(pady=5)
-    status_label = tk.Label(progress_win, text="开始下载...")
-    status_label.pack(pady=5)
 
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "ScriptManager"})
-        with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT) as response:
+        try:
+            opener = urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT)
+        except ssl.SSLError:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            opener = urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=ctx)
+        with opener as response:
             total_size = int(response.headers.get('Content-Length', 0))
             downloaded = 0
             with open(dest_path, 'wb') as out_file:
@@ -244,24 +249,22 @@ def download_file(url, dest_path, parent, output_callback=None):
                     downloaded += len(chunk)
                     if total_size > 0:
                         percent = int(downloaded * 100 / total_size)
-                        progress_bar['value'] = percent
-                        status_label.config(text=f"下载中... {percent}%")
+                        if progress_callback:
+                            progress_callback(percent, f"下载中... {percent}%")
                     else:
-                        status_label.config(text=f"下载中... ({downloaded} bytes)")
+                        if progress_callback:
+                            progress_callback(-1, f"下载中... ({downloaded} bytes)")
 
-                    progress_win.update_idletasks()
-
-        progress_win.destroy()
         _output(output_callback, f"下载完成: {dest_path}")
         return True
     except (urllib.error.URLError, OSError, TimeoutError) as e:
-        if progress_win.winfo_exists():
-            progress_win.destroy()
         msg = f"下载更新文件时出错：{e}\n\n请尝试手动下载：{url}"
         _output_error(output_callback, msg)
-        messagebox.showerror("下载失败", msg, parent=parent)
+        if ui_callback:
+            ui_callback.show_error("下载失败", msg, parent=parent)
         webbrowser.open(url)
         return False
+
 
 def create_backup(output_callback=None):
     current_exe = sys.argv[0]
@@ -310,6 +313,7 @@ def create_backup(output_callback=None):
         _output_error(output_callback, f"备份创建失败：{e}")
         return None
 
+
 def cleanup_old_backups(backup_dir, output_callback=None):
     today = datetime.datetime.now()
     cutoff_date = today - datetime.timedelta(days=BACKUP_RETENTION_DAYS)
@@ -332,7 +336,8 @@ def cleanup_old_backups(backup_dir, output_callback=None):
             except (ValueError, OSError) as e:
                 logger.debug(f"清理备份失败 {file}: {e}")
 
-def apply_update(download_path, parent, output_callback=None):
+
+def apply_update(download_path, parent=None, output_callback=None, ui_callback=None):
     current_exe = os.path.abspath(sys.argv[0])
     current_dir = os.path.dirname(current_exe)
 
@@ -343,7 +348,8 @@ def apply_update(download_path, parent, output_callback=None):
     if not os.path.exists(download_path):
         msg = f"更新文件不存在：{download_path}"
         _output_error(output_callback, msg)
-        messagebox.showerror("文件不存在", msg, parent=parent)
+        if ui_callback:
+            ui_callback.show_error("文件不存在", msg, parent=parent)
         return False
 
     backup_path = create_backup(output_callback)
@@ -424,7 +430,7 @@ del "%~f0"
 
             _output(output_callback, "重启脚本已启动，当前程序即将退出")
 
-            if parent:
+            if parent and hasattr(parent, 'quit'):
                 parent.quit()
             sys.exit(0)
 
@@ -442,7 +448,8 @@ del "%~f0"
             if sys.platform != 'win32':
                 msg = "自动更新仅支持 Windows 系统。请手动替换文件。"
                 _output_error(output_callback, msg)
-                messagebox.showerror("不支持的平台", msg, parent=parent)
+                if ui_callback:
+                    ui_callback.show_error("不支持的平台", msg, parent=parent)
                 return False
 
             script_path = os.path.join(tempfile.gettempdir(), "update_script.bat")
@@ -493,20 +500,23 @@ del "%~f0"
 
             _output(output_callback, "更新脚本已启动，当前程序即将退出")
 
-            if parent:
+            if parent and hasattr(parent, 'quit'):
                 parent.quit()
             sys.exit(0)
 
     except (OSError, zipfile.BadZipFile, subprocess.SubprocessError) as e:
         _output_error(output_callback, f"应用更新过程中发生错误：{e}")
-        messagebox.showerror("更新失败", f"应用更新时出错：{e}", parent=parent)
+        if ui_callback:
+            ui_callback.show_error("更新失败", f"应用更新时出错：{e}", parent=parent)
         return False
 
-def auto_update(parent, download_url, output_callback=None):
+
+def auto_update(parent=None, download_url=None, output_callback=None, ui_callback=None):
     if not download_url:
         msg = "下载链接无效，无法进行自动更新。"
         _output_error(output_callback, msg)
-        messagebox.showerror("更新失败", msg, parent=parent)
+        if ui_callback:
+            ui_callback.show_error("更新失败", msg, parent=parent)
         return
 
     temp_dir = tempfile.mkdtemp()
@@ -519,39 +529,49 @@ def auto_update(parent, download_url, output_callback=None):
             if not file_name.endswith('.zip'):
                 file_name += '.zip'
         elif '/tarball/' in download_url:
-             if not file_name.endswith('.tar.gz'):
-                 file_name += '.tar.gz'
+            if not file_name.endswith('.tar.gz'):
+                file_name += '.tar.gz'
 
     dest_path = os.path.join(temp_dir, file_name)
 
     _output(output_callback, f"开始下载更新到：{dest_path}")
-    if not download_file(download_url, dest_path, parent, output_callback):
+
+    def progress_callback(percent, status_text):
+        _output(output_callback, status_text)
+
+    if not download_file(download_url, dest_path, parent, output_callback, ui_callback=ui_callback, progress_callback=progress_callback):
         _output(output_callback, "下载失败，已打开浏览器进行手动下载")
         return
 
     _output(output_callback, "下载完成，开始应用更新")
-    apply_update(dest_path, parent, output_callback)
+    apply_update(dest_path, parent, output_callback, ui_callback=ui_callback)
+
 
 def get_latest_version():
     latest, _ = fetch_latest_version()
     return latest
 
-def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback=None):
-    latest, download_url = fetch_latest_version(parent_root, output_callback)
+
+def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback=None, ui_callback=None):
+    latest, download_url = fetch_latest_version(parent_root, output_callback, ui_callback=ui_callback)
 
     if not latest:
         if show_no_update_msg:
             msg = "无法获取最新版本信息，请检查网络。"
             _output_error(output_callback, msg)
-            messagebox.showerror("检查更新失败", msg, parent=parent_root)
+            if ui_callback:
+                ui_callback.show_error("检查更新失败", msg, parent=parent_root)
         return False
 
     try:
         if is_version_greater(latest, CURRENT_VERSION):
             msg = f"发现新版本 v{latest}（当前版本 v{CURRENT_VERSION}）\n\n是否自动更新？"
             _output(output_callback, msg.replace('\n', ' '))
-            if messagebox.askyesno("软件更新", msg, parent=parent_root):
-                auto_update(parent_root, download_url, output_callback)
+            confirmed = False
+            if ui_callback:
+                confirmed = ui_callback.ask_yes_no("软件更新", msg, parent=parent_root)
+            if confirmed:
+                auto_update(parent_root, download_url, output_callback, ui_callback=ui_callback)
             else:
                 webbrowser.open(download_url)
             return True
@@ -559,10 +579,11 @@ def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback
             if show_no_update_msg:
                 msg = f"当前已是最新版本 v{CURRENT_VERSION}"
                 _output(output_callback, msg)
-                messagebox.showinfo("检查更新", msg, parent=parent_root)
+                if ui_callback:
+                    ui_callback.show_info("检查更新", msg, parent=parent_root)
             return False
     except (ValueError, TypeError) as e:
         _output_error(output_callback, f"版本比较出错: {e}")
-        if show_no_update_msg:
-            messagebox.showerror("错误", f"版本检查出错: {e}", parent=parent_root)
+        if show_no_update_msg and ui_callback:
+            ui_callback.show_error("错误", f"版本检查出错: {e}", parent=parent_root)
         return False
