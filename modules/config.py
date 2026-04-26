@@ -31,7 +31,7 @@ import os
 import sys
 from pathlib import Path
 
-CURRENT_VERSION = "1.8.2"
+CURRENT_VERSION = "1.8.3"
 
 def get_base_dir():
     if getattr(sys, 'frozen', False):
