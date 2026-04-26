@@ -15,7 +15,7 @@
     每行数据前附加三列：来源文件名、工作表名称、原始行号
     便于追溯数据来源
 
-依赖：openpyxl（自动检测并提示安装）
+依赖：openpyxl
 """
 import warnings
 # 抑制所有 openpyxl 相关的 UserWarning

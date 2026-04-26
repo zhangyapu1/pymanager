@@ -1,15 +1,6 @@
 """
 脚本市场 - 浏览和下载 GitHub 上的 Python 脚本资源。
 
-功能：
-    - GitHub 仓库浏览：查看热门 Python 仓库列表，支持关键词搜索
-    - 文件列表展示：显示仓库中的文件和文件夹结构
-    - README 预览：渲染并翻译 Markdown 格式的 README 文档
-    - 项目下载：支持下载整个项目或单个文件/文件夹到本地 data 目录
-    - AI 项目分析：使用智谱AI或通义千问分析项目功能和结构
-    - 翻译服务：支持有道翻译、百度翻译、腾讯翻译君三种翻译服务
-    - API Key 管理：加密存储和管理 AI 服务的 API Key
-
 UI 组件：
     - 三栏可调布局：仓库列表、文件列表、README 预览（PanedWindow）
     - 下载进度条：显示文件下载进度
@@ -29,26 +20,15 @@ UI 组件：
         _save_api_key()          - 保存加密的 API Key
         _delete_api_key()        - 删除指定 AI 的 Key
 
-翻译实现：
-    - 分段翻译：长文本按段落拆分，逐段翻译并渐进显示
-    - 进度节流：500ms 间隔批量更新 UI，减少窗口闪烁
-    - 百度翻译：支持 APP ID + 密钥认证，自动处理超长文本分段
-
-依赖：requests, markdown, ttkbootstrap, modules.encrypt_utils, modules.token_crypto
+依赖：modules.translate_service, modules.ai_analyzer, modules.github_repo, modules.markdown_renderer
 """
-import base64
-import hashlib
-import hmac
 import json
 import os
 import re
 import threading
-import time
 import tkinter as tk
 from tkinter import ttk
-from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
-from urllib.parse import quote, urlencode
 
 try:
     import ttkbootstrap as ttkb
@@ -57,483 +37,34 @@ except ImportError:
     HAS_TTKBOOTSTRAP = False
 
 from modules.logger import log_info, log_error
-from modules.config import DATA_DIR, CONFIG_DIR
-from modules.encrypt_utils import encrypt, decrypt, get_default_key, get_default_translate_key
-from modules.token_crypto import get_api_token, get_default_token as get_github_default_token
-
-
-GITHUB_API = "https://api.github.com"
-USER_AGENT = "pymanager/1.5.0"
-PER_PAGE = 30
-AI_CONFIG_FILE = os.path.join(CONFIG_DIR, "ai_config.json")
+from modules.config import DATA_DIR
+from modules.encrypt_utils import get_default_key
+from modules.translate_service import (
+    TRANSLATE_PROVIDERS,
+    load_translate_config,
+    save_translate_config,
+    translate_chunk,
+)
+from modules.ai_analyzer import (
+    AI_PROVIDERS,
+    load_ai_config,
+    save_ai_config,
+    ai_query,
+)
+from modules.github_repo import (
+    search_repos,
+    get_repo_contents,
+    get_raw_file,
+    get_repo_readme,
+    is_english,
+)
+from modules.markdown_renderer import render_markdown
 
 
 def create_button(parent, text, command, bootstyle="primary", **kwargs):
     if HAS_TTKBOOTSTRAP:
         return ttkb.Button(parent, text=text, command=command, bootstyle=bootstyle, **kwargs)
     return ttk.Button(parent, text=text, command=command, **kwargs)
-
-
-TRANSLATE_CONFIG_FILE = os.path.join(CONFIG_DIR, "translate_config.json")
-
-TRANSLATE_PROVIDERS = {
-    "Google翻译": {"needs_key": False},
-    "百度翻译": {"needs_key": True, "fields": ["APP ID", "密钥"], "url": "https://fanyi-api.baidu.com"},
-    "腾讯翻译君": {"needs_key": True, "fields": ["SecretId", "SecretKey"], "url": "https://cloud.tencent.com/product/tmt"},
-}
-
-AI_PROVIDERS = {
-    "通义千问 (Qwen)": {
-        "url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-        "model": "qwen-turbo",
-    },
-    "智谱AI (GLM-4-Flash)": {
-        "url": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-        "model": "glm-4-flash",
-    },
-    "DeepSeek": {
-        "url": "https://api.deepseek.com/v1/chat/completions",
-        "model": "deepseek-chat",
-    },
-}
-
-
-def _load_ai_config():
-    config = {"provider": "通义千问 (Qwen)", "keys": {}, "custom_keys": {}}
-    if os.path.exists(AI_CONFIG_FILE):
-        try:
-            with open(AI_CONFIG_FILE, "r", encoding="utf-8") as f:
-                saved = json.load(f)
-                saved_provider = saved.get("provider", config["provider"])
-                if saved_provider in AI_PROVIDERS:
-                    config["provider"] = saved_provider
-                for name, enc_key in saved.get("keys", {}).items():
-                    try:
-                        config["custom_keys"][name] = decrypt(enc_key)
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-    return config
-
-
-def _save_ai_config(config):
-    try:
-        to_save = {"provider": config.get("provider", "通义千问 (Qwen)"), "keys": {}}
-        for name, plain_key in config.get("custom_keys", {}).items():
-            if plain_key:
-                to_save["keys"][name] = encrypt(plain_key)
-        with open(AI_CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(to_save, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        log_error(f"保存 AI 配置失败：{e}")
-
-
-def _load_translate_config():
-    config = {"provider": "Google翻译", "keys": {}}
-    if os.path.exists(TRANSLATE_CONFIG_FILE):
-        try:
-            with open(TRANSLATE_CONFIG_FILE, "r", encoding="utf-8") as f:
-                saved = json.load(f)
-                saved_provider = saved.get("provider", config["provider"])
-                if saved_provider in TRANSLATE_PROVIDERS:
-                    config["provider"] = saved_provider
-                for name, enc_key in saved.get("keys", {}).items():
-                    try:
-                        config["keys"][name] = decrypt(enc_key)
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-    return config
-
-
-def _save_translate_config(config):
-    try:
-        to_save = {"provider": config.get("provider", "Google翻译"), "keys": {}}
-        for name, plain_key in config.get("keys", {}).items():
-            if plain_key:
-                to_save["keys"][name] = encrypt(plain_key)
-        with open(TRANSLATE_CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(to_save, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        log_error(f"保存翻译配置失败：{e}")
-
-
-def _get_baidu_key():
-    cfg = _load_translate_config()
-    custom = cfg.get("keys", {})
-    appid = custom.get("百度翻译_APP_ID", "") or get_default_translate_key("百度翻译_APP_ID")
-    key = custom.get("百度翻译_密钥", "") or get_default_translate_key("百度翻译_密钥")
-    return appid, key
-
-
-def _get_tencent_key():
-    cfg = _load_translate_config()
-    custom = cfg.get("keys", {})
-    sid = custom.get("腾讯翻译君_SecretId", "") or get_default_translate_key("腾讯翻译君_SecretId")
-    skey = custom.get("腾讯翻译君_SecretKey", "") or get_default_translate_key("腾讯翻译君_SecretKey")
-    return sid, skey
-
-
-def _translate_google(text, src="en", dest="zh"):
-    if not text.strip():
-        return text
-    try:
-        dest_code = "zh-CN" if dest == "zh" else dest
-        url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={src}&tl={dest_code}&dt=t&q={quote(text)}"
-        req = Request(url, headers={"User-Agent": USER_AGENT})
-        with urlopen(req, timeout=15) as resp:
-            result = json.loads(resp.read().decode("utf-8"))
-            translated = "".join(s[0] for s in result[0] if s[0])
-            if translated and translated != text:
-                return translated
-    except Exception as e:
-        log_error(f"Google翻译异常：{e}")
-    return text
-
-
-def _translate_baidu(text, src="en", dest="zh"):
-    if not text.strip():
-        return text
-    try:
-        appid, key = _get_baidu_key()
-        if not appid or not key:
-            return text
-        if len(text.encode("utf-8")) > 5800:
-            lines = text.split("\n")
-            parts = []
-            chunk = []
-            chunk_len = 0
-            for line in lines:
-                line_len = len(line.encode("utf-8")) + 1
-                if chunk_len + line_len > 5800 and chunk:
-                    parts.append("\n".join(chunk))
-                    chunk = []
-                    chunk_len = 0
-                chunk.append(line)
-                chunk_len += line_len
-            if chunk:
-                parts.append("\n".join(chunk))
-            translated_parts = []
-            for part in parts:
-                translated_parts.append(_translate_baidu(part, src, dest))
-            return "\n".join(translated_parts)
-        salt = str(int(time.time() * 1000))
-        sign_str = appid + text + salt + key
-        sign = hashlib.md5(sign_str.encode("utf-8")).hexdigest()
-        params = urlencode({
-            "q": text,
-            "from": src,
-            "to": dest,
-            "appid": appid,
-            "salt": salt,
-            "sign": sign,
-        })
-        url = f"https://fanyi-api.baidu.com/api/trans/vip/translate?{params}"
-        req = Request(url, headers={"User-Agent": USER_AGENT})
-        with urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            if "error_code" in data:
-                log_error(f"百度翻译错误：{data.get('error_code')} - {data.get('error_msg', '')}")
-                return text
-            trans_result = data.get("trans_result", [])
-            if trans_result:
-                translated = "\n".join(item.get("dst", "") for item in trans_result)
-                if translated and translated != text:
-                    return translated
-    except Exception as e:
-        log_error(f"百度翻译异常：{e}")
-    return text
-
-
-def _translate_tencent(text, src="en", dest="zh"):
-    if not text.strip():
-        return text
-    try:
-        secret_id, secret_key = _get_tencent_key()
-        if not secret_id or not secret_key:
-            return text
-        service = "tmt"
-        host = "tmt.tencentcloudapi.com"
-        action = "TextTranslate"
-        version = "2018-03-21"
-        region = "ap-beijing"
-        timestamp = int(time.time())
-        date = time.strftime("%Y-%m-%d", time.gmtime(timestamp))
-
-        credential_scope = f"{date}/{service}/tc3_request"
-        payload = json.dumps({
-            "SourceText": text,
-            "Source": src,
-            "Target": dest,
-            "ProjectId": 0,
-        }, ensure_ascii=False)
-        hashed_payload = hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-        http_method = "POST"
-        canonical_uri = "/"
-        canonical_querystring = ""
-        canonical_headers = f"content-type:application/json; charset=utf-8\nhost:{host}\nx-tc-action:{action.lower()}\n"
-        signed_headers = "content-type;host;x-tc-action"
-        canonical_request = f"{http_method}\n{canonical_uri}\n{canonical_querystring}\n{canonical_headers}\n{signed_headers}\n{hashed_payload}"
-
-        algorithm = "TC3-HMAC-SHA256"
-        hashed_canonical = hashlib.sha256(canonical_request.encode("utf-8")).hexdigest()
-        string_to_sign = f"{algorithm}\n{timestamp}\n{credential_scope}\n{hashed_canonical}"
-
-        def _hmac_sha256(key, msg):
-            return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
-
-        secret_date = _hmac_sha256(("TC3" + secret_key).encode("utf-8"), date)
-        secret_service = _hmac_sha256(secret_date, service)
-        secret_signing = _hmac_sha256(secret_service, "tc3_request")
-        signature = hmac.new(secret_signing, string_to_sign.encode("utf-8"), hashlib.sha256).hexdigest()
-
-        headers = {
-            "Authorization": f"{algorithm} Credential={secret_id}/{credential_scope}, SignedHeaders={signed_headers}, Signature={signature}",
-            "Content-Type": "application/json; charset=utf-8",
-            "Host": host,
-            "X-TC-Action": action,
-            "X-TC-Timestamp": str(timestamp),
-            "X-TC-Version": version,
-            "X-TC-Region": region,
-        }
-        req = Request(f"https://{host}", data=payload.encode("utf-8"), headers=headers)
-        with urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            translated = data.get("Response", {}).get("TargetText", "")
-            if translated and translated != text:
-                return translated
-    except Exception as e:
-        log_error(f"腾讯翻译异常：{e}")
-    return text
-
-
-def _translate_text(text, src="en", dest="zh"):
-    if not text.strip():
-        return text
-    cfg = _load_translate_config()
-    provider = cfg.get("provider", "Google翻译")
-    providers_order = [provider]
-    for p in TRANSLATE_PROVIDERS:
-        if p not in providers_order:
-            providers_order.append(p)
-
-    segments = re.split(r'(\n{2,})', text)
-    result_parts = []
-    for seg in segments:
-        if re.match(r'^\s*$', seg):
-            result_parts.append(seg)
-            continue
-        if len(seg) > 480:
-            lines = seg.split('\n')
-            chunk = []
-            for line in lines:
-                chunk.append(line)
-                chunk_text = '\n'.join(chunk)
-                if len(chunk_text) > 450:
-                    result_parts.append(_translate_chunk(chunk_text, src, dest, providers_order))
-                    chunk = []
-            if chunk:
-                result_parts.append(_translate_chunk('\n'.join(chunk), src, dest, providers_order))
-        else:
-            result_parts.append(_translate_chunk(seg, src, dest, providers_order))
-    return ''.join(result_parts)
-
-
-def _translate_chunk(text, src="en", dest="zh", providers_order=None):
-    if not text.strip():
-        return text
-    if providers_order is None:
-        providers_order = list(TRANSLATE_PROVIDERS.keys())
-
-    translate_funcs = {
-        "Google翻译": _translate_google,
-        "百度翻译": _translate_baidu,
-        "腾讯翻译君": _translate_tencent,
-    }
-
-    for p in providers_order:
-        func = translate_funcs.get(p)
-        if func:
-            result = func(text, src, dest)
-            if result and result != text:
-                return result
-    return text
-
-
-def _get_github_headers():
-    headers = {"User-Agent": USER_AGENT, "Accept": "application/vnd.github.v3+json"}
-    token = get_api_token()
-    if not token:
-        token = get_github_default_token()
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    return headers
-
-
-def _request(url):
-    req = Request(url, headers=_get_github_headers())
-    with urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
-def _request_raw(url):
-    headers = {"User-Agent": USER_AGENT}
-    token = get_api_token()
-    if not token:
-        token = get_github_default_token()
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    req = Request(url, headers=headers)
-    with urlopen(req, timeout=15) as resp:
-        return resp.read().decode("utf-8")
-
-
-def search_repos(keyword, page=1):
-    url = f"{GITHUB_API}/search/repositories?q={quote(keyword)}+language:python&sort=stars&order=desc&per_page={PER_PAGE}&page={page}"
-    return _request(url)
-
-
-def get_repo_contents(owner, repo, path=""):
-    url = f"{GITHUB_API}/repos/{owner}/{repo}/contents/{path}"
-    return _request(url)
-
-
-def get_raw_file(download_url):
-    return _request_raw(download_url)
-
-
-def get_repo_readme(owner, repo):
-    url = f"{GITHUB_API}/repos/{owner}/{repo}/readme"
-    data = _request(url)
-    content_b64 = data.get("content", "")
-    encoding = data.get("encoding", "base64")
-    if encoding == "base64":
-        return base64.b64decode(content_b64).decode("utf-8", errors="replace")
-    return content_b64
-
-
-def _is_english(text):
-    latin = sum(1 for c in text if c.isascii() and c.isalpha())
-    total = sum(1 for c in text if c.isalpha())
-    if total == 0:
-        return False
-    return latin / total > 0.85
-
-
-def _ai_query(provider_name, api_key, repo_info):
-    cfg = AI_PROVIDERS.get(provider_name)
-    if not cfg or not api_key:
-        return "未配置 API Key，请在右侧设置"
-
-    url = cfg["url"]
-    model = cfg["model"]
-
-    name = repo_info.get("full_name", "")
-    desc = repo_info.get("description", "") or "无描述"
-    stars = repo_info.get("stargazers_count", 0)
-    lang = repo_info.get("language", "")
-    topics = ", ".join(repo_info.get("topics", [])) or "无"
-    license_info = (repo_info.get("license") or {}).get("name", "未知")
-
-    prompt = (
-        f"请用简体中文分析以下 GitHub 项目，给出简洁有用的信息：\n\n"
-        f"项目：{name}\n"
-        f"描述：{desc}\n"
-        f"Star 数：{stars}\n"
-        f"语言：{lang}\n"
-        f"标签：{topics}\n"
-        f"许可证：{license_info}\n\n"
-        f"请从以下方面分析：\n"
-        f"1. 项目简介（一句话概括）\n"
-        f"2. 主要功能和用途\n"
-        f"3. 适合什么类型的用户\n"
-        f"4. 项目质量评估（基于 Star 数和描述）\n"
-        f"5. 使用建议和注意事项"
-    )
-
-    body_dict = {
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 800,
-        "temperature": 0.7,
-        "stream": False,
-    }
-    if "deepseek" in model.lower():
-        body_dict["reasoning_effort"] = "none"
-    elif "qwen" in model.lower():
-        body_dict["enable_thinking"] = False
-    elif "glm" in model.lower():
-        body_dict["do_sample"] = True
-
-    body = json.dumps(body_dict, ensure_ascii=False).encode("utf-8")
-
-    req = Request(url, data=body, headers={
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}",
-    })
-
-    with urlopen(req, timeout=30) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-        return data["choices"][0]["message"]["content"]
-
-
-def _render_markdown(text):
-    result = text
-    result = re.sub(r'<div[^>]*>', '', result, flags=re.IGNORECASE)
-    result = re.sub(r'</div>', '', result, flags=re.IGNORECASE)
-    result = re.sub(r'<a[^>]*href=["\']([^"\']*)["\'][^>]*>(.*?)</a>', r'\2 (\1)', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<img[^>]*alt=["\']([^"\']*)["\'][^>]*src=["\']([^"\']*)["\'][^>]*/?\s*>', r'[图片: \1]', result, flags=re.IGNORECASE)
-    result = re.sub(r'<img[^>]*src=["\']([^"\']*)["\'][^>]*alt=["\']([^"\']*)["\'][^>]*/?\s*>', r'[图片: \2]', result, flags=re.IGNORECASE)
-    result = re.sub(r'<img[^>]*/?\s*>', '', result, flags=re.IGNORECASE)
-    result = re.sub(r'<h1[^>]*>(.*?)</h1>', r'\n══════════════════════════════\n  \1\n══════════════════════════════\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<h2[^>]*>(.*?)</h2>', r'\n──────────────────────────────\n  \1\n──────────────────────────────\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<h3[^>]*>(.*?)</h3>', r'\n  ■ \1\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<h4[^>]*>(.*?)</h4>', r'\n  ● \1\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<h5[^>]*>(.*?)</h5>', r'\n  ○ \1\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<h6[^>]*>(.*?)</h6>', r'\n  · \1\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<br\s*/?\s*>', '\n', result, flags=re.IGNORECASE)
-    result = re.sub(r'<hr\s*/?\s*>', '\n──────────────────────────────\n', result, flags=re.IGNORECASE)
-    result = re.sub(r'<li[^>]*>(.*?)</li>', r'  • \1\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<(ul|ol)[^>]*>', '\n', result, flags=re.IGNORECASE)
-    result = re.sub(r'</(ul|ol)>', '\n', result, flags=re.IGNORECASE)
-    result = re.sub(r'<p[^>]*>(.*?)</p>', r'\1\n\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<strong[^>]*>(.*?)</strong>', r'\1', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<b[^>]*>(.*?)</b>', r'\1', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<em[^>]*>(.*?)</em>', r'\1', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<i[^>]*>(.*?)</i>', r'\1', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<code[^>]*>(.*?)</code>', r'\1', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<pre[^>]*>(.*?)</pre>', r'\n\1\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<blockquote[^>]*>(.*?)</blockquote>', r'\n  │ \1\n', result, flags=re.IGNORECASE | re.DOTALL)
-    result = re.sub(r'<[^>]+>', '', result)
-    result = re.sub(r'&amp;', '&', result)
-    result = re.sub(r'&lt;', '<', result)
-    result = re.sub(r'&gt;', '>', result)
-    result = re.sub(r'&nbsp;', ' ', result)
-    result = re.sub(r'&quot;', '"', result)
-    result = re.sub(r'&#39;', "'", result)
-    result = re.sub(r'^#{1}\s+(.+)$', r'\n══════════════════════════════\n  \1\n══════════════════════════════', result, flags=re.MULTILINE)
-    result = re.sub(r'^#{2}\s+(.+)$', r'\n──────────────────────────────\n  \1\n──────────────────────────────', result, flags=re.MULTILINE)
-    result = re.sub(r'^#{3}\s+(.+)$', r'\n  ■ \1', result, flags=re.MULTILINE)
-    result = re.sub(r'^#{4}\s+(.+)$', r'\n  ● \1', result, flags=re.MULTILINE)
-    result = re.sub(r'^#{5,6}\s+(.+)$', r'\n  ○ \1', result, flags=re.MULTILINE)
-    result = re.sub(r'^[-*+]\s+', '  • ', result, flags=re.MULTILINE)
-    result = re.sub(r'^\d+\.\s+', '  • ', result, flags=re.MULTILINE)
-    result = re.sub(r'`{3}[\w]*\n', '', result)
-    result = re.sub(r'`{3}', '', result)
-    result = re.sub(r'`([^`]+)`', r'\1', result)
-    result = re.sub(r'\*\*([^*]+)\*\*', r'\1', result)
-    result = re.sub(r'\*([^*]+)\*', r'\1', result)
-    result = re.sub(r'__([^_]+)__', r'\1', result)
-    result = re.sub(r'_([^_]+)_', r'\1', result)
-    result = re.sub(r'!\[([^\]]*)\]\([^)]*\)', r'[图片: \1]', result)
-    result = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'\1 (\2)', result)
-    result = re.sub(r'^>\s+(.+)$', r'  │ \1', result, flags=re.MULTILINE)
-    result = re.sub(r'^---+$', '──────────────────────────────', result, flags=re.MULTILINE)
-    result = re.sub(r'\n{3,}', '\n\n', result)
-    return result.strip()
 
 
 class ScriptMarketWindow:
@@ -554,7 +85,7 @@ class ScriptMarketWindow:
         self.translated_readme = ""
         self.showing_translated = False
         self.translate_btn = None
-        self.ai_config = _load_ai_config()
+        self.ai_config = load_ai_config()
         self.ai_text = None
         self.ai_provider_var = None
         self.ai_key_entry = None
@@ -659,7 +190,7 @@ class ScriptMarketWindow:
         self.readme_lang_var = tk.StringVar(value="")
         ttk.Label(readme_toolbar, textvariable=self.readme_lang_var, foreground="gray").pack(side=tk.LEFT)
 
-        self.translate_config = _load_translate_config()
+        self.translate_config = load_translate_config()
         translate_names = list(TRANSLATE_PROVIDERS.keys())
         self.translate_provider_var = tk.StringVar(value=self.translate_config.get("provider", translate_names[0]))
         translate_combo = ttk.Combobox(readme_toolbar, textvariable=self.translate_provider_var, values=translate_names, state="readonly", width=10)
@@ -767,7 +298,7 @@ class ScriptMarketWindow:
             has_all = all(saved_keys.get(f"{provider}_{f}", "") for f in cfg.get("fields", []))
             if not has_all:
                 self._prompt_translate_key(provider)
-        _save_translate_config(self.translate_config)
+        save_translate_config(self.translate_config)
         self.translate_status_var.set(f"已切换到{provider}")
 
     def _prompt_translate_key(self, provider):
@@ -811,7 +342,7 @@ class ScriptMarketWindow:
                     has_value = True
                 else:
                     self.translate_config["keys"].pop(key_name, None)
-            _save_translate_config(self.translate_config)
+            save_translate_config(self.translate_config)
             if has_value:
                 self.translate_status_var.set(f"✅ {provider} Key 已保存")
                 self.ctx.append_output(f"[脚本市场] 翻译 Key 已保存：{provider}")
@@ -825,7 +356,7 @@ class ScriptMarketWindow:
             for field in fields:
                 key_name = f"{provider}_{field}"
                 self.translate_config["keys"].pop(key_name, None)
-            _save_translate_config(self.translate_config)
+            save_translate_config(self.translate_config)
             self.translate_status_var.set(f"✅ {provider} Key 已删除")
             self.ctx.append_output(f"[脚本市场] 翻译 Key 已删除：{provider}")
             dialog.destroy()
@@ -842,7 +373,7 @@ class ScriptMarketWindow:
         self.ai_key_entry.delete(0, tk.END)
         self.ai_key_entry.insert(0, display_key)
         self.ai_config["provider"] = provider
-        _save_ai_config(self.ai_config)
+        save_ai_config(self.ai_config)
 
     def _get_display_key(self, provider):
         custom = self.ai_config.get("custom_keys", {}).get(provider, "")
@@ -866,7 +397,7 @@ class ScriptMarketWindow:
             self.ai_config["custom_keys"] = {}
         self.ai_config["custom_keys"][provider] = key
         self.ai_config["provider"] = provider
-        _save_ai_config(self.ai_config)
+        save_ai_config(self.ai_config)
         self.ai_status_var.set("✅ 自定义 Key 已保存（加密存储）")
         self.ctx.append_output(f"[脚本市场] API Key 已保存：{provider}")
 
@@ -876,7 +407,7 @@ class ScriptMarketWindow:
             self.ai_config["custom_keys"] = {}
         if provider in self.ai_config["custom_keys"]:
             del self.ai_config["custom_keys"][provider]
-        _save_ai_config(self.ai_config)
+        save_ai_config(self.ai_config)
         self.ai_key_entry.delete(0, tk.END)
         self.ai_status_var.set("✅ 自定义 Key 已删除，将使用默认 Key")
         self.ctx.append_output(f"[脚本市场] API Key 已删除：{provider}")
@@ -903,7 +434,7 @@ class ScriptMarketWindow:
 
         def _query():
             try:
-                result = _ai_query(provider, api_key, repo_info)
+                result = ai_query(provider, api_key, repo_info)
                 self._safe_after(0, lambda: self._show_ai_result(result))
                 self._safe_after(0, lambda: self.ai_status_var.set("分析完成"))
                 self.ctx.append_output(f"[脚本市场] AI 分析完成：{repo_info.get('full_name', '')}")
@@ -956,7 +487,7 @@ class ScriptMarketWindow:
                 self.ai_config["custom_keys"] = {}
             self.ai_config["custom_keys"][provider] = key
             self.ai_config["provider"] = provider
-            _save_ai_config(self.ai_config)
+            save_ai_config(self.ai_config)
             self.ai_key_entry.delete(0, tk.END)
             self.ai_key_entry.insert(0, key)
             self.ai_status_var.set("自定义 Key 已保存，重新分析中...")
@@ -1046,7 +577,7 @@ class ScriptMarketWindow:
                 owner, repo = repo_full_name.split("/", 1)
                 content = get_repo_readme(owner, repo)
                 self.original_readme = content
-                is_en = _is_english(content)
+                is_en = is_english(content)
                 if is_en:
                     self._safe_after(0, lambda: self._show_preview(content))
                     self._safe_after(0, lambda: self.readme_lang_var.set("英文 | 自动翻译中..."))
@@ -1087,7 +618,7 @@ class ScriptMarketWindow:
 
         def _translate():
             try:
-                cfg = _load_translate_config()
+                cfg = load_translate_config()
                 provider = cfg.get("provider", "Google翻译")
                 providers_order = [provider]
                 for p in TRANSLATE_PROVIDERS:
@@ -1115,7 +646,7 @@ class ScriptMarketWindow:
                             chunk.append(line)
                             chunk_text = '\n'.join(chunk)
                             if len(chunk_text) > 450:
-                                result = _translate_chunk(chunk_text, "en", "zh", providers_order)
+                                result = translate_chunk(chunk_text, "en", "zh", providers_order)
                                 translated_parts.append(result)
                                 if result != chunk_text:
                                     any_translated = True
@@ -1123,14 +654,14 @@ class ScriptMarketWindow:
                                 self._translate_progress = (i + 1, total)
                                 chunk = []
                         if chunk:
-                            result = _translate_chunk('\n'.join(chunk), "en", "zh", providers_order)
+                            result = translate_chunk('\n'.join(chunk), "en", "zh", providers_order)
                             translated_parts.append(result)
                             if result != '\n'.join(chunk):
                                 any_translated = True
                             self._translate_buffer.append(result)
                             self._translate_progress = (i + 1, total)
                     else:
-                        result = _translate_chunk(seg, "en", "zh", providers_order)
+                        result = translate_chunk(seg, "en", "zh", providers_order)
                         translated_parts.append(result)
                         if result != seg:
                             any_translated = True
@@ -1185,7 +716,7 @@ class ScriptMarketWindow:
                 self.readme_lang_var.set(f"翻译中... ({cur}/{tot})")
             return
         combined = ''.join(buf)
-        rendered = _render_markdown(combined)
+        rendered = render_markdown(combined)
         self.preview_text.config(state=tk.NORMAL)
         self.preview_text.insert(tk.END, rendered)
         self.preview_text.config(state=tk.DISABLED)
@@ -1287,7 +818,7 @@ class ScriptMarketWindow:
             try:
                 content = get_raw_file(download_url)
                 self.original_readme = content
-                is_en = _is_english(content)
+                is_en = is_english(content)
                 if is_en:
                     self._safe_after(0, lambda: self._show_preview(content))
                     self._safe_after(0, lambda: self.readme_lang_var.set("英文 | 自动翻译中..."))
@@ -1334,28 +865,11 @@ class ScriptMarketWindow:
             self.current_path.append(name)
             self._load_repo_contents(self.current_repo["full_name"], "/".join(self.current_path))
 
-    def _preview_file(self, download_url):
-        self.status_var.set("加载预览...")
-
-        def _load():
-            try:
-                content = get_raw_file(download_url)
-                self._safe_after(0, lambda: self._show_preview(content, is_markdown=False))
-                self._safe_after(0, lambda: self.readme_lang_var.set("文件内容"))
-                self._safe_after(0, lambda: self.translate_btn.config(state=tk.DISABLED))
-                self.status_var.set("预览已加载")
-            except Exception as e:
-                msg = str(e)
-                self._safe_after(0, lambda: self._show_preview(f"加载失败：{msg}", is_markdown=False))
-                self.status_var.set(f"预览失败：{msg}")
-
-        threading.Thread(target=_load, daemon=True).start()
-
     def _show_preview(self, content, is_markdown=True):
         self.preview_text.config(state=tk.NORMAL)
         self.preview_text.delete("1.0", tk.END)
         if is_markdown:
-            display = _render_markdown(content)
+            display = render_markdown(content)
         else:
             display = content
         self.preview_text.insert("1.0", display)

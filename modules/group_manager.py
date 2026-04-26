@@ -45,7 +45,7 @@
     名称验证规则：
         - 长度不超过 50 字符
         - 不包含 / \\ .. 等路径分隔符
-        - 匹配正则 ^[\w\u4e00-\u9fa5\s\-]+$
+        - 匹配正则 ^[\\w\\u4e00-\\u9fa5\\s\\-]+$
 
 依赖：modules.config, modules.logger, modules.settings_manager
 """

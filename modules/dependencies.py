@@ -35,14 +35,7 @@
 常量：
     MIRRORS - 国内 pip 镜像源列表（清华、阿里、中科大）
     SELF_DEPENDENCIES - 框架自身依赖 ['tkinterdnd2', 'ttkbootstrap']
-    PY2_REMOVED_MODULES - Python 2 已移除模块集合
     PACKAGE_CONFLICTS - 包名冲突映射表
-    PY2_SHIM_CONTENT - Python 2 兼容垫片代码映射
-
-兼容性处理：
-    ensure_py2_shim(module_name)：
-        为 Python 2 模块名创建兼容垫片（如 Queue → queue）
-        在 site-packages 目录下生成 .py 文件
 
 函数：
     check_self_dependencies_async(...)：
@@ -53,7 +46,7 @@
         检查单个脚本的依赖并安装缺失项
         支持包冲突修复和 Python 2 兼容垫片
 
-依赖：modules.logger
+依赖：modules.logger, modules.py2_compat
 """
 import sys
 import os
@@ -62,10 +55,10 @@ import importlib
 import importlib.util
 import subprocess
 import re
-import time
 import threading
 
 from modules.logger import log_info, log_warning, log_error
+from modules.py2_compat import PY2_REMOVED_MODULES, PY2_SHIM_CONTENT, ensure_py2_shim
 
 MIRRORS = [
     "https://pypi.tuna.tsinghua.edu.cn/simple",
@@ -76,25 +69,6 @@ SELF_DEPENDENCIES = ['tkinterdnd2', 'ttkbootstrap']
 
 PACKAGE_NAME_PATTERN = re.compile(r'^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$')
 
-PY2_REMOVED_MODULES = frozenset({
-    'exceptions', 'Queue', 'SocketServer', 'ConfigParser',
-    'Cookie', 'Cookielib', 'copy_reg', 'cPickle', 'cStringIO',
-    'HTMLParser', 'httplib', 'BaseHTTPServer', 'SimpleHTTPServer',
-    'CGIHTTPServer', 'urlparse', 'robotparser', 'xmlrpclib',
-    'DocXMLRPCServer', 'SimpleXMLRPCServer', 'Tkinter',
-    'Dialog', 'FileDialog', 'ScrolledText', 'Tix', 'ttk',
-    'tkColorChooser', 'tkCommonDialog', 'tkFileDialog',
-    'tkFont', 'tkMessageBox', 'tkSimpleDialog',
-    '__builtin__', '_winreg', 'winreg', 'thread',
-    'dummy_thread', 'UserDict', 'UserList', 'UserString',
-    'commands', 'dircache', 'fpformat', 'hotshot',
-    'ihooks', 'imputil', 'md5', 'mhlib', 'mimetools',
-    'MimeWriter', 'mimify', 'multifile', 'new', 'popen2',
-    'posixfile', 'pre', 'profile', 'pstats', 'rexec',
-    'rfc822', 'sets', 'sgmllib', 'sha', 'sre',
-    'statvfs', 'sunaudiodev', 'tempita', 'toaiff',
-})
-
 PACKAGE_CONFLICTS = {
     'docx': {
         'correct_package': 'python-docx',
@@ -103,103 +77,6 @@ PACKAGE_CONFLICTS = {
         'description': '旧版 docx 包不兼容 Python 3，需要替换为 python-docx',
     },
 }
-
-PY2_SHIM_CONTENT = {
-    'exceptions': '''import builtins
-PendingDeprecationWarning = builtins.PendingDeprecationWarning
-DeprecationWarning = builtins.DeprecationWarning
-Warning = builtins.Warning
-''',
-    'Queue': '''from queue import Queue, PriorityQueue, LifoQueue
-''',
-    'SocketServer': '''from socketserver import *
-''',
-    'ConfigParser': '''from configparser import *
-''',
-    'Cookie': '''from http.cookies import *
-''',
-    'Cookielib': '''from http import cookiejar as *
-''',
-    'copy_reg': '''import copyreg
-''',
-    'htmlentitydefs': '''from html.entities import *
-''',
-    'HTMLParser': '''from html.parser import *
-''',
-    'httplib': '''from http.client import *
-''',
-    'urlparse': '''from urllib.parse import *
-''',
-    'robotparser': '''from urllib import robotparser
-''',
-    'xmlrpclib': '''from xmlrpc.client import *
-''',
-    'UserDict': '''from collections import UserDict
-''',
-    'UserList': '''from collections import UserList
-''',
-    'UserString': '''from collections import UserString
-''',
-    '__builtin__': '''import builtins
-''',
-    '_winreg': '''import winreg
-''',
-    'thread': '''import _thread
-''',
-    'dummy_thread': '''import _dummy_thread
-''',
-    'sets': '''from builtins import set
-''',
-    'sgmllib': '''class SGMLParser:
-    pass
-''',
-}
-
-
-def _get_site_packages_dir():
-    for path in sys.path:
-        if path.endswith('site-packages') and os.path.isdir(path):
-            return path
-    try:
-        import site
-        paths = site.getsitepackages()
-        for p in paths:
-            if p.endswith('site-packages') and os.path.isdir(p):
-                return p
-    except (AttributeError, OSError):
-        pass
-    return None
-
-
-def ensure_py2_shim(module_name, output_callback=None):
-    if module_name not in PY2_SHIM_CONTENT:
-        return False
-
-    site_dir = _get_site_packages_dir()
-    if not site_dir:
-        if output_callback:
-            output_callback(f"[错误] 无法找到 site-packages 目录，无法创建兼容垫片")
-        return False
-
-    shim_path = os.path.join(site_dir, module_name + '.py')
-    if os.path.exists(shim_path):
-        return True
-
-    content = PY2_SHIM_CONTENT[module_name]
-    try:
-        with open(shim_path, 'w', encoding='utf-8') as f:
-            f.write(f"# Auto-generated Python 2 compatibility shim for '{module_name}'\n")
-            f.write(f"# Created by pymanager\n\n")
-            f.write(content)
-        if output_callback:
-            output_callback(f"[兼容性修复] 已创建 Python 2 兼容垫片：{module_name}.py")
-        log_info(f"已创建 Python 2 兼容垫片：{shim_path}")
-        return True
-    except OSError as e:
-        if output_callback:
-            output_callback(f"[错误] 创建兼容垫片失败：{e}")
-        log_error(f"创建兼容垫片失败：{e}")
-        return False
 
 
 class DependencyChecker:
@@ -534,20 +411,3 @@ def check_script_deps_and_install(script_path, display_name, parent_root=None, o
             DependencyChecker.install_package(pkg, parent_root, output_callback=output_callback, ui_callback=ui_callback)
 
         still_missing = [p for p in missing if not DependencyChecker.is_package_installed(p)]
-
-        if still_missing:
-            warn_msg = f"下列依赖未成功安装：{', '.join(still_missing)}"
-            if output_callback:
-                output_callback(f"[警告] {warn_msg}")
-            if ui_callback:
-                ui_callback.show_warning("部分依赖未安装", warn_msg, parent=parent_root)
-            return False
-        else:
-            info_msg = "所有缺失依赖已安装"
-            if output_callback:
-                output_callback(info_msg)
-            if ui_callback:
-                ui_callback.show_info("完成", info_msg, parent=parent_root)
-            return True
-    else:
-        return False

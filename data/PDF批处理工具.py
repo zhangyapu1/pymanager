@@ -19,7 +19,7 @@ PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。
     - 输出目录记忆：保存到 config/pdf_tool.json
     - 水印参数记忆：上次使用的水印文字、颜色等
 
-依赖：PyPDF2（自动检测并提示安装）
+依赖：PyMuPDF, reportlab, pypdf
 """
 import os
 import sys
@@ -56,108 +56,8 @@ _PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(THIS_FILE), "..", 
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-# 配置文件路径
 CONFIG_FILE = os.path.join(_PROJECT_ROOT, 'config', 'pdf_tool.json')
 
-# 尝试导入依赖检查模块
-try:
-    from modules.dependencies import DependencyChecker
-except ImportError:
-    DependencyChecker = None
-
-def _install_dependency(package, parent_window=None, output_callback=None):
-        """安装依赖包"""
-        if DependencyChecker:
-            return DependencyChecker.install_package(package, parent_window=parent_window, output_callback=output_callback)
-        else:
-            # 没有依赖检查模块，使用手动安装提示
-            import subprocess
-            cmd = [sys.executable, '-m', 'pip', 'install', package, '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple']
-            try:
-                if output_callback:
-                    output_callback(f"安装 {package}...")
-                result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=300)
-                if output_callback:
-                    output_callback(f"成功安装 {package}")
-                return True
-            except Exception as e:
-                if output_callback:
-                    output_callback(f"安装 {package} 失败: {str(e)}")
-                return False
-
-def _check_dependencies():
-    """检查并安装必要依赖"""
-    missing = []
-    
-    # 检查 PyMuPDF
-    try:
-        import fitz
-    except ImportError:
-        missing.append('PyMuPDF')
-    
-    # 检查 reportlab
-    try:
-        from reportlab.lib.pagesizes import A4
-        from reportlab.pdfgen import canvas as rl_canvas
-        from reportlab.lib.units import mm
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-        from reportlab.lib.colors import Color
-    except ImportError:
-        missing.append('reportlab')
-    
-    if missing:
-        # 自动安装
-        all_success = True
-        for pkg in missing:
-            success = _install_dependency(pkg)
-            if not success:
-                all_success = False
-        
-        if all_success:
-            # 安装成功，重启程序
-            import subprocess
-            subprocess.Popen([sys.executable] + sys.argv)
-            sys.exit(0)
-        else:
-            # 安装失败，显示手动安装提示
-            def show_install_dialog():
-                win = tk.Toplevel()
-                win.title("安装依赖")
-                win.geometry("500x300")
-                win.transient()
-                win.grab_set()
-                
-                ttk.Label(win, text="缺少以下依赖：", font=('', 11, 'bold')).pack(anchor=tk.W, padx=20, pady=10)
-                
-                for pkg in missing:
-                    frame = ttk.Frame(win)
-                    frame.pack(fill=tk.X, padx=20, pady=5)
-                    
-                    cmd_with_mirror = f"pip install {pkg} -i https://pypi.tuna.tsinghua.edu.cn/simple"
-                    
-                    ttk.Label(frame, text=pkg, width=15).pack(side=tk.LEFT)
-                    ttk.Entry(frame, text=cmd_with_mirror, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-                    
-                    def copy_cmd(cmd):
-                        win.clipboard_clear()
-                        win.clipboard_append(cmd)
-                        _showinfo("复制成功", f"已复制命令到剪贴板\n\n{cmd}")
-                    
-                    ttk.Button(frame, text="复制", command=lambda c=cmd_with_mirror: copy_cmd(c)).pack(side=tk.LEFT, padx=5)
-                
-                ttk.Label(win, text="\n安装完成后请重启程序", foreground='blue').pack(anchor=tk.W, padx=20, pady=10)
-                
-                ttk.Button(win, text="确定", command=win.destroy).pack(pady=10)
-                win.wait_window()
-            
-            show_install_dialog()
-            sys.exit(1)
-
-# 检查依赖
-_check_dependencies()
-
-# 现在导入依赖
 import fitz
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas as rl_canvas
