@@ -1,4 +1,33 @@
-"""最近运行 - 记录和查询脚本最近运行时间。"""
+"""
+最近运行 - 记录和查询脚本最近运行时间，用于列表排序和状态显示。
+
+功能：
+    record_run(ctx, storage_path)：
+        记录脚本运行时间戳
+        - 存储在 settings["recent_runs"] 字典中
+        - 键为 storage_path，值为 Unix 时间戳
+        - 记录后自动保存设置
+
+    get_last_run_time(settings, storage_path)：
+        获取脚本最近运行时间戳
+        - 未运行过返回 0
+
+    is_recently_run(settings, storage_path, limit=10)：
+        判断脚本是否在最近运行的 limit 个脚本中
+        - 按时间倒序排列，取前 limit 个
+        - 用于列表显示中的"最近运行"分组
+
+    cleanup_recent_runs(settings, max_entries=50)：
+        清理过多的运行记录
+        - 超过 max_entries 时保留最近的记录
+        - 返回是否执行了清理
+
+数据存储：
+    settings.json → "recent_runs" 字段
+    格式：{"相对路径": Unix时间戳, ...}
+
+依赖：modules.settings_manager
+"""
 import time
 
 from modules.settings_manager import save_settings

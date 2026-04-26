@@ -1,4 +1,53 @@
-"""应用上下文 - 定义 UI 回调、分组管理等核心接口协议。"""
+"""
+应用上下文 - 定义核心接口协议（Protocol），实现各模块间的松耦合。
+
+设计原则：
+    - 使用 typing.Protocol 定义接口协议，而非具体实现
+    - @runtime_checkable 装饰器支持 isinstance() 运行时类型检查
+    - 各模块通过协议接口交互，不依赖具体实现类
+
+协议定义：
+    UICallbackProtocol：
+        UI 回调接口，封装对话框操作
+        - show_error / show_warning / show_info：消息对话框
+        - ask_yes_no：确认对话框
+        - ask_string：输入对话框
+        - ask_open_filename：文件选择对话框
+
+    GroupManagerInterface：
+        分组管理接口，定义分组 CRUD 操作
+        - data_dir / groups / current_group：分组核心属性
+        - load_groups / save_groups：持久化
+        - add_group / new_group / delete_group：增删操作
+        - set_current_group：切换当前分组
+
+    UIStateProtocol：
+        UI 状态接口，管理控件引用和状态查询
+        - listbox / output_text / stop_btn：核心控件引用
+        - status_var / version_var / group_combo / search_var：状态变量
+        - get_selected_item(s)：获取选中项
+        - append_output / clear_output / set_status：状态更新
+
+    ProcessManagerInterface：
+        进程管理接口，管理脚本运行子进程
+        - add_process / remove_process：进程注册与注销
+        - running_count / is_running / get_running_names：运行状态查询
+        - terminate_all / cleanup_dead：进程终止与清理
+
+    ScriptCollectionProtocol：
+        脚本集合接口，管理脚本数据列表
+        - add / remove / find_by_path / update：集合操作
+        - __iter__ / __len__：迭代与长度
+
+    AppContext：
+        应用上下文聚合接口，组合以上所有协议
+        - 整合 data_dir、settings、scripts、group_manager、ui、ui_state、process_manager
+        - 提供统一的输出、状态、选择、刷新方法
+        - schedule_callback：线程安全的 UI 回调调度
+        - get_root_window：获取根窗口引用
+
+依赖：typing
+"""
 from typing import Protocol, List, Dict, Any, Optional, Callable, runtime_checkable
 
 

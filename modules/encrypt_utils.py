@@ -1,4 +1,42 @@
-"""加密工具 - 提供 XOR+Base64 加密解密及 API Key 默认值管理。"""
+"""
+加密工具 - 提供 XOR+SHA256+Base64 加密解密及 API Key 默认值管理。
+
+加密算法：
+    1. 使用 SHA-256 将固定密钥 _SECRET 派生为 32 字节密钥
+    2. 明文 UTF-8 编码后与密钥循环 XOR 运算
+    3. XOR 结果经 Base64 编码为 ASCII 字符串存储
+
+函数：
+    encrypt(text)：
+        明文 → UTF-8 → XOR(SHA256密钥) → Base64 → ASCII 字符串
+
+    decrypt(encrypted_text)：
+        ASCII 字符串 → Base64解码 → XOR(SHA256密钥) → UTF-8 → 明文
+
+默认密钥（加密存储）：
+    AI 服务：
+        "智谱AI (GLM-4-Flash)" - 智谱AI API Key
+        "通义千问 (Qwen)"      - 通义千问 API Key
+
+    翻译服务：
+        "百度翻译_APP_ID"       - 百度翻译应用ID
+        "百度翻译_密钥"         - 百度翻译密钥
+        "腾讯翻译君_SecretId"   - 腾讯翻译君 SecretId
+        "腾讯翻译君_SecretKey"  - 腾讯翻译君 SecretKey
+
+    get_default_key(provider_name)：
+        获取 AI 服务的默认解密后 API Key
+
+    get_default_translate_key(key_name)：
+        获取翻译服务的默认解密后密钥
+
+安全说明：
+    - XOR 加密为混淆级别保护，非密码学安全
+    - 密钥硬编码在源码中，仅防止明文泄露
+    - 生产环境建议使用系统密钥库（如 Windows DPAPI）
+
+依赖：base64, hashlib
+"""
 import base64
 import hashlib
 

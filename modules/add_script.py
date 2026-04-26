@@ -1,4 +1,16 @@
-"""添加脚本 - 通过文件选择对话框将脚本添加到当前分组。"""
+"""
+添加脚本 - 通过文件选择对话框将 Python 脚本添加到当前分组。
+
+功能：
+    - 弹出文件选择对话框，支持 .py 文件和所有文件类型过滤
+    - 选择文件后调用 script_manager.add_script_from_path 完成添加
+    - 脚本会被复制到 data/当前分组/ 目录下
+
+调用方式：
+    add_script(ctx)  # ctx 为 AppContext 实例
+
+依赖：modules.script_manager, modules.app_context
+"""
 from modules.script_manager import add_script_from_path as _add_script_from_path
 from modules.app_context import AppContext
 

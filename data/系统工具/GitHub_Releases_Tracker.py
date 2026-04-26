@@ -1,4 +1,21 @@
-"""GitHub Releases 追踪 - 监控指定仓库的最新 Release 版本。"""
+"""
+GitHub Releases 追踪 - 监控指定 GitHub 仓库的最新 Release 版本。
+
+功能：
+    - 仓库管理：添加/删除要监控的 GitHub 仓库（格式：owner/repo，如 microsoft/vscode）
+    - 版本检查：一键检查所有仓库是否有新 Release 发布
+    - 新版本标记：有新版本的仓库用 🆕 标记，已查看的版本用 ✅ 标记
+    - 详情查看：双击仓库查看 Release 详情（版本号、发布时间、更新说明、下载链接）
+    - 自动刷新：可设置定时自动检查间隔（5分钟/15分钟/30分钟/1小时/手动）
+    - 数据持久化：监控列表和已查看版本保存到 JSON 文件
+    - 系统托盘：最小化到系统托盘，后台运行时自动检查
+
+数据存储：
+    - 配置文件：config/github_releases.json
+    - 存储内容：监控仓库列表、已查看版本号、自动检查间隔
+
+依赖：仅使用 Python 标准库（tkinter, urllib）
+"""
 import os
 import sys
 import json

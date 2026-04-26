@@ -1,4 +1,48 @@
-"""UI 编辑器 - 脚本内容查看和编辑的弹出窗口。"""
+"""
+UI 编辑器 - 脚本内容查看和编辑的弹出窗口。
+
+类 EditorWindow：
+    提供 Toplevel 弹出窗口，用于查看和编辑脚本源代码。
+
+    初始化参数：
+        parent    - 父窗口
+        title     - 窗口标题
+        content   - 初始文本内容
+        on_save   - 保存回调，参数为 EditorWindow 实例
+        on_cancel - 取消回调，参数为 EditorWindow 实例
+
+    窗口布局：
+        ┌──────────────────────────────────┐
+        │ 文本编辑区（带水平和垂直滚动条）   │
+        │ Consolas 10pt, 自动换行关闭       │
+        │                                  │
+        ├──────────────────────────────────┤
+        │               [取消] [保存]       │
+        └──────────────────────────────────┘
+
+    方法：
+        get_content()：
+            获取编辑器中的全部文本内容
+
+        set_buttons_enabled(enabled)：
+            启用/禁用保存和取消按钮
+            保存操作期间禁用按钮防止重复提交
+
+        set_cursor(cursor)：
+            设置窗口光标样式（如 "watch" 表示等待）
+
+        exists()：
+            检查窗口是否仍然存在
+
+        destroy()：
+            安全关闭窗口（先检查是否存在）
+
+控件工厂：
+    _button(parent, text, command, bootstyle)：
+        兼容 ttkbootstrap 和标准 ttk 的按钮创建
+
+依赖：tkinter, ttkbootstrap（可选）
+"""
 import tkinter as tk
 from tkinter import ttk
 

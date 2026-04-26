@@ -1,4 +1,43 @@
-"""运行脚本 - 执行选中的脚本并管理运行状态。"""
+"""
+运行脚本 - 执行选中的脚本并管理运行状态，支持依赖预检和输出捕获。
+
+功能：
+    run_selected(ctx)：
+        1. 获取选中脚本项并验证文件存在
+        2. 在后台线程中执行依赖检查
+        3. 依赖满足后启动脚本
+
+    _launch_script(ctx, abs_path, storage_path, display_name)：
+        脚本启动流程：
+        1. 清空输出区域，显示运行信息
+        2. 使用 subprocess.Popen 启动独立进程
+           - CREATE_NO_WINDOW：不显示控制台窗口
+           - CREATE_NEW_PROCESS_GROUP：独立进程组
+        3. 注册到 ProcessManager
+        4. 记录运行时间（record_run）
+        5. 在读取线程中实时捕获 stdout 输出
+        6. 进程结束后注销并显示退出码
+
+    _insert_output(ctx, line)：
+        向输出区域插入一行文本，自动滚动到底部
+
+    _on_run_complete(ctx, display_name, exit_msg)：
+        运行完成回调：
+        - 更新状态栏
+        - 更新停止按钮状态
+        - 输出完成信息
+
+    stop_running(ctx)：
+        终止所有运行中的脚本进程
+
+线程模型：
+    - 依赖检查在后台线程执行
+    - 脚本输出读取在独立线程中循环
+    - UI 更新通过 ctx.schedule_callback 调度到主线程
+
+依赖：modules.check_deps, modules.script_manager, modules.app_context,
+      modules.logger, modules.recent_runs
+"""
 import os
 import subprocess
 import sys

@@ -1,4 +1,35 @@
-"""脚本集合 - 脚本列表的数据容器，支持按组过滤和搜索。"""
+"""
+脚本集合 - 脚本列表的数据容器，实现 AppContext 的 ScriptCollectionProtocol。
+
+类 ScriptCollection：
+    管理脚本元数据列表，每个脚本项为字典格式：
+    {
+        "display": "显示名称.py",
+        "storage_path": "分组名/文件名.py",
+        "group": "分组名"
+    }
+
+    方法：
+        add(script)：
+            添加脚本项到集合末尾
+
+        remove(script)：
+            从集合中移除脚本项（ValueError 时静默跳过）
+
+        find_by_path(storage_path)：
+            按 storage_path 查找脚本索引
+            返回索引或 None
+
+        update(index, display, group)：
+            更新指定索引脚本的显示名和分组
+
+    协议实现：
+        __iter__()  - 返回迭代器，支持 for item in collection
+        __len__()   - 返回脚本数量
+        __getitem__(index) - 支持索引访问 collection[i]
+
+依赖：typing
+"""
 from typing import List, Dict, Any, Optional, Iterator
 
 

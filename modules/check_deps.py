@@ -1,4 +1,31 @@
-"""依赖检查 - 检查脚本依赖并自动安装缺失的包。"""
+"""
+依赖检查 - 检查脚本依赖并自动安装缺失的包，支持直接依赖和传递依赖。
+
+功能：
+    check_and_install_deps(abs_path, display_name, ...)：
+        1. 使用 DependencyChecker.extract_imports_from_script 提取脚本所有 import 语句
+        2. 过滤出第三方依赖（排除标准库模块）
+        3. 检查每个第三方依赖的安装状态
+        4. 调用 check_script_deps_and_install 安装缺失的直接依赖
+        5. 使用 verify_imports 验证传递依赖是否满足
+        6. 传递依赖缺失时弹出确认对话框，确认后逐个安装
+        7. 安装后再次验证，仍有缺失则发出警告
+
+    check_deps(ctx)：
+        - 入口函数，支持单选和多选
+        - 多选时逐个检查所有选中脚本的依赖
+        - 在后台线程中执行，避免阻塞 UI
+
+输出格式：
+    ─── 脚本「xxx」依赖检查 ───
+    扫描到的所有导入：xxx
+    第三方依赖：xxx
+      pkg_name: 已安装/未安装
+    缺少直接依赖：xxx
+    所有依赖已满足
+
+依赖：modules.dependencies, modules.script_manager, modules.app_context, modules.logger
+"""
 import threading
 
 from .dependencies import DependencyChecker, check_script_deps_and_install

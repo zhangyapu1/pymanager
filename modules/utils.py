@@ -1,4 +1,34 @@
-"""工具函数 - 窗口标题模式、docstring 提取等通用工具。"""
+"""
+工具函数 - 窗口标题设置、docstring 提取、程序目录打开等通用工具。
+
+函数：
+    update_title_mode(root)：
+        设置主窗口标题为"Python 脚本管理器"
+        - 安全处理 None 和 TclError
+
+    open_program_dir()：
+        使用 Windows 资源管理器打开程序所在目录
+        - 调用 explorer 命令
+
+    extract_docstring(file_path)：
+        提取 Python 文件的模块级 docstring
+        支持三种格式：
+        1. 三引号 docstring（三双引号或三单引号）
+           - 单行：三双引号内容三双引号
+           - 多行：三双引号第一行\n第二行\n三双引号
+        2. 井号注释（# 开头的连续注释行）
+           - 在代码之前的注释行合并为文档
+        3. 无文档时返回 None
+
+        解析逻辑：
+        1. 读取文件所有行
+        2. 找到第一个非空非注释行
+        3. 如果是三引号开头，提取完整 docstring
+        4. 否则收集代码前的 # 注释行
+        5. 编码错误时返回 None
+
+依赖：os, sys, subprocess
+"""
 import os
 import sys
 import subprocess

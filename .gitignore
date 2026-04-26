@@ -20,6 +20,8 @@ backups/
 # 忽略IDE相关文件
 .vscode/
 .idea/
+.git/
+.trae/
 *.swp
 *.swo
 *~

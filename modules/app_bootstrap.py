@@ -1,4 +1,27 @@
-"""应用启动引导 - 初始化窗口、主题和全局样式。"""
+"""
+应用启动引导 - 初始化窗口、主题和全局样式，启动主事件循环。
+
+功能：
+    - 创建根窗口：优先使用 tkinterdnd2（支持拖放），回退到标准 Tk
+    - 主题配置：使用 ttkbootstrap 的 litera 主题，统一全局样式
+    - 全局样式：
+        - 背景色 #f0f0f0，前景色 #1a1a1a
+        - 字体 Microsoft YaHei UI 9pt
+        - 状态栏和版本栏使用专用 TLabel 样式
+    - 启动流程：
+        1. 清理过期日志（cleanup_logs）
+        2. 创建根窗口并应用主题
+        3. 调用 app_factory 构建应用界面
+        4. 进入 mainloop
+    - 异常处理：捕获 Tkinter 初始化失败和运行时未捕获异常，
+      写入错误日志并弹出提示
+
+可选依赖：
+    - ttkbootstrap：提供现代主题支持，缺失时回退到标准 ttk
+    - tkinterdnd2：提供拖放支持，缺失时回退到标准 Tk
+
+依赖：modules.logger
+"""
 import sys
 import tkinter as tk
 import tkinter.font

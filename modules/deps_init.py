@@ -1,4 +1,26 @@
-"""启动依赖检查 - 应用启动时检查并安装框架自身缺失的依赖。"""
+"""
+启动依赖检查 - 应用启动时异步检查并安装框架自身缺失的依赖。
+
+功能：
+    run_startup_deps_check(ctx)：
+        1. 输出"框架依赖检查"标题
+        2. 在后台线程中执行依赖检查
+        3. 通过 output_to_console 回调将检查信息输出到控制台
+        4. 使用 ctx.schedule_callback 确保线程安全的 UI 更新
+        5. 安装完成后通过 on_deps_complete 回调：
+           - 如需重启：弹出提示对话框，确认后自动重启程序
+           - 无需重启：静默完成
+
+框架自身依赖：
+    - tkinterdnd2：拖放支持
+    - ttkbootstrap：现代主题支持
+
+异常处理：
+    - OSError / RuntimeError：记录错误日志并输出提示
+    - 所有 UI 操作通过 schedule_callback 调度到主线程
+
+依赖：modules.logger, modules.dependencies
+"""
 import sys
 import threading
 

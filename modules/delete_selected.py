@@ -1,4 +1,25 @@
-"""删除脚本 - 删除选中的脚本文件。"""
+"""
+删除脚本 - 删除选中的脚本文件及其内部存储副本。
+
+功能：
+    delete_selected(ctx)：
+        1. 获取当前选中脚本项
+        2. 解析脚本的绝对存储路径
+        3. 弹出确认对话框，提示将同时删除内部副本
+        4. 用户确认后执行删除：
+           - os.remove 删除文件
+           - FileNotFoundError 视为已删除，继续执行
+           - OSError 删除失败时弹出警告，保留列表项
+        5. 从脚本集合中移除该项
+        6. 更新列表显示和状态栏
+
+安全机制：
+    - 删除前必须用户确认
+    - 文件删除失败时不从列表移除，避免数据丢失
+    - 输出操作日志到控制台
+
+依赖：modules.script_manager, modules.app_context
+"""
 import os
 
 from modules.script_manager import resolve_path

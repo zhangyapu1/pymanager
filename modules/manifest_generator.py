@@ -1,4 +1,48 @@
-"""清单生成器 - 扫描项目文件并生成 manifest.json，用于更新时清理废弃文件。"""
+"""
+清单生成器 - 扫描项目文件并生成 manifest.json，用于更新时对比清理废弃文件。
+
+工作原理：
+    1. 扫描项目目录下所有文件，生成相对路径列表
+    2. 排除受保护目录和文件（data/、config/、用户配置等）
+    3. 从 updater.py 读取当前版本号
+    4. 输出 JSON 格式的清单文件
+
+常量：
+    PROTECTED_DIRS - 受保护目录集合，扫描时跳过
+        data, config, logs, backups, __pycache__, .git, .idea, .vscode,
+        .pytest_cache, node_modules
+
+    PROTECTED_FILES - 受保护文件集合，不纳入清单
+        manifest.json, settings.json, groups_meta.json
+
+    SKIP_EXTENSIONS - 跳过的文件扩展名
+        .pyc, .pyo, .log, .tmp
+
+函数：
+    should_skip(rel_path)：
+        判断文件是否应跳过（受保护目录/文件/扩展名）
+
+    generate_manifest(base_dir=None)：
+        生成清单字典 {"version": "x.x.x", "files": [...]}
+        base_dir 默认为项目根目录
+
+    write_manifest(base_dir=None, output_path=None)：
+        生成并写入 manifest.json 文件
+        返回输出文件路径
+
+    _read_version(base_dir)：
+        从 modules/updater.py 读取 CURRENT_VERSION 值
+
+命令行用法：
+    python -m modules.manifest_generator [base_dir]
+
+更新流程中的使用：
+    1. 发布新版本前运行生成 manifest.json
+    2. 更新时下载新版本清单
+    3. 对比本地清单与新清单，删除新版本中不存在的文件
+
+依赖：json, os
+"""
 import os
 import json
 import sys

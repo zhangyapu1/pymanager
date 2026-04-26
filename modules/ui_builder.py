@@ -1,4 +1,54 @@
-"""UI 构建 - 主界面窗口、控件布局和事件绑定。"""
+"""
+UI 构建 - 主界面窗口、控件布局和事件绑定。
+
+布局结构：
+    ┌─────────────────────────────────────────────────────┐
+    │ [分组下拉框] [搜索框]                                 │  top_frame
+    ├─────────────────────────────────────────────────────┤
+    │ [➕添加脚本] [🌐脚本市场] [🔍检查依赖] [🔄检查更新]    │  button_frame
+    │ [🔑删除Token] [📁打开程序目录]                        │
+    ├──────────────────┬──────────────────────────────────┤
+    │ 已加载脚本:       │ 运行输出:                         │
+    │ [搜索框] [✕]     │                        [⏹停止所有] │
+    │ ┌──────────────┐ │ ┌──────────────────────────────┐ │
+    │ │ 脚本列表      │ │ │ 输出文本区域                  │ │
+    │ │ (Listbox)    │ │ │ (Text)                       │ │
+    │ │              │ │ │                              │ │
+    │ └──────────────┘ │ └──────────────────────────────┘ │
+    ├──────────────────┴──────────────────────────────────┤
+    │ 版本信息                                    (右对齐) │  version_bar
+    │ 状态栏                                      (左对齐) │  status_bar
+    └─────────────────────────────────────────────────────┘
+
+控件工厂函数：
+    _button(parent, text, command, bootstyle)：
+        兼容 ttkbootstrap 和标准 ttk 的按钮创建
+    _combobox(parent, **kwargs)：
+        兼容的下拉框创建
+    _label(parent, **kwargs)：
+        兼容的标签创建
+
+主函数：
+    create_widgets(ctx)：
+        构建完整的主界面
+        - 创建所有控件并布局
+        - 绑定事件（双击运行、右键菜单、选中显示详情）
+        - 恢复窗口位置和大小
+        - 注册关闭事件处理
+
+窗口几何：
+    默认 950x600，从 settings["window"] 读取保存的位置和大小
+
+事件绑定：
+    双击脚本 → run_selected
+    右键脚本 → show_context_menu
+    选中脚本 → ctx.on_script_selected
+    搜索输入 → ctx.update_listbox（实时过滤）
+    关闭窗口 → ctx.on_close
+
+依赖：modules.logger, modules.run_selected, modules.context_menu,
+      modules.token_crypto, modules.utils, modules.script_manager, modules.app_context
+"""
 import tkinter as tk
 from tkinter import ttk
 

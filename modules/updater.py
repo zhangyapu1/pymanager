@@ -1,4 +1,61 @@
-"""自动更新 - 检查 GitHub Releases 并提示或执行应用更新。"""
+"""
+自动更新 - 检查 GitHub Releases 并提示或执行应用更新，支持清单对比清理。
+
+常量：
+    CURRENT_VERSION - 当前版本号 "1.6.2"
+    PROJECT_URL     - 项目主页 https://github.com/zhangyapu1/pymanager
+    REPO_OWNER      - GitHub 仓库所有者
+    REPO_NAME       - GitHub 仓库名
+    RELEASE_API_URL - GitHub Releases API 地址
+    DOWNLOAD_TIMEOUT - 下载超时时间 60 秒
+    BACKUP_RETENTION_DAYS - 备份保留天数 30
+    MAX_BACKUP_FILE_SIZE  - 备份文件最大大小 100MB
+
+核心函数：
+    check_for_updates(parent, ui_callback, show_no_update_msg, output_callback)：
+        检查更新入口函数
+        - 获取最新版本号和下载链接
+        - 比较版本号判断是否需要更新
+        - 有更新时弹出对话框让用户选择操作
+
+    fetch_latest_version(parent, output_callback, ui_callback)：
+        获取最新版本信息
+        - 优先使用用户保存的 Token
+        - Token 不足时回退到内置默认 Token
+        - 速率限制时提示用户输入自己的 Token
+
+    download_file(url, dest_path, ...)：
+        下载更新文件
+        - 支持进度回调
+        - SSL 错误时自动降级验证
+        - 非 .exe/.zip/.rar 链接引导浏览器手动下载
+
+    perform_update(download_url, parent, ...)：
+        执行完整更新流程：
+        1. 创建备份（限制 100MB）
+        2. 下载新版本
+        3. 解压并覆盖文件
+        4. 对比 manifest.json 清理废弃文件
+        5. 提示重启
+
+    create_github_release(version, changelog, output_callback)：
+        创建 GitHub Release
+        - 使用 GitHub API 发布新版本
+        - 自动设置 tag_name 和 target_commitish
+
+辅助函数：
+    is_version_greater(v1, v2)    - 版本号比较
+    build_auth_headers(parent)    - 构建认证请求头
+    fetch_release_data(headers)   - 获取 Release 数据
+    parse_latest_version(data)    - 解析最新版本号
+    select_download_url(data)     - 选择最佳下载链接
+    prompt_for_token(parent, ui)  - 提示用户输入 Token
+
+异常类：
+    RateLimitError - GitHub API 速率限制异常
+
+依赖：modules.token_crypto
+"""
 import os
 import sys
 import logging
@@ -25,7 +82,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.6.1"
+CURRENT_VERSION = "1.6.2"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"

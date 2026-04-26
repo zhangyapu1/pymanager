@@ -1,4 +1,29 @@
-"""编辑脚本 - 用外部编辑器打开脚本并自动检查依赖。"""
+"""
+编辑脚本 - 用内置编辑器打开脚本内容，保存后自动检查依赖。
+
+功能：
+    _edit_content(ctx)：
+        1. 获取选中脚本项并解析文件路径
+        2. 读取脚本内容（仅支持 UTF-8 编码）
+        3. 打开 EditorWindow 编辑器窗口
+        4. 设置保存和取消回调
+
+    _on_save(editor, ctx, script_path, item)：
+        保存流程（后台线程执行）：
+        1. 禁用编辑器按钮，显示保存状态
+        2. 使用临时文件写入新内容（原子性保存）
+        3. shutil.move 替换原文件
+        4. 调用 check_script_deps_and_install 检查依赖
+        5. 更新脚本列表显示
+
+安全机制：
+    - 使用 tempfile.mkstemp 创建临时文件，避免写入中断导致数据丢失
+    - 保存失败时自动清理临时文件
+    - 非 UTF-8 编码文件提示错误，不强制编辑
+    - 依赖检查在后台线程执行，不阻塞 UI
+
+依赖：modules.dependencies, modules.script_manager, modules.app_context, modules.ui_editor
+"""
 import threading
 import os
 import subprocess

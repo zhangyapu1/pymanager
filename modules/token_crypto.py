@@ -1,4 +1,48 @@
-"""Token 加密 - GitHub API Token 的加密存储与 Windows DPAPI 保护。"""
+"""
+Token 加密 - GitHub API Token 的加密存储与 Windows DPAPI 保护。
+
+加密方案：
+    存储加密：使用 Windows DPAPI（CryptProtectData / CryptUnprotectData）
+        - 与当前 Windows 用户账户绑定
+        - 其他用户无法解密
+        - 加密结果经 Base64 编码存储到文件
+
+    默认 Token：使用简单 XOR 混淆
+        - _DEFAULT_TOKEN_ENC 为 XOR+Base64 编码的默认 Token
+        - 仅用于内置默认 Token 的混淆存储
+
+文件存储：
+    TOKEN_FILE = config/api_token.enc
+    内容为 DPAPI 加密后的 Base64 字符串
+
+函数：
+    get_default_token()：
+        获取内置默认 GitHub Token（XOR 解码）
+
+    get_api_token()：
+        获取用户保存的 GitHub Token（DPAPI 解密）
+        - 文件不存在或解密失败返回空字符串
+
+    save_api_token(token)：
+        保存 GitHub Token（DPAPI 加密写入文件）
+
+    delete_api_token()：
+        删除保存的 Token 文件
+
+    delete_token_ui(ctx)：
+        UI 交互删除 Token
+        - 无 Token 时提示
+        - 有 Token 时确认后删除
+
+Windows API 结构：
+    DATA_BLOB - CryptProtectData/CryptUnprotectData 使用的数据结构
+    CRYPTPROTECT_UI_FORBIDDEN - 禁止弹出 UI 的标志位
+
+平台限制：
+    仅支持 Windows（依赖 crypt32.dll 和 kernel32.dll）
+
+依赖：modules.logger
+"""
 import os
 import base64
 import ctypes

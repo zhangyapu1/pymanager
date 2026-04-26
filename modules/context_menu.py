@@ -1,4 +1,34 @@
-"""右键菜单 - 脚本列表的右键上下文菜单。"""
+"""
+右键菜单 - 脚本列表的右键上下文菜单，支持单选和批量操作。
+
+菜单结构：
+    单选模式：
+        - 收藏（置顶）/ 取消收藏
+        - 设置图标 → 子菜单（16种图标选项，当前图标带 ✓ 标记）
+        - ─────────
+        - 移动到分组 → 子菜单（其他分组 + 新建分组...）
+        - ─────────
+        - 运行
+        - 编辑内容
+        - 重命名
+        - 删除
+        - ─────────
+        - 刷新列表
+
+    多选模式（在单选菜单前追加）：
+        - 批量删除（N 个）
+        - 批量移动到分组（N 个）→ 子菜单
+        - 批量导出（N 个）
+        - ─────────
+
+图标选项：
+    无图标、📋列表、⚙设置、📝笔记、📊图表、🌐网络、💾保存、
+    🔧工具、📁文件夹、🔍搜索、🛠维修、☀太阳、🌙月亮、🚀火箭、⭐星标、🔖书签
+
+依赖：modules.config, modules.script_manager, modules.run_selected,
+      modules.rename_selected, modules.delete_selected, modules.favorites,
+      modules.script_icons, modules.batch_ops
+"""
 import tkinter as tk
 
 from modules.config import DEFAULT_GROUP

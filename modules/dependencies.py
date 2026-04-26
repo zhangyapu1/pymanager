@@ -1,4 +1,60 @@
-"""依赖管理 - 解析脚本 import 语句并自动安装缺失的第三方包。"""
+"""
+依赖管理 - 解析脚本 import 语句并自动安装缺失的第三方包。
+
+核心类：
+    DependencyChecker：
+        静态工具类，提供依赖检查和安装的完整功能链
+
+        静态方法：
+            extract_imports_from_script(path)：
+                使用 AST 解析脚本，提取所有 import 和 from...import 语句
+                返回模块名集合（如 {'os', 'requests', 'numpy'}）
+
+            is_stdlib_module(module_name)：
+                判断模块是否为 Python 标准库
+                内置 PY2_REMOVED_MODULES 集合排除 Python 2 已移除模块
+
+            is_package_installed(package_name)：
+                使用 importlib.util.find_spec 检查包是否已安装
+
+            get_missing_dependencies(script_path)：
+                提取脚本 import 并返回未安装的第三方依赖列表
+
+            verify_imports(script_path)：
+                验证脚本所有 import 是否可解析，返回无法导入的模块列表
+                用于检测传递依赖缺失
+
+            install_package(package_name, ...)：
+                使用 pip 安装包，自动尝试国内镜像源
+                支持进度回调和 UI 交互
+
+            fix_package_conflict(module_name, ...)：
+                检测并修复包名冲突（如 docx vs python-docx）
+                自动卸载冲突包并安装正确版本
+
+常量：
+    MIRRORS - 国内 pip 镜像源列表（清华、阿里、中科大）
+    SELF_DEPENDENCIES - 框架自身依赖 ['tkinterdnd2', 'ttkbootstrap']
+    PY2_REMOVED_MODULES - Python 2 已移除模块集合
+    PACKAGE_CONFLICTS - 包名冲突映射表
+    PY2_SHIM_CONTENT - Python 2 兼容垫片代码映射
+
+兼容性处理：
+    ensure_py2_shim(module_name)：
+        为 Python 2 模块名创建兼容垫片（如 Queue → queue）
+        在 site-packages 目录下生成 .py 文件
+
+函数：
+    check_self_dependencies_async(...)：
+        异步检查框架自身依赖（tkinterdnd2, ttkbootstrap）
+        缺失时自动安装，安装后回调通知需要重启
+
+    check_script_deps_and_install(...)：
+        检查单个脚本的依赖并安装缺失项
+        支持包冲突修复和 Python 2 兼容垫片
+
+依赖：modules.logger
+"""
 import sys
 import os
 import ast

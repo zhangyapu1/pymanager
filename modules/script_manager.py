@@ -1,4 +1,47 @@
-"""脚本管理 - 脚本文件的扫描、添加、移动和路径解析。"""
+"""
+脚本管理 - 脚本文件的扫描、添加、移动和路径解析。
+
+核心函数：
+    resolve_path(data_dir, rel_path)：
+        将相对路径解析为绝对路径
+        - 绝对路径直接返回
+        - 相对路径拼接 data_dir
+
+    get_unique_path(directory, filename)：
+        生成不冲突的文件路径
+        - 文件名冲突时添加 _1, _2... 后缀
+
+    scan_data_directory(ctx)：
+        扫描 data 目录下所有 .py 文件
+        - 递归遍历所有子目录
+        - 根据子目录名确定分组（第一级目录为分组名）
+        - 根目录下的脚本归入默认分组
+        - 新增脚本添加到集合，已有脚本更新信息
+        - 同步分组管理器，新增分组时刷新下拉框
+
+    add_script_from_path(ctx, src_path)：
+        从外部路径添加脚本到当前分组
+        - 使用 get_unique_path 避免文件名冲突
+        - shutil.copy2 复制文件（保留元数据）
+        - 添加到脚本集合并更新列表
+        - 异步检查新脚本的依赖
+
+    move_script_to_group(ctx, item, target_group)：
+        将脚本移动到目标分组
+        - 物理移动文件到目标分组目录
+        - 处理文件名冲突
+        - 更新脚本集合中的分组和路径信息
+        - 刷新列表显示
+
+脚本项数据结构：
+    {
+        "display": "分组名/脚本名.py",
+        "storage_path": "分组名/脚本名.py",
+        "group": "分组名"
+    }
+
+依赖：modules.config, modules.logger, modules.dependencies, modules.app_context
+"""
 import os
 import shutil
 

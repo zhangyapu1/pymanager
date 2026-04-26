@@ -1,4 +1,54 @@
-"""分组管理 - 脚本分组的创建、删除、重命名和脚本移动。"""
+"""
+分组管理 - 脚本分组的创建、删除、重命名和脚本移动。
+
+类 GroupManager：
+    管理脚本分组的完整生命周期，每个分组对应 data/ 下的一个子目录。
+
+    初始化参数：
+        data_dir         - 数据目录路径
+        output_callback  - 输出回调函数（可选）
+        ui_callback      - UI 交互回调（可选）
+
+    核心属性：
+        groups          - 分组名称列表，默认分组始终在首位
+        groups_meta     - 分组元数据字典，包含排序信息
+        current_group   - 当前激活的分组名
+
+    方法：
+        load_groups()：
+            从文件系统加载分组列表
+            - 扫描 data/ 下的子目录作为分组
+            - 合并 groups_meta.json 中的元数据
+            - 清理不存在的分组元数据
+            - 默认分组始终排在第一位
+
+        save_groups()：
+            保存分组元数据到 groups_meta.json
+
+        new_group(parent=None)：
+            创建新分组
+            - 弹出输入对话框获取分组名
+            - 验证名称格式（字母、数字、中文、下划线、连字符、空格）
+            - 检查名称是否已存在
+            - 创建对应子目录
+
+        delete_group(parent=None)：
+            删除当前分组
+            - 默认分组不可删除
+            - 确认后将脚本移动到默认分组
+            - 处理文件名冲突（自动添加序号后缀）
+            - 删除分组目录
+
+        set_current_group(group_name)：
+            切换当前分组
+
+    名称验证规则：
+        - 长度不超过 50 字符
+        - 不包含 / \\ .. 等路径分隔符
+        - 匹配正则 ^[\w\u4e00-\u9fa5\s\-]+$
+
+依赖：modules.config, modules.logger, modules.settings_manager
+"""
 import os
 import shutil
 import re

@@ -1,4 +1,40 @@
-"""日志模块 - 错误日志、输出日志的记录与自动清理。"""
+"""
+日志模块 - 错误日志、输出日志的记录与自动清理。
+
+日志文件：
+    ERROR_LOG_FILE  - logs/error_log.txt，记录错误和警告信息
+    OUTPUT_LOG_FILE - logs/output_log.txt，记录程序输出信息
+
+日志级别函数：
+    log_error(error_msg)   - 记录 ERROR 级别日志，自动附加异常堆栈
+    log_warning(warning_msg) - 记录 WARNING 级别日志
+    log_info(info_msg)     - 记录 INFO 级别日志
+    log_output(message)    - 记录程序输出到 OUTPUT_LOG_FILE
+
+日志格式：
+    [{LEVEL}] {timestamp} - {message}
+    {stack_trace}（如有异常）
+    ============================================================
+
+配置读取：
+    _get_log_settings()：
+        从 settings.json 的 "log" 字段读取配置
+        - retain_days：日志保留天数，默认 7 天
+        - max_file_size_mb：单文件最大大小，默认 1 MB
+
+自动清理：
+    cleanup_logs(log_dir, retention_days, max_size)：
+        1. 删除超过保留天数的日志文件
+        2. 截断超过最大大小的日志文件（保留后半部分）
+        3. 在应用启动时自动调用
+
+常量：
+    LOG_DIR          - 日志目录路径
+    LOG_RETENTION_DAYS - 默认保留天数 7
+    LOG_MAX_SIZE     - 默认最大文件大小 1MB
+
+依赖：modules.settings_manager（可选，缺失时使用默认配置）
+"""
 import time
 import traceback
 import sys

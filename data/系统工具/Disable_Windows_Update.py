@@ -2,15 +2,22 @@
 彻底禁用 Windows 11 更新
 
 通过以下方式全面禁用 Windows 更新：
-1. 禁用 Windows Update 服务 (wuauserv)
-2. 禁用 Update Orchestrator Service (UsoSvc)
-3. 禁用 Windows Update Medic Service (WaaSMedicSvc) - 防止自动恢复
-4. 设置组策略禁用自动更新
-5. 禁用更新相关计划任务
-6. 暂停更新至 2080 年（兜底）
-7. 禁止驱动更新
+    1. 禁用 Windows Update 服务 (wuauserv)
+    2. 禁用 Update Orchestrator Service (UsoSvc)
+    3. 禁用 Windows Update Medic Service (WaaSMedicSvc) - 防止自动恢复
+    4. 设置组策略禁用自动更新
+    5. 禁用更新相关计划任务
+    6. 暂停更新至 2080 年（兜底）
+    7. 禁止驱动更新
 
-需要管理员权限运行。
+注意事项：
+    - 需要管理员权限运行（脚本会自动检测并请求提权）
+    - 禁用后系统将无法接收安全更新，建议仅在受控环境中使用
+    - 可使用 Enable_Windows_Update.py 恢复所有更新功能
+    - 修改注册表和组策略前会先备份原始值
+
+兼容性：Windows 10 / Windows 11
+依赖：仅使用 Python 标准库
 """
 import os
 import sys

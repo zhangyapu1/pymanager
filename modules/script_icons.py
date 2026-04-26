@@ -1,4 +1,29 @@
-"""脚本图标 - 管理脚本的自定义图标显示。"""
+"""
+脚本图标 - 管理脚本的自定义图标显示，通过右键菜单设置。
+
+功能：
+    get_script_icon(settings, storage_path)：
+        获取脚本的自定义图标字符
+        - 从 settings["script_icons"] 字典中读取
+        - 未设置时返回空字符串
+
+    set_script_icon(ctx, storage_path, icon)：
+        设置脚本的自定义图标
+        - icon 非空时写入 settings["script_icons"]
+        - icon 为空时移除该脚本的图标设置
+        - 保存设置后刷新列表显示
+
+可用图标（ICON_OPTIONS）：
+    无图标、📋列表、⚙设置、📝笔记、📊图表、🌐网络、💾保存、
+    🔧工具、📁文件夹、🔍搜索、🛠维修、☀太阳、🌙月亮、🚀火箭、
+    ⭐星标、🔖书签、📦包裹、📄文档、🎯目标、🔐锁定
+
+数据存储：
+    settings.json → "script_icons" 字段
+    格式：{"相对路径": "图标字符", ...}
+
+依赖：modules.settings_manager
+"""
 from modules.settings_manager import save_settings
 
 ICON_OPTIONS = [

@@ -1,4 +1,25 @@
-"""批量操作 - 批量删除、移动脚本等。"""
+"""
+批量操作 - 对多个选中脚本执行批量删除、移动和导出。
+
+功能：
+    batch_delete(ctx, items)：
+        - 批量删除脚本，弹出确认对话框列出所有待删除脚本名称
+        - 逐个删除文件并从脚本集合中移除
+        - FileNotFoundError 自动跳过，OSError 跳过并继续
+        - 完成后更新列表并输出统计信息
+
+    batch_move(ctx, items, target_group)：
+        - 批量移动脚本到目标分组
+        - 跳过已在目标分组中的脚本
+        - 调用 move_script_to_group 完成实际移动
+
+    batch_export(ctx, items)：
+        - 批量导出脚本到用户选择的目录
+        - 使用 shutil.copy2 保留文件元数据
+        - 导出失败时输出错误信息但不中断
+
+依赖：modules.script_manager
+"""
 import os
 import shutil
 

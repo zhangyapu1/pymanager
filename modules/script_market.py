@@ -1,12 +1,40 @@
 """
-脚本市场 - 从 GitHub 搜索和下载 Python 脚本
+脚本市场 - 浏览和下载 GitHub 上的 Python 脚本资源。
 
 功能：
-1. 按关键词搜索 GitHub 仓库
-2. 浏览仓库中的 .py 文件
-3. 预览 README（英文自动翻译为中文）
-4. AI 智能分析项目信息
-5. 下载脚本到指定分组
+    - GitHub 仓库浏览：查看热门 Python 仓库列表，支持关键词搜索
+    - 文件列表展示：显示仓库中的文件和文件夹结构
+    - README 预览：渲染并翻译 Markdown 格式的 README 文档
+    - 项目下载：支持下载整个项目或单个文件/文件夹到本地 data 目录
+    - AI 项目分析：使用智谱AI或通义千问分析项目功能和结构
+    - 翻译服务：支持有道翻译、百度翻译、腾讯翻译君三种翻译服务
+    - API Key 管理：加密存储和管理 AI 服务的 API Key
+
+UI 组件：
+    - 三栏可调布局：仓库列表、文件列表、README 预览（PanedWindow）
+    - 下载进度条：显示文件下载进度
+    - AI 分析面板：包含 AI 选择、Key 管理和分析按钮
+    - 翻译服务选择：可切换不同翻译服务
+
+类 ScriptMarketWindow：
+    主窗口类，管理所有 UI 组件和交互逻辑
+
+    核心方法：
+        _search_repos()          - 搜索 GitHub 仓库
+        _load_repo_contents()    - 加载仓库文件列表
+        _load_readme()           - 加载并渲染 README
+        _translate_readme()      - 分段翻译 README
+        _analyze_project()       - AI 分析项目
+        _download_selected()     - 下载选中项目/文件
+        _save_api_key()          - 保存加密的 API Key
+        _delete_api_key()        - 删除指定 AI 的 Key
+
+翻译实现：
+    - 分段翻译：长文本按段落拆分，逐段翻译并渐进显示
+    - 进度节流：500ms 间隔批量更新 UI，减少窗口闪烁
+    - 百度翻译：支持 APP ID + 密钥认证，自动处理超长文本分段
+
+依赖：requests, markdown, ttkbootstrap, modules.encrypt_utils, modules.token_crypto
 """
 import base64
 import hashlib

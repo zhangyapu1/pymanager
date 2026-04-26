@@ -1,6 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""文件夹内批量重命名 - 批量重命名指定文件夹内的文件。"""
+"""
+文件夹内批量重命名 - 批量重命名指定文件夹内的文件。
+
+功能：
+    - 添加前缀：在文件名前插入指定文字（如 "2024_" + "report.pdf" → "2024_report.pdf"）
+    - 添加后缀：在文件名与扩展名之间插入指定文字（如 "report" + "_v2" + ".pdf" → "report_v2.pdf"）
+    - 替换文字：将文件名中的指定文本替换为新文本
+    - 按序号重命名：按顺序编号重命名，保留原扩展名（如 "photo_001.jpg", "photo_002.jpg"）
+
+安全机制：
+    - 重命名前检查目标文件是否已存在，避免覆盖
+    - 源文件不存在时自动跳过
+    - 新名称与原名称相同时跳过
+    - 操作前弹出确认对话框
+
+依赖：仅使用 Python 标准库（tkinter）
+"""
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk

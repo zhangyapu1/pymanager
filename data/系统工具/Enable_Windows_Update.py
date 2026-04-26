@@ -2,15 +2,22 @@
 恢复 Windows 11 更新
 
 恢复被 Disable_Windows_Update.py 禁用的所有更新功能：
-1. 启用 Windows Update 服务 (wuauserv)
-2. 启用 Update Orchestrator Service (UsoSvc)
-3. 启用 Windows Update Medic Service (WaaSMedicSvc)
-4. 清除组策略禁用更新设置
-5. 启用更新相关计划任务
-6. 清除暂停更新设置
-7. 恢复驱动更新和传递优化
+    1. 启用 Windows Update 服务 (wuauserv)
+    2. 启用 Update Orchestrator Service (UsoSvc)
+    3. 启用 Windows Update Medic Service (WaaSMedicSvc)
+    4. 清除组策略禁用更新设置
+    5. 启用更新相关计划任务
+    6. 清除暂停更新设置
+    7. 恢复驱动更新和传递优化
 
-需要管理员权限运行。
+注意事项：
+    - 需要管理员权限运行（脚本会自动检测并请求提权）
+    - 此脚本是 Disable_Windows_Update.py 的配套恢复工具
+    - 恢复后建议重启计算机以确保所有服务正常启动
+    - 恢复后首次检查更新可能需要几分钟
+
+兼容性：Windows 10 / Windows 11
+依赖：仅使用 Python 标准库
 """
 import os
 import sys
