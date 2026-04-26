@@ -2,7 +2,7 @@
 自动更新 - 检查 GitHub Releases 并提示或执行应用更新，支持清单对比清理。
 
 常量：
-    CURRENT_VERSION - 当前版本号 "1.7.0"
+    CURRENT_VERSION - 当前版本号 "1.7.1"
     PROJECT_URL     - 项目主页 https://github.com/zhangyapu1/pymanager
     REPO_OWNER      - GitHub 仓库所有者
     REPO_NAME       - GitHub 仓库名
@@ -83,7 +83,7 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.7.0"
+CURRENT_VERSION = "1.7.1"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"
