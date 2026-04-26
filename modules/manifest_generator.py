@@ -4,7 +4,7 @@
 工作原理：
     1. 扫描项目目录下所有文件，生成相对路径列表
     2. 排除受保护目录和文件（data/、config/、用户配置等）
-    3. 从 github_api.py（或 updater.py）读取当前版本号
+    3. 从 config.py 读取当前版本号
     4. 输出 JSON 格式的清单文件到 config/manifest.json
 
 常量：
@@ -32,7 +32,7 @@
         返回输出文件路径
 
     _read_version(base_dir)：
-        从 modules/github_api.py（或 updater.py）读取 CURRENT_VERSION 值
+        从 modules/config.py 读取 CURRENT_VERSION 值
 
 命令行用法：
     python -m modules.manifest_generator [base_dir]
@@ -112,17 +112,16 @@ def generate_manifest(base_dir=None):
 
 
 def _read_version(base_dir):
-    for filename in ("github_api.py", "updater.py"):
-        filepath = os.path.join(base_dir, "modules", filename)
-        if not os.path.exists(filepath):
-            continue
-        try:
-            with open(filepath, "r", encoding="utf-8") as f:
-                for line in f:
-                    if line.startswith("CURRENT_VERSION"):
-                        return line.split("=")[1].strip().strip('"').strip("'")
-        except OSError:
-            pass
+    filepath = os.path.join(base_dir, "modules", "config.py")
+    if not os.path.exists(filepath):
+        return "unknown"
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("CURRENT_VERSION"):
+                    return line.split("=")[1].strip().strip('"').strip("'")
+    except OSError:
+        pass
     return "unknown"
 
 

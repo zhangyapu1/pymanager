@@ -2,7 +2,6 @@
 GitHub API 通信 - 版本查询、文件下载、Release 发布。
 
 常量：
-    CURRENT_VERSION   - 当前版本号 "1.8.0"
     PROJECT_URL       - 项目主页
     REPO_OWNER        - GitHub 仓库所有者
     REPO_NAME         - GitHub 仓库名
@@ -49,6 +48,8 @@ import json
 import ssl
 import webbrowser
 
+from .config import CURRENT_VERSION
+
 logger = logging.getLogger(__name__)
 
 if not logger.handlers:
@@ -59,7 +60,6 @@ if not logger.handlers:
     logger.addHandler(_handler)
     logger.setLevel(logging.INFO)
 
-CURRENT_VERSION = "1.8.0"
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
 
 REPO_OWNER = "zhangyapu1"

@@ -1,7 +1,10 @@
 """
-全局配置 - 定义数据目录、配置目录等基础路径常量，并在启动时自动创建。
+全局配置 - 定义版本号、数据目录、配置目录等基础路径常量，并在启动时自动创建。
 
 常量：
+    CURRENT_VERSION：
+        当前版本号，所有模块统一引用此值
+
     BASE_DIR：
         项目根目录。打包运行时取可执行文件所在目录，
         开发运行时取 modules 的父目录
@@ -27,6 +30,8 @@
 import os
 import sys
 from pathlib import Path
+
+CURRENT_VERSION = "1.8.1"
 
 def get_base_dir():
     if getattr(sys, 'frozen', False):

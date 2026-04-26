@@ -32,8 +32,8 @@ import tempfile
 import subprocess
 import zipfile
 
+from modules.config import CURRENT_VERSION
 from modules.github_api import (
-    CURRENT_VERSION,
     PROJECT_URL,
     is_version_greater,
     fetch_latest_version,
