@@ -108,7 +108,12 @@ def apply_update(download_path, parent=None, output_callback=None, ui_callback=N
 
             cleanup_obsolete_files(current_dir, extract_root, output_callback)
 
+            protected_names = {".gitignore", "REQUIREMENTS.md", "manifest.json"}
+
             for item in os.listdir(extract_root):
+                if item in protected_names:
+                    continue
+
                 src = os.path.join(extract_root, item)
                 dst = os.path.join(current_dir, item)
 

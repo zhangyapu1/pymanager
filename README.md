@@ -132,6 +132,13 @@ pymanager/
 
 ## 更新日志
 
+### v1.8.4
+
+**🐛 更新修复**
+- 修复更新时 `.gitignore`、`REQUIREMENTS.md` 等受保护文件被重新复制到用户目录的问题
+- 原因：清理在复制之前执行，受保护文件被删后又从解压包复制回来
+- 修复：复制时跳过受保护文件（`.gitignore`、`REQUIREMENTS.md`、`manifest.json`）
+
 ### v1.8.3
 
 **🐛 发布修复**
