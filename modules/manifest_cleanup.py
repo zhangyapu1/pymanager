@@ -4,21 +4,27 @@
 核心函数：
     cleanup_obsolete_files(current_dir, new_extract_dir, output_callback)：
         对比新旧 manifest.json 清理废弃文件
-        - 强制删除 .trae/、tests/ 目录
-        - 强制删除 .gitignore、REQUIREMENTS.md、旧路径 manifest.json
+        - 强制删除 FORCE_REMOVE_DIRS 中的目录
+        - 强制删除 FORCE_REMOVE_FILES 中的文件
         - 对比新旧清单差异，删除旧版有而新版没有的文件
-        - 保护 data/、config/、logs/ 等用户数据目录
+        - 保护 PROTECTED_DIRS 中的用户数据目录
         - 循环清理空目录（最多 10 轮）
 
 辅助函数：
     load_manifest(directory)：
         从目录中加载 manifest.json
         - 按优先级查找：modules/ → config/ → 根目录
+
+依赖：json, os, modules.config
 """
 import os
 import json
 import shutil
 import logging
+
+from modules.config import (
+    PROTECTED_DIRS, PROTECTED_FILES, FORCE_REMOVE_DIRS, FORCE_REMOVE_FILES,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +67,8 @@ def cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
     old_manifest = load_manifest(current_dir)
     new_manifest = load_manifest(new_extract_dir)
 
-    force_remove_dirs = {".trae", "tests"}
-    force_remove_files = {".gitignore", "REQUIREMENTS.md", "manifest.json", "config/manifest.json"}
+    force_remove_dirs = FORCE_REMOVE_DIRS
+    force_remove_files = FORCE_REMOVE_FILES
 
     removed = 0
     for fname in force_remove_files:
@@ -93,8 +99,8 @@ def cleanup_obsolete_files(current_dir, new_extract_dir, output_callback=None):
 
     obsolete = old_files - new_files
 
-    protected_dirs = {"data", "config", "logs", "backups", "__pycache__", ".git", ".idea", ".vscode"}
-    protected_files = {"settings.json", "groups_meta.json"}
+    protected_dirs = PROTECTED_DIRS
+    protected_files = PROTECTED_FILES
 
     for rel_path in sorted(obsolete):
         parts = rel_path.replace("\\", "/").split("/")

@@ -5,6 +5,27 @@
     CURRENT_VERSION：
         当前版本号，所有模块统一引用此值
 
+    PROTECTED_DIRS：
+        发布排除目录集合，扫描/复制/清理时跳过
+        data, config, logs, backups, __pycache__, .git, .idea, .vscode,
+        .pytest_cache, node_modules, .trae, tests
+
+    PROTECTED_FILES：
+        发布排除文件集合，不纳入清单、不复制到用户目录
+        settings.json, groups_meta.json, .gitignore, REQUIREMENTS.md
+
+    FORCE_REMOVE_DIRS：
+        更新时强制删除的目录
+        .trae, tests
+
+    FORCE_REMOVE_FILES：
+        更新时强制删除的文件
+        .gitignore, REQUIREMENTS.md, manifest.json, config/manifest.json
+
+    SKIP_EXTENSIONS：
+        跳过的文件扩展名
+        .pyc, .pyo, .log, .tmp
+
     BASE_DIR：
         项目根目录。打包运行时取可执行文件所在目录，
         开发运行时取 modules 的父目录
@@ -32,6 +53,35 @@ import sys
 from pathlib import Path
 
 CURRENT_VERSION = "1.8.4"
+
+PROTECTED_DIRS = {
+    "data", "config", "logs", "backups",
+    "__pycache__", ".git", ".idea", ".vscode",
+    ".pytest_cache", "node_modules",
+    ".trae", "tests",
+}
+
+PROTECTED_FILES = {
+    "settings.json", "groups_meta.json",
+    ".gitignore", "REQUIREMENTS.md",
+}
+
+FORCE_REMOVE_DIRS = {
+    ".trae", "tests",
+}
+
+FORCE_REMOVE_FILES = {
+    ".gitignore", "REQUIREMENTS.md",
+    "manifest.json", "config/manifest.json",
+}
+
+SKIP_EXTENSIONS = {
+    ".pyc", ".pyo", ".log", ".tmp",
+}
+
+ROOT_PROTECTED_FILES = {
+    "manifest.json",
+}
 
 def get_base_dir():
     if getattr(sys, 'frozen', False):

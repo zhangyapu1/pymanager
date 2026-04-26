@@ -3,21 +3,9 @@
 
 工作原理：
     1. 扫描项目目录下所有文件，生成相对路径列表
-    2. 排除受保护目录和文件（data/、config/、用户配置等）
+    2. 排除受保护目录和文件（规则统一在 config.py 中定义）
     3. 从 config.py 读取当前版本号
-    4. 输出 JSON 格式的清单文件到 config/manifest.json
-
-常量：
-    PROTECTED_DIRS - 受保护目录集合，扫描时跳过
-        data, config, logs, backups, __pycache__, .git, .idea, .vscode,
-        .pytest_cache, node_modules, .trae, tests
-
-    PROTECTED_FILES - 受保护文件集合，不纳入清单
-        manifest.json, settings.json, groups_meta.json,
-        .gitignore, REQUIREMENTS.md
-
-    SKIP_EXTENSIONS - 跳过的文件扩展名
-        .pyc, .pyo, .log, .tmp
+    4. 输出 JSON 格式的清单文件到 modules/manifest.json
 
 函数：
     should_skip(rel_path)：
@@ -28,7 +16,7 @@
         base_dir 默认为项目根目录
 
     write_manifest(base_dir=None, output_path=None)：
-        生成并写入 config/manifest.json 文件
+        生成并写入 modules/manifest.json 文件
         返回输出文件路径
 
     _read_version(base_dir)：
@@ -37,36 +25,20 @@
 命令行用法：
     python -m modules.manifest_generator [base_dir]
 
-更新流程中的使用：
-    1. 发布新版本前运行生成 config/manifest.json
-    2. 更新时下载新版本清单
-    3. 对比本地清单与新清单，删除新版本中不存在的文件
-
-依赖：json, os
+依赖：json, os, modules.config
 """
 import os
 import json
 import sys
 
-PROTECTED_DIRS = {
-    "data", "config", "logs", "backups",
-    "__pycache__", ".git", ".idea", ".vscode",
-    ".pytest_cache", "node_modules",
-    ".trae", "tests",
-}
+if __name__ == "__main__":
+    _parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if _parent not in sys.path:
+        sys.path.insert(0, _parent)
 
-PROTECTED_FILES = {
-    "settings.json", "groups_meta.json",
-    ".gitignore", "REQUIREMENTS.md",
-}
-
-ROOT_PROTECTED_FILES = {
-    "manifest.json",
-}
-
-SKIP_EXTENSIONS = {
-    ".pyc", ".pyo", ".log", ".tmp",
-}
+from modules.config import (
+    PROTECTED_DIRS, PROTECTED_FILES, ROOT_PROTECTED_FILES, SKIP_EXTENSIONS,
+)
 
 
 def should_skip(rel_path):
