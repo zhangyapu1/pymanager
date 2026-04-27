@@ -132,6 +132,19 @@ pymanager/
 
 ## 更新日志
 
+### v1.8.6
+
+**📦 脚本市场拆分解耦**
+- 创建 `repository_manager.py` 模块：封装 GitHub 仓库搜索和内容加载功能
+- 创建 `download_manager.py` 模块：封装文件和仓库下载功能，支持进度回调
+- 创建 `preview_manager.py` 模块：封装文件预览和 Markdown 渲染功能
+- 更新 `script_market.py` 以使用新模块，代码更清晰易维护
+
+**🐛 Bug 修复**
+- 修复网络错误：`search repos got an unexpected keyword argument query`
+- 修复加载失败：`name 'get_repo_readme' is not defined`
+- 修复翻译没有显示结果的问题
+
 ### v1.8.5
 
 **🔧 发布排除规则统一**

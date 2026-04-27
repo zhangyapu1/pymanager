@@ -52,7 +52,7 @@ import os
 import sys
 from pathlib import Path
 
-CURRENT_VERSION = "1.8.5"
+CURRENT_VERSION = "1.8.6"
 
 PROTECTED_DIRS = {
     "data", "config", "logs", "backups",
@@ -81,6 +81,41 @@ SKIP_EXTENSIONS = {
 
 ROOT_PROTECTED_FILES = {
     "manifest.json",
+}
+
+# 脚本市场配置
+SCRIPT_MARKET_CONFIG = {
+    # 搜索配置
+    "search": {
+        "per_page": 30,
+        "max_pages": 1,
+        "timeout": 30,
+        "sort": "stars",
+        "order": "desc",
+    },
+    # 下载配置
+    "download": {
+        "timeout": 60,
+        "chunk_size": 1024 * 1024,  # 1MB
+        "max_retries": 3,
+    },
+    # 预览配置
+    "preview": {
+        "max_readme_size": 1024 * 1024,  # 1MB
+        "max_translate_size": 5000,  # 5KB
+    },
+    # 缓存配置
+    "cache": {
+        "enabled": True,
+        "max_history": 50,
+        "expiry_days": 7,
+    },
+    # 本地服务配置
+    "local_service": {
+        "url": "http://localhost:8080/v1/chat/completions",
+        "default_model": "DeepSeek-V3.2",
+        "timeout": 30,
+    },
 }
 
 def get_base_dir():

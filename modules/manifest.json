@@ -1,5 +1,5 @@
 {
-  "version": "1.8.5",
+  "version": "1.8.6",
   "files": [
     "README.md",
     "main.pyw",
@@ -47,6 +47,9 @@
     "modules/ui_editor.py",
     "modules/ui_state.py",
     "modules/updater.py",
-    "modules/utils.py"
+    "modules/utils.py",
+    "modules/repository_manager.py",
+    "modules/download_manager.py",
+    "modules/preview_manager.py"
   ]
 }

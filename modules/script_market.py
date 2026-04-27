@@ -37,7 +37,7 @@ except ImportError:
     HAS_TTKBOOTSTRAP = False
 
 from modules.logger import log_info, log_error
-from modules.config import DATA_DIR
+from modules.config import DATA_DIR, SCRIPT_MARKET_CONFIG
 from modules.encrypt_utils import get_default_key
 from modules.translate_service import (
     TRANSLATE_PROVIDERS,
@@ -50,15 +50,27 @@ from modules.ai_analyzer import (
     load_ai_config,
     save_ai_config,
     ai_query,
+    get_local_models,
 )
-from modules.github_repo import (
-    search_repos,
-    get_repo_contents,
-    get_raw_file,
-    get_repo_readme,
-    is_english,
+from modules.repository_manager import (
+    search_github_repos,
+    get_repository_contents,
+    get_repository_readme,
+    get_file_content,
+    check_language,
 )
-from modules.markdown_renderer import render_markdown
+from modules.download_manager import (
+    download_file,
+    download_repository,
+    download_folder,
+    collect_repository_files,
+)
+from modules.preview_manager import (
+    preview_file,
+    preview_markdown,
+    preview_python,
+    render_markdown_content,
+)
 
 
 def create_button(parent, text, command, bootstyle="primary", **kwargs):
@@ -373,6 +385,11 @@ class ScriptMarketWindow:
         self.ai_key_entry.delete(0, tk.END)
         self.ai_key_entry.insert(0, display_key)
         self.ai_config["provider"] = provider
+        
+        # 如果选择本地服务，检测并选择模型
+        if provider == "本地服务 (127.0.0.1:8080)":
+            self._detect_local_models()
+        
         save_ai_config(self.ai_config)
 
     def _get_display_key(self, provider):
@@ -417,6 +434,67 @@ class ScriptMarketWindow:
         self.ai_key_entry.delete(0, tk.END)
         self.ai_status_var.set("✅ 自定义 Key 已删除，将使用默认 Key")
         self.ctx.append_output(f"[脚本市场] API Key 已删除：{provider}")
+
+    def _detect_local_models(self):
+        """检测本地服务可用的模型并让用户选择"""
+        try:
+            self.ai_status_var.set("正在检测本地模型...")
+            
+            # 获取本地服务的 URL
+            cfg = AI_PROVIDERS.get("本地服务 (127.0.0.1:8080)")
+            if not cfg:
+                self.ai_status_var.set("本地服务配置未找到")
+                return
+            
+            # 检测模型
+            models = get_local_models(cfg["url"])
+            
+            if not models:
+                self.ai_status_var.set("未检测到本地模型，使用默认模型")
+                # 使用默认模型
+                self.ai_config["local_model"] = "DeepSeek-V3.2"
+                save_ai_config(self.ai_config)
+                return
+            
+            # 让用户选择模型
+            dialog = tk.Toplevel(self.window)
+            dialog.title("选择本地模型")
+            dialog.geometry("400x300")
+            dialog.resizable(False, False)
+            dialog.transient(self.window)
+            dialog.grab_set()
+            
+            content = ttk.Frame(dialog)
+            content.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
+            
+            ttk.Label(content, text="检测到以下本地模型，请选择：", font=("微软雅黑", 10)).pack(anchor=tk.W, pady=(0, 10))
+            
+            # 创建模型选择列表
+            model_var = tk.StringVar(value=models[0])
+            model_list = tk.Listbox(content, listvariable=tk.StringVar(value=models), height=8, selectmode=tk.SINGLE)
+            model_list.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+            model_list.select_set(0)
+            
+            def _select_model():
+                selected = model_list.curselection()
+                if selected:
+                    selected_model = models[selected[0]]
+                    self.ai_config["local_model"] = selected_model
+                    save_ai_config(self.ai_config)
+                    self.ai_status_var.set(f"✅ 已选择本地模型：{selected_model}")
+                    self.ctx.append_output(f"[脚本市场] 已选择本地模型：{selected_model}")
+                dialog.destroy()
+            
+            btn_frame = ttk.Frame(content)
+            btn_frame.pack(fill=tk.X, pady=(10, 0))
+            ttk.Button(btn_frame, text="确定", command=_select_model).pack(side=tk.RIGHT, padx=(5, 0))
+            ttk.Button(btn_frame, text="取消", command=dialog.destroy).pack(side=tk.RIGHT, padx=(0, 5))
+            
+        except Exception as e:
+            self.ai_status_var.set(f"检测模型失败：{str(e)}")
+            # 使用默认模型
+            self.ai_config["local_model"] = "DeepSeek-V3.2"
+            save_ai_config(self.ai_config)
 
     def _re_analyze(self):
         if self.current_repo:
@@ -522,7 +600,7 @@ class ScriptMarketWindow:
 
         def _search():
             try:
-                data = search_repos(keyword)
+                data = search_github_repos(keyword)
                 items = data.get("items", [])
                 self.repos = items
                 total = data.get("total_count", 0)
@@ -581,9 +659,9 @@ class ScriptMarketWindow:
         def _load():
             try:
                 owner, repo = repo_full_name.split("/", 1)
-                content = get_repo_readme(owner, repo)
+                content = get_repository_readme(owner, repo)
                 self.original_readme = content
-                is_en = is_english(content)
+                is_en = check_language(content)
                 if is_en:
                     self._safe_after(0, lambda: self._show_preview(content))
                     self._safe_after(0, lambda: self.readme_lang_var.set("英文 | 自动翻译中..."))
@@ -722,7 +800,7 @@ class ScriptMarketWindow:
                 self.readme_lang_var.set(f"翻译中... ({cur}/{tot})")
             return
         combined = ''.join(buf)
-        rendered = render_markdown(combined)
+        rendered = render_markdown_content(combined)
         self.preview_text.config(state=tk.NORMAL)
         self.preview_text.insert(tk.END, rendered)
         self.preview_text.config(state=tk.DISABLED)
@@ -757,14 +835,11 @@ class ScriptMarketWindow:
         def _load():
             try:
                 owner, repo = repo_full_name.split("/", 1)
-                contents = get_repo_contents(owner, repo, path)
+                contents = get_repository_contents(owner, repo, path)
                 if isinstance(contents, dict):
                     contents = [contents]
                 self.files = contents
                 self._safe_after(0, self._display_files)
-            except HTTPError as e:
-                ecode = e.code
-                self._safe_after(0, lambda: self.status_var.set(f"访问失败：{ecode}"))
             except Exception as e:
                 msg = str(e)
                 self._safe_after(0, lambda: self.status_var.set(f"加载失败：{msg}"))
@@ -822,9 +897,9 @@ class ScriptMarketWindow:
 
         def _load():
             try:
-                content = get_raw_file(download_url)
+                content = get_file_content(download_url)
                 self.original_readme = content
-                is_en = is_english(content)
+                is_en = check_language(content)
                 if is_en:
                     self._safe_after(0, lambda: self._show_preview(content))
                     self._safe_after(0, lambda: self.readme_lang_var.set("英文 | 自动翻译中..."))
@@ -846,7 +921,7 @@ class ScriptMarketWindow:
 
         def _load():
             try:
-                content = get_raw_file(download_url)
+                content = get_file_content(download_url)
                 self._safe_after(0, lambda: self._show_preview(content, is_markdown=False))
                 self._safe_after(0, lambda: self.readme_lang_var.set("Python 源码"))
                 self._safe_after(0, lambda: self.translate_btn.config(state=tk.DISABLED))
@@ -875,7 +950,7 @@ class ScriptMarketWindow:
         self.preview_text.config(state=tk.NORMAL)
         self.preview_text.delete("1.0", tk.END)
         if is_markdown:
-            display = render_markdown(content)
+            display = render_markdown_content(content)
         else:
             display = content
         self.preview_text.insert("1.0", display)
@@ -910,28 +985,16 @@ class ScriptMarketWindow:
         self.status_var.set(f"下载项目：{full_name}...")
         self._safe_after(0, lambda: self._update_progress(0, f"扫描 {repo_name}..."))
 
+        def _progress_callback(pct, message):
+            self._safe_after(0, lambda: self._update_progress(pct, message))
+
         def _download():
             try:
-                os.makedirs(dest_dir, exist_ok=True)
-                file_list = []
-                self._collect_repo_files(full_name, "", file_list)
-                total = len(file_list)
-                if total == 0:
+                success = download_repository(full_name, dest_dir, _progress_callback)
+                if success:
                     self._safe_after(0, lambda: self._on_repo_download_done(repo_name))
-                    return
-                for i, (fpath, furl, fdest_dir) in enumerate(file_list):
-                    if furl:
-                        try:
-                            content = get_raw_file(furl)
-                            fname = fpath.split("/")[-1]
-                            file_path = os.path.join(fdest_dir, fname)
-                            with open(file_path, "w", encoding="utf-8") as f:
-                                f.write(content)
-                        except Exception as e:
-                            log_error(f"下载文件 {fpath} 失败：{e}")
-                    pct = int((i + 1) / total * 100)
-                    self._safe_after(0, lambda p=pct, n=i+1, t=total: self._update_progress(p, f"{n}/{t} 文件"))
-                self._safe_after(0, lambda: self._on_repo_download_done(repo_name))
+                else:
+                    raise Exception("下载失败")
             except Exception as e:
                 msg = str(e)
                 self._safe_after(0, lambda: self.status_var.set(f"下载失败：{msg}"))
@@ -940,26 +1003,7 @@ class ScriptMarketWindow:
 
         threading.Thread(target=_download, daemon=True).start()
 
-    def _collect_repo_files(self, repo_full_name, path, file_list):
-        owner, repo = repo_full_name.split("/", 1)
-        items = get_repo_contents(owner, repo, path)
-        if not isinstance(items, list):
-            return
-        for item in items:
-            name = item.get("name", "")
-            ftype = item.get("type", "")
-            if ftype == "dir":
-                sub_path = f"{path}/{name}" if path else name
-                repo_name = repo_full_name.split("/")[-1]
-                sub_dir = os.path.join(DATA_DIR, "测试项目", repo_name, sub_path.replace("/", os.sep))
-                os.makedirs(sub_dir, exist_ok=True)
-                self._collect_repo_files(repo_full_name, sub_path, file_list)
-            elif ftype == "file":
-                download_url = item.get("download_url", "")
-                repo_name = repo_full_name.split("/")[-1]
-                fpath = f"{path}/{name}" if path else name
-                fdest_dir = os.path.join(DATA_DIR, "测试项目", repo_name, path.replace("/", os.sep)) if path else os.path.join(DATA_DIR, "测试项目", repo_name)
-                file_list.append((fpath, download_url, fdest_dir))
+
 
     def _on_repo_download_done(self, repo_name):
         self.status_var.set(f"已下载项目：{repo_name}")
@@ -1007,14 +1051,25 @@ class ScriptMarketWindow:
                 return
 
         self.status_var.set(f"下载中：{filename}...")
-        self._update_progress(50, f"下载 {filename}")
+
+        def _progress_callback(downloaded, total):
+            if total > 0:
+                pct = int(downloaded / total * 100)
+                self._safe_after(0, lambda: self._update_progress(pct, f"{downloaded//1024}KB / {total//1024}KB"))
 
         def _download():
             try:
-                content = get_raw_file(download_url)
-                with open(dest_path, "w", encoding="utf-8") as f:
-                    f.write(content)
-                self._safe_after(0, lambda: self._on_download_done(filename, group))
+                success = download_file(
+                    download_url,
+                    dest_path,
+                    chunk_size=SCRIPT_MARKET_CONFIG["download"]["chunk_size"],
+                    timeout=SCRIPT_MARKET_CONFIG["download"]["timeout"],
+                    callback=_progress_callback
+                )
+                if success:
+                    self._safe_after(0, lambda: self._on_download_done(filename, group))
+                else:
+                    raise Exception("下载失败")
             except Exception as e:
                 msg = str(e)
                 self._safe_after(0, lambda: self.status_var.set(f"下载失败：{msg}"))
@@ -1042,30 +1097,17 @@ class ScriptMarketWindow:
         self.status_var.set(f"下载文件夹：{folder_name}...")
         self._update_progress(0, f"扫描 {folder_name}...")
 
+        def _progress_callback(pct, message):
+            self._safe_after(0, lambda: self._update_progress(pct, message))
+
         def _download():
             try:
-                os.makedirs(dest_dir, exist_ok=True)
-                file_list = []
-                self._collect_folder_files(full_name, folder_path, dest_dir, file_list)
-                total = len(file_list)
-                if total == 0:
+                success = download_folder(full_name, folder_path, dest_dir, _progress_callback)
+                if success:
                     group = self.ctx.group_manager.current_group
                     self._safe_after(0, lambda: self._on_download_done(folder_name, group))
-                    return
-                for i, (fpath, furl, fdest_dir) in enumerate(file_list):
-                    if furl:
-                        try:
-                            content = get_raw_file(furl)
-                            fname = fpath.split("/")[-1]
-                            file_path = os.path.join(fdest_dir, fname)
-                            with open(file_path, "w", encoding="utf-8") as f:
-                                f.write(content)
-                        except Exception as e:
-                            log_error(f"下载文件 {fpath} 失败：{e}")
-                    pct = int((i + 1) / total * 100)
-                    self._safe_after(0, lambda p=pct, n=i+1, t=total: self._update_progress(p, f"{n}/{t} 文件"))
-                group = self.ctx.group_manager.current_group
-                self._safe_after(0, lambda: self._on_download_done(folder_name, group))
+                else:
+                    raise Exception("下载失败")
             except Exception as e:
                 msg = str(e)
                 self._safe_after(0, lambda: self.status_var.set(f"下载失败：{msg}"))
@@ -1074,23 +1116,7 @@ class ScriptMarketWindow:
 
         threading.Thread(target=_download, daemon=True).start()
 
-    def _collect_folder_files(self, repo_full_name, path, dest_dir, file_list):
-        owner, repo = repo_full_name.split("/", 1)
-        items = get_repo_contents(owner, repo, path)
-        if not isinstance(items, list):
-            return
-        for item in items:
-            name = item.get("name", "")
-            ftype = item.get("type", "")
-            if ftype == "dir":
-                sub_dir = os.path.join(dest_dir, name)
-                os.makedirs(sub_dir, exist_ok=True)
-                sub_path = f"{path}/{name}" if path else name
-                self._collect_folder_files(repo_full_name, sub_path, sub_dir, file_list)
-            elif ftype == "file":
-                download_url = item.get("download_url", "")
-                fpath = f"{path}/{name}" if path else name
-                file_list.append((fpath, download_url, dest_dir))
+
 
     def _on_download_done(self, filename, group):
         self.status_var.set(f"已下载：{filename}")

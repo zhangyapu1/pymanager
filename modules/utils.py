@@ -89,3 +89,41 @@ def extract_docstring(file_path):
         if l.startswith('#'):
             comments.append(l.lstrip('#').strip())
     return '\n'.join(comments) if comments else None
+
+
+def download_file(url, save_path, chunk_size=1024*1024, timeout=60, callback=None):
+    """
+    下载文件并支持进度回调
+    
+    Args:
+        url: 文件 URL
+        save_path: 保存路径
+        chunk_size: 分块大小
+        timeout: 超时时间
+        callback: 进度回调函数，参数为 (已下载字节数, 总字节数)
+    
+    Returns:
+        bool: 下载是否成功
+    """
+    import urllib.request
+    import os
+    
+    try:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            total_size = int(response.headers.get('Content-Length', 0))
+            downloaded = 0
+            
+            with open(save_path, 'wb') as f:
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if callback:
+                        callback(downloaded, total_size)
+        return True
+    except Exception:
+        return False
