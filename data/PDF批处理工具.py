@@ -1146,15 +1146,25 @@ class PDFToolApp:
 
     def _parse_page_ranges(self, range_str, total_pages):
         ranges = []
+        # 将中文逗号替换为英文逗号
+        range_str = range_str.replace('，', ',')
         for part in range_str.split(','):
             part = part.strip()
-            if '-' in part:
-                s, e = part.split('-', 1)
-                s, e = int(s), int(e)
-                ranges.append((max(1, s), min(e, total_pages)))
-            else:
-                p = int(part)
-                ranges.append((p, p))
+            if not part:
+                continue
+            try:
+                if '-' in part:
+                    s, e = part.split('-', 1)
+                    s, e = int(s), int(e)
+                    if s > e:
+                        s, e = e, s
+                    ranges.append((max(1, s), min(e, total_pages)))
+                else:
+                    p = int(part)
+                    ranges.append((max(1, p), min(p, total_pages)))
+            except ValueError:
+                # 跳过无效的页码格式
+                pass
         return ranges
 
     # ==================== 提取页面 ====================
@@ -1204,30 +1214,48 @@ class PDFToolApp:
         def worker():
             success = 0
             errors = []
-            for f in files:
-                try:
-                    doc = fitz.open(f['path'])
-                    base = os.path.splitext(f['name'])[0]
-                    ranges = self._parse_page_ranges(pages_str, len(doc))
-                    new_doc = fitz.open()
-                    for s, e in ranges:
-                        for pi in range(s - 1, e):
-                            if 0 <= pi < len(doc):
-                                new_doc.insert_pdf(doc, from_page=pi, to_page=pi)
-                    os.makedirs(out_dir, exist_ok=True)
-                    new_doc.save(os.path.join(out_dir, f"{base}_提取.pdf"))
-                    new_doc.close()
-                    doc.close()
-                    success += 1
-                except Exception as e:
-                    errors.append(f"{f['name']}: {e}")
-
-            msg = f"提取完成！\n\n成功：{success} 个"
-            if errors:
-                msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
-            self.root.after(0, lambda: _showinfo("完成", msg))
-            self.root.after(0, lambda: self.status_var.set(f"提取完成：{success} 成功"))
-            self.processing = False
+            try:
+                for f in files:
+                    try:
+                        doc = fitz.open(f['path'])
+                        base = os.path.splitext(f['name'])[0]
+                        ranges = self._parse_page_ranges(pages_str, len(doc))
+                        
+                        # 检查是否有有效页码范围
+                        if not ranges:
+                            errors.append(f"{f['name']}: 未指定有效页码范围")
+                            doc.close()
+                            continue
+                        
+                        new_doc = fitz.open()
+                        extracted = False
+                        for s, e in ranges:
+                            for pi in range(s - 1, e):
+                                if 0 <= pi < len(doc):
+                                    new_doc.insert_pdf(doc, from_page=pi, to_page=pi)
+                                    extracted = True
+                        
+                        # 检查是否提取到页面
+                        if not extracted:
+                            errors.append(f"{f['name']}: 未提取到有效页面")
+                            new_doc.close()
+                            doc.close()
+                            continue
+                        
+                        os.makedirs(out_dir, exist_ok=True)
+                        new_doc.save(os.path.join(out_dir, f"{base}_提取.pdf"))
+                        new_doc.close()
+                        doc.close()
+                        success += 1
+                    except Exception as e:
+                        errors.append(f"{f['name']}: {e}")
+            finally:
+                msg = f"提取完成！\n\n成功：{success} 个"
+                if errors:
+                    msg += f"\n失败：{len(errors)} 个\n" + "\n".join(errors[:5])
+                self.root.after(0, lambda: _showinfo("完成", msg))
+                self.root.after(0, lambda: self.status_var.set(f"提取完成：{success} 成功"))
+                self.processing = False
 
         threading.Thread(target=worker, daemon=True).start()
 
