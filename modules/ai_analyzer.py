@@ -18,6 +18,7 @@ AI 服务商：
     通义千问 (Qwen)     - dashscope API
     智谱AI (GLM-4-Flash) - bigmodel API
     DeepSeek            - deepseek API
+    本地服务 (127.0.0.1:8080) - 本地部署的 OpenAI 兼容接口
 
 依赖：modules.encrypt_utils
 """
@@ -43,6 +44,10 @@ AI_PROVIDERS = {
     "DeepSeek": {
         "url": "https://api.deepseek.com/v1/chat/completions",
         "model": "deepseek-chat",
+    },
+    "本地服务 (127.0.0.1:8080)": {
+        "url": "http://127.0.0.1:8080/v1/chat/completions",
+        "model": "local-model",
     },
 }
 
@@ -80,7 +85,9 @@ def save_ai_config(config):
 
 def ai_query(provider_name, api_key, repo_info):
     cfg = AI_PROVIDERS.get(provider_name)
-    if not cfg or not api_key:
+    if not cfg:
+        return "未找到 AI 服务商配置"
+    if not api_key and provider_name != "本地服务 (127.0.0.1:8080)":
         return "未配置 API Key，请在右侧设置"
 
     url = cfg["url"]
@@ -125,10 +132,11 @@ def ai_query(provider_name, api_key, repo_info):
 
     body = json.dumps(body_dict, ensure_ascii=False).encode("utf-8")
 
-    req = Request(url, data=body, headers={
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}",
-    })
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    req = Request(url, data=body, headers=headers)
 
     with urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read().decode("utf-8"))

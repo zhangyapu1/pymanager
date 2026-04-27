@@ -390,15 +390,21 @@ class ScriptMarketWindow:
     def _save_ai_key(self):
         provider = self.ai_provider_var.get()
         key = self.ai_key_entry.get().strip()
-        if not key:
+        if not key and provider != "本地服务 (127.0.0.1:8080)":
             self.ai_status_var.set("请输入 API Key")
             return
         if "custom_keys" not in self.ai_config:
             self.ai_config["custom_keys"] = {}
-        self.ai_config["custom_keys"][provider] = key
+        if key:
+            self.ai_config["custom_keys"][provider] = key
+        else:
+            self.ai_config["custom_keys"].pop(provider, None)
         self.ai_config["provider"] = provider
         save_ai_config(self.ai_config)
-        self.ai_status_var.set("✅ 自定义 Key 已保存（加密存储）")
+        if key:
+            self.ai_status_var.set("✅ 自定义 Key 已保存（加密存储）")
+        else:
+            self.ai_status_var.set("✅ 已移除 Key（本地服务不需要 Key）")
         self.ctx.append_output(f"[脚本市场] API Key 已保存：{provider}")
 
     def _delete_ai_key(self):
