@@ -46,8 +46,8 @@ AI_PROVIDERS = {
         "model": "deepseek-chat",
     },
     "本地服务 (127.0.0.1:8080)": {
-        "url": "http://127.0.0.1:8080/v1/chat/completions",
-        "model": "local-model",
+        "url": "http://localhost:8080/v1/chat/completions",
+        "model": "DeepSeek-V3.2",
     },
 }
 
