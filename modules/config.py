@@ -52,7 +52,7 @@ import os
 import sys
 from pathlib import Path
 
-CURRENT_VERSION = "1.8.6"
+CURRENT_VERSION = "1.8.7"
 
 PROTECTED_DIRS = {
     "data", "config", "logs", "backups",
