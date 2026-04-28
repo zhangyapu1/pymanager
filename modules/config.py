@@ -67,7 +67,7 @@ PROTECTED_FILES = {
     ".gitignore", "REQUIREMENTS.md",
     "release_webdav.py", "release_webdav_auto.py",
     "release.py", "release_auto.py",
-    "version.json",
+    "version.json", "changelog.txt",
 }
 
 FORCE_REMOVE_DIRS = {

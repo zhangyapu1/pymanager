@@ -273,3 +273,9 @@
 [2026-04-29 01:48:14,870] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.9.0.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.0.zip
 [2026-04-29 01:48:14,871] [INFO] [WebDAV] 文件大小: 107237 bytes
 [2026-04-29 01:48:15,064] [INFO] [WebDAV] 上传成功: pymanager-1.9.0.zip
+[2026-04-29 01:51:00,823] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\version.json -> https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:51:00,824] [INFO] [WebDAV] 文件大小: 1077 bytes
+[2026-04-29 01:51:01,018] [INFO] [WebDAV] 上传成功: version.json
+[2026-04-29 01:51:01,019] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.9.0.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.0.zip
+[2026-04-29 01:51:01,019] [INFO] [WebDAV] 文件大小: 107239 bytes
+[2026-04-29 01:51:01,240] [INFO] [WebDAV] 上传成功: pymanager-1.9.0.zip
