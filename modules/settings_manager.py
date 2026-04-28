@@ -4,111 +4,57 @@
 核心函数：
     load_settings()：
         加载应用设置，自动合并默认值
-        - 读取 config/settings.json
-        - 与 SETTINGS_DEFAULTS 深度合并（字典类型合并，列表类型覆盖）
-        - 缺失的配置项自动填充默认值
+        - 读取 config/app_config.json 中的 window, log, favorites, script_icons, recent_runs 部分
 
     save_settings(settings)：
-        保存应用设置到 config/settings.json
+        保存应用设置到 config/app_config.json
 
     load_groups_meta()：
-        加载分组元数据（排序信息等）从 config/groups_meta.json
+        加载分组元数据（排序信息等）从 config/app_config.json 中的 groups_meta 部分
 
     save_groups_meta(meta)：
-        保存分组元数据到 config/groups_meta.json
+        保存分组元数据到 config/app_config.json 中的 groups_meta 部分
 
 底层函数：
-    load_json(filename, default=None)：
-        通用 JSON 文件读取
-        - 文件不存在或解析失败返回默认值
+    load_app_config() / save_app_config()：
+        从 modules.config 导入的统一配置读写函数
 
-    save_json(filename, data)：
-        通用 JSON 文件写入
-        - 自动创建配置目录
-        - 使用 indent=2 和 ensure_ascii=False 格式化
-
-    ensure_config_dir()：
-        确保配置目录存在
-
-默认配置（SETTINGS_DEFAULTS）：
-    window:
-        width: 950, height: 600, x: None, y: None
-    log:
-        retain_days: 7, max_file_size_mb: 1
-    favorites: []
-    script_icons: {}
-
-配置文件路径：config/ 目录（由 modules.config.BASE_DIR 确定）
+配置文件路径：config/app_config.json（由 modules.config.APP_CONFIG_FILE 确定）
 
 依赖：modules.config
 """
-import json
-import os
-from modules.config import BASE_DIR
-
-CONFIG_DIR = os.path.join(BASE_DIR, "config")
-
-
-def ensure_config_dir():
-    os.makedirs(CONFIG_DIR, exist_ok=True)
-
-
-def load_json(filename, default=None):
-    filepath = os.path.join(CONFIG_DIR, filename)
-    if not os.path.exists(filepath):
-        return default if default is not None else {}
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return default if default is not None else {}
-
-
-def save_json(filename, data):
-    ensure_config_dir()
-    filepath = os.path.join(CONFIG_DIR, filename)
-    try:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        return True
-    except OSError:
-        return False
-
-
-SETTINGS_DEFAULTS = {
-    "window": {
-        "width": 950,
-        "height": 600,
-        "x": None,
-        "y": None
-    },
-    "log": {
-        "retain_days": 7,
-        "max_file_size_mb": 1
-    },
-    "favorites": [],
-    "script_icons": {}
-}
+from modules.config import load_app_config, save_app_config
 
 
 def load_settings():
-    saved = load_json("settings.json", {})
-    merged = {}
-    for section, defaults in SETTINGS_DEFAULTS.items():
-        if isinstance(defaults, dict) and not isinstance(defaults, list):
-            merged[section] = {**defaults, **saved.get(section, {})}
-        else:
-            merged[section] = saved.get(section, defaults)
-    return merged
+    """加载应用设置（从统一配置中读取 window, log, favorites, script_icons, recent_runs）"""
+    app_config = load_app_config()
+    return {
+        "window": app_config["window"],
+        "log": app_config["log"],
+        "favorites": app_config["favorites"],
+        "script_icons": app_config["script_icons"],
+        "recent_runs": app_config["recent_runs"]
+    }
 
 
 def save_settings(settings):
-    return save_json("settings.json", settings)
+    """保存应用设置（将 window, log, favorites, script_icons, recent_runs 保存到统一配置中）"""
+    app_config = load_app_config()
+    for key in ["window", "log", "favorites", "script_icons", "recent_runs"]:
+        if key in settings:
+            app_config[key] = settings[key]
+    return save_app_config(app_config)
 
 
 def load_groups_meta():
-    return load_json("groups_meta.json", {})
+    """加载分组元数据（从统一配置中读取 groups_meta）"""
+    app_config = load_app_config()
+    return app_config.get("groups_meta", {})
 
 
 def save_groups_meta(meta):
-    return save_json("groups_meta.json", meta)
+    """保存分组元数据（将 groups_meta 保存到统一配置中）"""
+    app_config = load_app_config()
+    app_config["groups_meta"] = meta
+    return save_app_config(app_config)

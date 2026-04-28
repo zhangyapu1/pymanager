@@ -243,7 +243,7 @@ def auto_update(parent=None, download_url=None, output_callback=None, ui_callbac
 
 
 def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback=None, ui_callback=None):
-    latest, download_url = fetch_latest_version(parent_root, output_callback, ui_callback=ui_callback)
+    latest, download_url, changelog, release_date = fetch_latest_version(parent_root, output_callback, ui_callback=ui_callback)
 
     if not latest:
         if show_no_update_msg:
@@ -255,11 +255,18 @@ def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback
 
     try:
         if is_version_greater(latest, CURRENT_VERSION):
-            msg = f"发现新版本 v{latest}（当前版本 v{CURRENT_VERSION}）\n\n是否自动更新？"
-            _output(output_callback, msg.replace('\n', ' '))
+            # 构建更新信息
+            msg = f"发现新版本 v{latest}（当前版本 v{CURRENT_VERSION}）"
+            if release_date:
+                msg += f"\n发布日期：{release_date}"
+            msg += "\n\n点击「立即更新」开始自动更新，或点击「稍后再说」。"
+
+            _output(output_callback, f"发现新版本 v{latest}")
+
             confirmed = False
             if ui_callback:
-                confirmed = ui_callback.ask_yes_no("软件更新", msg, parent=parent_root)
+                confirmed = ui_callback.show_update_dialog("软件更新", msg, changelog, parent=parent_root)
+
             if confirmed:
                 auto_update(parent_root, download_url, output_callback, ui_callback=ui_callback)
             else:

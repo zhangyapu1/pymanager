@@ -48,10 +48,7 @@ import base64
 import ctypes
 import ctypes.wintypes
 from modules.logger import log_error
-
-CONFIG_DIR = os.path.join(os.path.dirname(__file__), "..", "config")
-TOKEN_FILE = os.path.join(CONFIG_DIR, "api_token.enc")
-API_KEYS_FILE = os.path.join(CONFIG_DIR, "api_keys.json")
+from modules.config import load_app_config, save_app_config
 
 CRYPTPROTECT_UI_FORBIDDEN = 0x01
 
@@ -105,47 +102,43 @@ def _decrypt(ciphertext):
 
 def get_default_token():
     try:
-        import json
-        if os.path.exists(API_KEYS_FILE):
-            with open(API_KEYS_FILE, 'r', encoding='utf-8') as f:
-                keys = json.load(f)
-            github = keys.get("github", {})
-            token = github.get("token", "").strip()
-            if token:
-                return token
+        app_config = load_app_config()
+        token = app_config["github"].get("token", "").strip()
+        if token:
+            return token
     except Exception:
         pass
     return ""
 
 
 def get_api_token():
-    if os.path.exists(TOKEN_FILE):
-        try:
-            with open(TOKEN_FILE, "r", encoding="ascii") as f:
-                encrypted = f.read().strip()
-                if encrypted:
-                    return _decrypt(encrypted)
-        except (OSError, ValueError, UnicodeDecodeError):
-            pass
+    try:
+        app_config = load_app_config()
+        encrypted = app_config["github"].get("encrypted_token", "").strip()
+        if encrypted:
+            return _decrypt(encrypted)
+    except (OSError, ValueError, UnicodeDecodeError):
+        pass
     return ""
 
 
 def save_api_token(token):
     try:
-        os.makedirs(CONFIG_DIR, exist_ok=True)
+        app_config = load_app_config()
         encrypted = _encrypt(token.strip())
-        with open(TOKEN_FILE, "w", encoding="ascii") as f:
-            f.write(encrypted)
+        app_config["github"]["encrypted_token"] = encrypted
+        save_app_config(app_config)
     except (OSError, ValueError) as e:
         log_error(f"保存Token失败: {e}")
 
 
 def delete_api_token():
-    if os.path.exists(TOKEN_FILE):
-        try:
-            os.remove(TOKEN_FILE)
-        except OSError:
-            pass
+    try:
+        app_config = load_app_config()
+        app_config["github"]["encrypted_token"] = ""
+        save_app_config(app_config)
+    except Exception:
+        pass
 
 
 def delete_token_ui(ctx):
@@ -157,3 +150,253 @@ def delete_token_ui(ctx):
         delete_api_token()
         ctx.append_output("已删除保存的 Token")
         ctx.set_status("已删除保存的 Token")
+
+
+def show_token_config_dialog(parent):
+    """显示 Token/API 配置对话框"""
+    import tkinter as tk
+    import webbrowser
+    from tkinter import ttk, messagebox
+    from modules.config import load_app_config, save_app_config
+    from modules.encrypt_utils import encrypt, decrypt
+
+    app_config = load_app_config()
+
+    dialog = tk.Toplevel(parent)
+    dialog.title("Token/API 配置")
+    dialog.geometry("550x750")
+
+    dialog.update_idletasks()
+    x = (dialog.winfo_screenwidth() - 550) // 2
+    y = (dialog.winfo_screenheight() - 750) // 2
+    dialog.geometry(f"550x750+{x}+{y}")
+
+    dialog.resizable(True, True)
+    dialog.transient(parent)
+    dialog.grab_set()
+
+    notebook = ttk.Notebook(dialog)
+    notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    content = {}
+    for name in ["GitHub", "AI服务", "WebDAV", "翻译服务"]:
+        frame = ttk.Frame(notebook, padding=15)
+        notebook.add(frame, text=name)
+        content[name] = frame
+
+    entries = {}
+
+    def _get_decrypted_key_local(section, key_name):
+        try:
+            keys = app_config.get(section, {}).get("keys", {})
+            enc_key = keys.get(key_name, "")
+            if enc_key:
+                return decrypt(enc_key)
+        except Exception:
+            pass
+        return ""
+
+    def _set_encrypted_key_local(section, key_name, value):
+        if key_name not in app_config[section]["keys"]:
+            app_config[section]["keys"][key_name] = ""
+        if value:
+            app_config[section]["keys"][key_name] = encrypt(value)
+        else:
+            app_config[section]["keys"][key_name] = ""
+
+    def create_section_header(parent, text, row):
+        ttk.Label(parent, text=text, font=("", 11, "bold")).grid(row=row, column=0, columnspan=3, sticky=tk.W, pady=(15, 5))
+
+    def create_labeled_entry(parent, label_text, row, width=40):
+        label = ttk.Label(parent, text=label_text, font=("微软雅黑", 9))
+        label.grid(row=row, column=0, sticky=tk.W, pady=3)
+        entry = ttk.Entry(parent, width=width)
+        entry.grid(row=row, column=1, sticky=tk.EW, pady=3, padx=(10, 0))
+        return entry
+
+    def create_help_text(parent, text, row):
+        help_label = tk.Label(parent, text=text, font=("微软雅黑", 8), fg="#666666", wraplength=500, justify=tk.LEFT)
+        help_label.grid(row=row, column=0, columnspan=2, sticky=tk.W, pady=(0, 8), padx=(0, 0))
+
+    def create_clickable_link(parent, text, url, row):
+        link_label = tk.Label(parent, text=text, font=("微软雅黑", 9, "underline"), fg="#0066cc", cursor="hand2")
+        link_label.grid(row=row, column=0, columnspan=2, sticky=tk.W, pady=(0, 8), padx=(0, 0))
+        link_label.bind("<Button-1>", lambda e: webbrowser.open(url))
+        return link_label
+
+    def create_labeled_combobox(parent, label_text, row, values, width=40):
+        label = ttk.Label(parent, text=label_text, font=("微软雅黑", 9))
+        label.grid(row=row, column=0, sticky=tk.W, pady=3)
+        combo = ttk.Combobox(parent, values=values, width=width, state="readonly")
+        combo.grid(row=row, column=1, sticky=tk.EW, pady=3, padx=(10, 0))
+        return combo
+
+    def create_help_line(parent, text, row):
+        help_label = tk.Label(parent, text=text, font=("微软雅黑", 8), fg="#666666", wraplength=500, justify=tk.LEFT)
+        help_label.grid(row=row, column=0, columnspan=2, sticky=tk.W, pady=(0, 3), padx=(0, 0))
+
+    # ========== GitHub Tab ==========
+    f = content["GitHub"]
+    f.columnconfigure(1, weight=1)
+
+    create_section_header(f, "📦 GitHub Personal Access Token", 0)
+    create_help_text(f, "用途：用于提高 GitHub API 访问额度。匿名请求每小时限制60次，有Token可更高。", 1)
+
+    entries["github_token"] = create_labeled_entry(f, "Token:", 2)
+    entries["github_token"].insert(0, app_config["github"].get("token", ""))
+
+    create_help_text(f, "获取方式：", 3)
+    create_clickable_link(f, "👉 点击此处打开 GitHub Tokens 页面", "https://github.com/settings/tokens", 4)
+    create_help_line(f, "1. 点击 'Generate new token (classic)'", 5)
+    create_help_line(f, "2. 勾选 'repo' 权限（用于读取仓库信息）", 6)
+    create_help_line(f, "3. 生成后将 Token 粘贴到此处", 7)
+
+    # ========== AI服务 Tab ==========
+    f = content["AI服务"]
+    f.columnconfigure(1, weight=1)
+
+    create_section_header(f, "🤖 AI 服务 API Keys（已加密存储）", 0)
+    create_help_text(f, "用途：用于AI分析和翻译GitHub项目信息、脚本内容等。", 1)
+
+    create_section_header(f, "当前服务商选择", 2)
+    ai_providers = ["通义千问 (Qwen)", "智谱AI (GLM-4-Flash)", "DeepSeek", "本地服务 (127.0.0.1:8080)"]
+    entries["ai_provider"] = create_labeled_combobox(f, "当前服务商:", 3, ai_providers)
+    entries["ai_provider"].set(app_config["ai"].get("provider", "通义千问 (Qwen)"))
+
+    create_section_header(f, "API Keys 配置", 4)
+
+    entries["ai_qwen"] = create_labeled_entry(f, "通义千问 Key:", 5)
+    entries["ai_qwen"].insert(0, _get_decrypted_key_local("ai", "通义千问 (Qwen)"))
+    create_help_line(f, "获取：", 6)
+    create_clickable_link(f, "👉 点击此处打开阿里云百炼控制台", "https://dashscope.console.aliyun.com/", 7)
+
+    entries["ai_zhipu"] = create_labeled_entry(f, "智谱AI Key:", 8)
+    entries["ai_zhipu"].insert(0, _get_decrypted_key_local("ai", "智谱AI (GLM-4-Flash)"))
+    create_help_line(f, "获取：", 9)
+    create_clickable_link(f, "👉 点击此处打开智谱AI开放平台", "https://open.bigmodel.cn/", 10)
+
+    entries["ai_deepseek"] = create_labeled_entry(f, "DeepSeek Key:", 11)
+    entries["ai_deepseek"].insert(0, _get_decrypted_key_local("ai", "DeepSeek"))
+    create_help_line(f, "获取：", 12)
+    create_clickable_link(f, "👉 点击此处打开 DeepSeek 平台", "https://platform.deepseek.com/", 13)
+
+    entries["ai_local"] = create_labeled_entry(f, "本地服务 Key:", 14)
+    entries["ai_local"].insert(0, _get_decrypted_key_local("ai", "本地服务 (127.0.0.1:8080)"))
+
+    create_section_header(f, "本地服务配置", 15)
+    entries["ai_local_model"] = create_labeled_entry(f, "本地模型名称:", 16)
+    entries["ai_local_model"].insert(0, app_config["ai"].get("local_model", ""))
+    create_help_text(f, "例如：DeepSeek-V3.2, Qwen3.5-Plus 等。需本地服务已启动并监听 127.0.0.1:8080", 17)
+
+    # ========== WebDAV Tab ==========
+    f = content["WebDAV"]
+    f.columnconfigure(1, weight=1)
+
+    create_section_header(f, "☁️ WebDAV 配置", 0)
+    create_help_text(f, "用途：用于程序更新时的文件同步和版本检查。提示：目前使用坚果云 WebDAV 服务。", 1)
+
+    entries["webdav_url"] = create_labeled_entry(f, "服务器地址:", 2)
+    entries["webdav_url"].insert(0, app_config["webdav"].get("url", ""))
+
+    entries["webdav_user"] = create_labeled_entry(f, "用户名:", 3)
+    entries["webdav_user"].insert(0, app_config["webdav"].get("username", ""))
+    create_help_text(f, "获取：坚果云注册邮箱即为用户名", 4)
+
+    entries["webdav_pass"] = create_labeled_entry(f, "密码:", 5)
+    entries["webdav_pass"].insert(0, app_config["webdav"].get("password", ""))
+    entries["webdav_pass"].config(show="*")
+    create_help_line(f, "获取：坚果云 → 设置 → 第三方应用管理 → 创建应用密码", 6)
+
+    # ========== 翻译服务 Tab ==========
+    f = content["翻译服务"]
+    f.columnconfigure(1, weight=1)
+
+    create_section_header(f, "🌐 翻译服务 API Keys（已加密存储）", 0)
+    create_help_text(f, "用途：用于翻译脚本内容和README等文本。提示：Google翻译无需Key，百度和腾讯翻译需要申请API。", 1)
+
+    create_section_header(f, "当前服务商选择", 2)
+    trans_providers = ["Google翻译", "百度翻译", "腾讯翻译君"]
+    entries["trans_provider"] = create_labeled_combobox(f, "当前服务商:", 3, trans_providers)
+    entries["trans_provider"].set(app_config["translate"].get("provider", "Google翻译"))
+
+    create_section_header(f, "百度翻译配置", 4)
+    create_help_text(f, "用途：中文翻译引擎，适合技术文档翻译。", 5)
+    create_help_line(f, "获取：", 6)
+    create_clickable_link(f, "👉 点击此处打开百度翻译开放平台", "https://fanyi-api.baidu.com/", 7)
+
+    entries["baidu_appid"] = create_labeled_entry(f, "APP ID:", 8)
+    entries["baidu_appid"].insert(0, _get_decrypted_key_local("translate", "百度翻译_APP_ID"))
+
+    entries["baidu_key"] = create_labeled_entry(f, "密钥:", 9)
+    entries["baidu_key"].insert(0, _get_decrypted_key_local("translate", "百度翻译_密钥"))
+
+    create_section_header(f, "腾讯翻译君配置", 10)
+    create_help_text(f, "用途：腾讯云机器翻译服务，准确性较高。", 11)
+    create_help_line(f, "获取：", 12)
+    create_clickable_link(f, "👉 点击此处打开腾讯云机器翻译", "https://cloud.tencent.com/product/tmt", 13)
+
+    entries["tencent_sid"] = create_labeled_entry(f, "SecretId:", 14)
+    entries["tencent_sid"].insert(0, _get_decrypted_key_local("translate", "腾讯翻译君_SecretId"))
+
+    entries["tencent_skey"] = create_labeled_entry(f, "SecretKey:", 15)
+    entries["tencent_skey"].insert(0, _get_decrypted_key_local("translate", "腾讯翻译君_SecretKey"))
+
+    # ========== Buttons ==========
+    btn_frame = ttk.Frame(dialog)
+    btn_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
+
+    def on_save():
+        try:
+            app_config["github"]["token"] = entries["github_token"].get().strip()
+
+            app_config["ai"]["provider"] = entries["ai_provider"].get()
+            app_config["ai"]["local_model"] = entries["ai_local_model"].get().strip()
+
+            _set_encrypted_key_local("ai", "通义千问 (Qwen)", entries["ai_qwen"].get().strip())
+            _set_encrypted_key_local("ai", "智谱AI (GLM-4-Flash)", entries["ai_zhipu"].get().strip())
+            _set_encrypted_key_local("ai", "DeepSeek", entries["ai_deepseek"].get().strip())
+            _set_encrypted_key_local("ai", "本地服务 (127.0.0.1:8080)", entries["ai_local"].get().strip())
+
+            app_config["webdav"]["url"] = entries["webdav_url"].get().strip()
+            app_config["webdav"]["username"] = entries["webdav_user"].get().strip()
+            app_config["webdav"]["password"] = entries["webdav_pass"].get().strip()
+
+            app_config["translate"]["provider"] = entries["trans_provider"].get()
+            _set_encrypted_key_local("translate", "百度翻译_APP_ID", entries["baidu_appid"].get().strip())
+            _set_encrypted_key_local("translate", "百度翻译_密钥", entries["baidu_key"].get().strip())
+            _set_encrypted_key_local("translate", "腾讯翻译君_SecretId", entries["tencent_sid"].get().strip())
+            _set_encrypted_key_local("translate", "腾讯翻译君_SecretKey", entries["tencent_skey"].get().strip())
+
+            save_app_config(app_config)
+            messagebox.showinfo("成功", "配置已保存！", parent=dialog)
+            dialog.destroy()
+        except Exception as e:
+            messagebox.showerror("错误", f"保存配置失败：{e}", parent=dialog)
+
+    def on_cancel():
+        dialog.destroy()
+
+    ttk.Button(btn_frame, text="取消", command=on_cancel).pack(side=tk.RIGHT, padx=5)
+    ttk.Button(btn_frame, text="保存", command=on_save, style="Accent.TButton").pack(side=tk.RIGHT, padx=5)
+
+
+def _get_decrypted_key(app_config, section, key_name):
+    """获取解密后的 key"""
+    try:
+        keys = app_config.get(section, {}).get("keys", {})
+        enc_key = keys.get(key_name, "")
+        if enc_key:
+            return decrypt(enc_key)
+    except Exception:
+        pass
+    return ""
+
+
+def _set_encrypted_key(app_config, section, key_name, value):
+    """设置加密的 key"""
+    if key_name not in app_config[section]["keys"]:
+        app_config[section]["keys"][key_name] = ""
+    if value:
+        app_config[section]["keys"][key_name] = encrypt(value)
+    else:
+        app_config[section]["keys"][key_name] = ""

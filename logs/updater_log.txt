@@ -194,3 +194,63 @@
 [2026-04-28 23:59:59,274] [INFO] [WebDAV] 最新版本: 1.8.9, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
 [2026-04-29 00:14:16,463] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
 [2026-04-29 00:14:16,572] [INFO] [WebDAV] 最新版本: 1.8.9, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-29 00:59:59,499] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 00:59:59,633] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 00:59:59,633] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:00:00,328] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:00:00,963] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:00:01,057] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:00:01,058] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:00:01,822] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:00:10,860] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:00:10,956] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:00:10,957] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:00:14,721] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:05:16,190] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:05:16,292] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:05:16,292] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:05:17,229] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:06:03,108] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:06:03,255] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:06:03,255] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:06:03,924] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:08:28,642] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:08:28,775] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:08:28,775] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:08:29,469] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:15:18,965] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:15:19,067] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:15:19,068] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:15:19,762] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:17:01,520] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:17:01,625] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:17:01,626] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:17:02,282] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:18:19,310] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:18:19,410] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:18:19,410] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:18:20,058] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:19:47,445] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:19:47,549] [ERROR] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-29 01:19:47,549] [INFO] [WebDAV] 回退到 GitHub
+[2026-04-29 01:19:48,253] [ERROR] 获取版本失败: HTTP Error 404: Not Found
+[2026-04-29 01:22:35,293] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:22:35,404] [INFO] [WebDAV] 最新版本: 1.8.9, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-29 01:25:25,233] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\version.json -> https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:25:25,233] [INFO] [WebDAV] 文件大小: 110 bytes
+[2026-04-29 01:25:25,389] [INFO] [WebDAV] 上传成功: version.json
+[2026-04-29 01:25:25,390] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.8.11.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.11.zip
+[2026-04-29 01:25:25,391] [INFO] [WebDAV] 文件大小: 110403 bytes
+[2026-04-29 01:25:25,565] [INFO] [WebDAV] 上传成功: pymanager-1.8.11.zip
+[2026-04-29 01:27:48,417] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\version.json -> https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:27:48,417] [INFO] [WebDAV] 文件大小: 110 bytes
+[2026-04-29 01:27:48,581] [INFO] [WebDAV] 上传成功: version.json
+[2026-04-29 01:27:48,582] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.8.11.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.11.zip
+[2026-04-29 01:27:48,583] [INFO] [WebDAV] 文件大小: 210521 bytes
+[2026-04-29 01:27:48,784] [INFO] [WebDAV] 上传成功: pymanager-1.8.11.zip
+[2026-04-29 01:28:50,250] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\version.json -> https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:28:50,251] [INFO] [WebDAV] 文件大小: 110 bytes
+[2026-04-29 01:28:50,399] [INFO] [WebDAV] 上传成功: version.json
+[2026-04-29 01:28:50,400] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.8.11.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.11.zip
+[2026-04-29 01:28:50,400] [INFO] [WebDAV] 文件大小: 105230 bytes
+[2026-04-29 01:28:50,559] [INFO] [WebDAV] 上传成功: pymanager-1.8.11.zip

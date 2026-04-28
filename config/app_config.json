@@ -1,0 +1,54 @@
+{
+  "github": {
+    "token": "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",
+    "encrypted_token": ""
+  },
+  "ai": {
+    "provider": "本地服务 (127.0.0.1:8080)",
+    "keys": {
+      "本地服务 (127.0.0.1:8080)": "NU1k8aBK2K9Mm7mt",
+      "通义千问 (Qwen)": "",
+      "智谱AI (GLM-4-Flash)": "",
+      "DeepSeek": ""
+    },
+    "local_model": "Qwen3.5-Plus",
+    "custom_keys": {}
+  },
+  "webdav": {
+    "url": "https://dav.jianguoyun.com/dav/pymanager/",
+    "username": "slander-yarn-cider@duck.com",
+    "password": "ackn569j9n6rz95g"
+  },
+  "window": {
+    "width": 950,
+    "height": 583,
+    "x": 150,
+    "y": 129
+  },
+  "log": {
+    "retain_days": 7,
+    "max_file_size_mb": 1
+  },
+  "favorites": [],
+  "script_icons": {},
+  "recent_runs": {
+    "test_local_ai.py": 1777392869.071933
+  },
+  "groups_meta": {
+    "默认分组": {
+      "order": 0
+    },
+    "系统工具": {
+      "order": 3
+    }
+  },
+  "translate": {
+    "provider": "百度翻译",
+    "keys": {
+      "百度翻译_APP_ID": "fhIjtb0fmvBRwO7iRkyd5g8=",
+      "百度翻译_密钥": "BVhLxP1I7PMNpJ3gFTvpow3VMrY=",
+      "腾讯翻译君_SecretId": "DWlYx/5kxLMQkeuGLivosVLAA8MBHSZcrJaFVQ+huz8HenPn",
+      "腾讯翻译君_SecretKey": "Nk9HxvllwLUQk56NHEbigHCdDIshBhheoY70QQjmmSk="
+    }
+  }
+}

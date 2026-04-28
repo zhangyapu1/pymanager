@@ -35,10 +35,8 @@ import os
 from urllib.request import urlopen, Request
 
 from modules.logger import log_error
-from modules.config import CONFIG_DIR
+from modules.config import CONFIG_DIR, load_app_config, save_app_config
 from modules.encrypt_utils import encrypt, decrypt, get_default_key
-
-AI_CONFIG_FILE = os.path.join(CONFIG_DIR, "ai_config.json")
 
 AI_PROVIDERS = {
     "通义千问 (Qwen)": {
@@ -79,20 +77,18 @@ def get_local_models(base_url):
 
 
 def load_ai_config():
-    config = {"provider": "通义千问 (Qwen)", "keys": {}, "custom_keys": {}, "local_model": "DeepSeek-V3.2"}
-    if os.path.exists(AI_CONFIG_FILE):
+    app_config = load_app_config()
+    ai_config = app_config["ai"]
+    config = {
+        "provider": ai_config.get("provider", "通义千问 (Qwen)"),
+        "keys": ai_config.get("keys", {}),
+        "custom_keys": {},
+        "local_model": ai_config.get("local_model", "DeepSeek-V3.2")
+    }
+    # 解密 custom_keys
+    for name, enc_key in config["keys"].items():
         try:
-            with open(AI_CONFIG_FILE, "r", encoding="utf-8") as f:
-                saved = json.load(f)
-                saved_provider = saved.get("provider", config["provider"])
-                if saved_provider in AI_PROVIDERS:
-                    config["provider"] = saved_provider
-                for name, enc_key in saved.get("keys", {}).items():
-                    try:
-                        config["custom_keys"][name] = decrypt(enc_key)
-                    except Exception:
-                        pass
-                config["local_model"] = saved.get("local_model", config["local_model"])
+            config["custom_keys"][name] = decrypt(enc_key)
         except Exception:
             pass
     return config
@@ -100,12 +96,14 @@ def load_ai_config():
 
 def save_ai_config(config):
     try:
-        to_save = {"provider": config.get("provider", "通义千问 (Qwen)"), "keys": {}, "local_model": config.get("local_model", "DeepSeek-V3.2")}
+        app_config = load_app_config()
+        app_config["ai"]["provider"] = config.get("provider", "通义千问 (Qwen)")
+        app_config["ai"]["local_model"] = config.get("local_model", "DeepSeek-V3.2")
+        app_config["ai"]["keys"] = {}
         for name, plain_key in config.get("custom_keys", {}).items():
             if plain_key:
-                to_save["keys"][name] = encrypt(plain_key)
-        with open(AI_CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(to_save, f, ensure_ascii=False, indent=2)
+                app_config["ai"]["keys"][name] = encrypt(plain_key)
+        save_app_config(app_config)
     except Exception as e:
         log_error(f"保存 AI 配置失败：{e}")
 

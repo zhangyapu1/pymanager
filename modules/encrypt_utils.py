@@ -41,7 +41,7 @@ import json
 
 _SECRET = b'pymanager_2026_key'
 
-_API_KEYS_FILE = os.path.join(os.path.dirname(__file__), "..", "config", "api_keys.json")
+from modules.config import load_app_config, save_app_config
 
 DEFAULT_TRANSLATE_KEYS = {
     "百度翻译_APP_ID": "fhIjtb0fmvBRwO7iRkyd5g8=",
@@ -72,15 +72,16 @@ def get_default_key(provider_name):
 
 def _load_ai_keys_from_config():
     try:
-        if os.path.exists(_API_KEYS_FILE):
-            with open(_API_KEYS_FILE, 'r', encoding='utf-8') as f:
-                keys = json.load(f)
-            ai_keys = keys.get("ai", {})
-            result = {}
-            for provider, key in ai_keys.items():
-                if key and key.strip():
-                    result[provider] = key.strip()
-            return result
+        app_config = load_app_config()
+        ai_keys = app_config["ai"].get("keys", {})
+        # 解密 keys
+        result = {}
+        for provider, enc_key in ai_keys.items():
+            try:
+                result[provider] = decrypt(enc_key)
+            except Exception:
+                pass
+        return result
     except Exception:
         pass
     return {}
@@ -98,24 +99,17 @@ def get_default_translate_key(key_name):
 
 def save_api_keys_to_config(github_token=None, ai_keys=None):
     try:
-        os.makedirs(os.path.dirname(_API_KEYS_FILE), exist_ok=True)
-        data = {}
-        if os.path.exists(_API_KEYS_FILE):
-            try:
-                with open(_API_KEYS_FILE, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-            except Exception:
-                pass
+        app_config = load_app_config()
         if github_token is not None:
-            if "github" not in data:
-                data["github"] = {}
-            data["github"]["token"] = github_token
+            app_config["github"]["token"] = github_token
         if ai_keys is not None:
-            if "ai" not in data:
-                data["ai"] = {}
-            data["ai"].update(ai_keys)
-        with open(_API_KEYS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+            # 加密并保存 ai keys
+            for provider, key in ai_keys.items():
+                if key:
+                    app_config["ai"]["keys"][provider] = encrypt(key)
+                elif provider in app_config["ai"]["keys"]:
+                    del app_config["ai"]["keys"][provider]
+        save_app_config(app_config)
         return True
     except Exception:
         return False
@@ -123,9 +117,8 @@ def save_api_keys_to_config(github_token=None, ai_keys=None):
 
 def load_api_keys_from_config():
     try:
-        if os.path.exists(_API_KEYS_FILE):
-            with open(_API_KEYS_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+        app_config = load_app_config()
+        return app_config
     except Exception:
         pass
     return {}

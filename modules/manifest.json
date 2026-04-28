@@ -1,5 +1,5 @@
 {
-  "version": "1.8.7",
+  "version": "1.9.0",
   "files": [
     "README.md",
     "main.pyw",
@@ -16,6 +16,7 @@
     "modules/delete_selected.py",
     "modules/dependencies.py",
     "modules/deps_init.py",
+    "modules/download_manager.py",
     "modules/drag_drop.py",
     "modules/edit_content.py",
     "modules/encrypt_utils.py",
@@ -29,10 +30,12 @@
     "modules/manifest_cleanup.py",
     "modules/manifest_generator.py",
     "modules/markdown_renderer.py",
+    "modules/preview_manager.py",
     "modules/process_manager.py",
     "modules/py2_compat.py",
     "modules/recent_runs.py",
     "modules/rename_selected.py",
+    "modules/repository_manager.py",
     "modules/run_selected.py",
     "modules/script_collection.py",
     "modules/script_icons.py",
@@ -47,9 +50,6 @@
     "modules/ui_editor.py",
     "modules/ui_state.py",
     "modules/updater.py",
-    "modules/utils.py",
-    "modules/repository_manager.py",
-    "modules/download_manager.py",
-    "modules/preview_manager.py"
+    "modules/utils.py"
   ]
 }

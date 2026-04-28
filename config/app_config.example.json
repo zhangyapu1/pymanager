@@ -1,0 +1,206 @@
+{
+  "_configuration_guide": {
+    "version": "1.0",
+    "description": "PyManager 统一配置文件 - 请根据需要修改实际配置值",
+    "note": "此文件为示例参考，实际配置存储在 app_config.json 中"
+  },
+
+  "_field_descriptions": {
+    "github.token": {
+      "description": "GitHub Personal Access Token",
+      "usage": "用于提高 GitHub API 访问额度（匿名请求每小时60次限制，有Token可更高）",
+      "how_to_get": "1. 访问 https://github.com/settings/tokens\n2. 点击 'Generate new token (classic)'\n3. 勾选 'repo' 权限\n4. 生成后将 token 粘贴到此字段",
+      "example": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+
+    "github.encrypted_token": {
+      "description": "加密存储的 GitHub Token",
+      "usage": "使用 Windows DPAPI 加密存储，仅当前 Windows 用户可解密",
+      "note": "通常不需要手动修改，由程序自动管理"
+    },
+
+    "ai.provider": {
+      "description": "AI 服务提供商",
+      "usage": "选择使用哪个 AI 服务来分析 GitHub 项目和脚本内容",
+      "options": [
+        "通义千问 (Qwen) - 阿里云服务",
+        "智谱AI (GLM-4-Flash) - 智谱AI服务",
+        "DeepSeek - DeepSeek服务",
+        "本地服务 (127.0.0.1:8080) - 本地部署的 OpenAI 兼容接口"
+      ],
+      "default": "通义千问 (Qwen)"
+    },
+
+    "ai.keys": {
+      "description": "AI 服务 API Key（加密存储）",
+      "usage": "存储各 AI 服务商的 API Key，程序会自动加密存储",
+      "how_to_get": "通义千问: https://dashscope.console.aliyun.com/\n智谱AI: https://open.bigmodel.cn/\nDeepSeek: https://platform.deepseek.com/",
+      "note": "可以通过程序界面设置，也可以在此直接填写（但建议通过界面设置以确保加密）"
+    },
+
+    "ai.local_model": {
+      "description": "本地服务使用的模型名称",
+      "usage": "当 AI.provider 为'本地服务'时，指定使用的模型名称",
+      "example": "DeepSeek-V3.2, Qwen3.5-Plus 等",
+      "note": "需要本地服务已启动并监听 127.0.0.1:8080"
+    },
+
+    "webdav.url": {
+      "description": "WebDAV 服务器地址",
+      "usage": "用于程序更新时的文件同步和版本检查",
+      "default": "https://dav.jianguoyun.com/dav/pymanager/",
+      "note": "目前使用坚果云 WebDAV 服务"
+    },
+
+    "webdav.username": {
+      "description": "WebDAV 用户名",
+      "usage": "登录 WebDAV 服务的用户名",
+      "how_to_get": "坚果云注册邮箱"
+    },
+
+    "webdav.password": {
+      "description": "WebDAV 密码",
+      "usage": "登录 WebDAV 服务的密码",
+      "how_to_get": "坚果云设置 → 第三方应用管理 → 创建应用密码"
+    },
+
+    "window.width": {
+      "description": "窗口宽度",
+      "usage": "程序主窗口的宽度（像素）",
+      "range": "800-3840",
+      "default": 950
+    },
+
+    "window.height": {
+      "description": "窗口高度",
+      "usage": "程序主窗口的高度（像素）",
+      "range": "600-2160",
+      "default": 600
+    },
+
+    "window.x": {
+      "description": "窗口左上角 X 坐标",
+      "usage": "窗口左上角在屏幕上的 X 坐标位置",
+      "note": "设为 null 表示居中显示",
+      "default": null
+    },
+
+    "window.y": {
+      "description": "窗口左上角 Y 坐标",
+      "usage": "窗口左上角在屏幕上的 Y 坐标位置",
+      "note": "设为 null 表示居中显示",
+      "default": null
+    },
+
+    "log.retain_days": {
+      "description": "日志保留天数",
+      "usage": "超过此天数的日志文件会被自动清理",
+      "range": "1-365",
+      "default": 7
+    },
+
+    "log.max_file_size_mb": {
+      "description": "单个日志文件最大大小",
+      "usage": "超过此大小的日志文件会被自动截断（保留后半部分）",
+      "unit": "MB",
+      "default": 1
+    },
+
+    "favorites": {
+      "description": "收藏的脚本列表",
+      "usage": "收藏的脚本会在列表中置顶显示",
+      "format": "数组，每个元素为脚本的 storage_path",
+      "example": ["系统工具/GitHub_Releases_Tracker.py", "PDF批处理工具.py"]
+    },
+
+    "script_icons": {
+      "description": "脚本自定义图标",
+      "usage": "为脚本设置自定义图标，通过右键菜单设置",
+      "format": "字典，键为 storage_path，值为图标字符",
+      "available_icons": "📋, ⚙️, 📝, 📊, 🌐, 💾, 🔧, 📁, 🔍, 🛠️, ☀️, 🌙, 🚀, ⭐, 🔖, 📦, 📄, 🎯, 🔐",
+      "example": {"PDF批处理工具.py": "📄", "系统工具/GitHub_Releases_Tracker.py": "🚀"}
+    },
+
+    "recent_runs": {
+      "description": "脚本最近运行时间",
+      "usage": "记录每个脚本最近一次运行的时间戳，用于排序和显示",
+      "format": "字典，键为 storage_path，值为 Unix 时间戳",
+      "note": "通常不需要手动修改，由程序自动记录"
+    },
+
+    "groups_meta": {
+      "description": "分组元数据",
+      "usage": "存储脚本分组的排序和显示顺序",
+      "format": "字典，键为分组名称，值为 {order: 数字}",
+      "example": {"默认分组": {"order": 0}, "测试项目": {"order": 2}}"
+    },
+
+    "translate.provider": {
+      "description": "翻译服务提供商",
+      "usage": "选择使用哪个翻译服务来翻译脚本内容和 README",
+      "options": [
+        "Google翻译 - 无需 API Key，免费使用",
+        "百度翻译 - 需要百度翻译 API Key",
+        "腾讯翻译君 - 需要腾讯云 API Key"
+      ],
+      "default": "Google翻译"
+    },
+
+    "translate.keys": {
+      "description": "翻译服务 API Key（加密存储）",
+      "usage": "存储各翻译服务的 API Key，程序会自动加密存储",
+      "baidu_keys": {
+        "description": "百度翻译密钥",
+        "keys": ["百度翻译_APP_ID", "百度翻译_密钥"],
+        "how_to_get": "https://fanyi-api.baidu.com/"
+      },
+      "tencent_keys": {
+        "description": "腾讯翻译君密钥",
+        "keys": ["腾讯翻译君_SecretId", "腾讯翻译君_SecretKey"],
+        "how_to_get": "https://cloud.tencent.com/product/tmt"
+      }
+    }
+  },
+
+  "github": {
+    "token": "YOUR_GITHUB_TOKEN_HERE",
+    "encrypted_token": ""
+  },
+
+  "ai": {
+    "provider": "通义千问 (Qwen)",
+    "keys": {},
+    "local_model": "DeepSeek-V3.2"
+  },
+
+  "webdav": {
+    "url": "https://dav.jianguoyun.com/dav/pymanager/",
+    "username": "YOUR_WEBDAV_USERNAME",
+    "password": "YOUR_WEBDAV_PASSWORD"
+  },
+
+  "window": {
+    "width": 950,
+    "height": 600,
+    "x": null,
+    "y": null
+  },
+
+  "log": {
+    "retain_days": 7,
+    "max_file_size_mb": 1
+  },
+
+  "favorites": [],
+
+  "script_icons": {},
+
+  "recent_runs": {},
+
+  "groups_meta": {},
+
+  "translate": {
+    "provider": "Google翻译",
+    "keys": {}
+  }
+}

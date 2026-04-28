@@ -61,7 +61,7 @@ except ImportError:
 from modules.logger import log_error
 from modules.run_selected import run_selected, stop_running
 from modules.context_menu import show_context_menu
-from modules.token_crypto import delete_token_ui
+from modules.token_crypto import show_token_config_dialog
 from modules.utils import open_program_dir
 from modules.script_manager import scan_data_directory
 from modules.app_context import AppContext
@@ -106,7 +106,7 @@ def create_widgets(ctx: AppContext):
             ("\U0001f310 脚本市场", lambda: _open_market(ctx)),
             ("\U0001f50d 检查依赖", lambda: _check_deps(ctx)),
             ("\U0001f504 检查更新", lambda: _check_updates(ctx)),
-            ("\U0001f511 删除Token", lambda: delete_token_ui(ctx)),
+            ("\U0001f510 Token/API配置", lambda: show_token_config_dialog(ctx.get_root_window())),
             ("\U0001f4c1 打开程序目录", lambda: open_program_dir()),
         ]
         for text, cmd in buttons:

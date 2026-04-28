@@ -39,10 +39,8 @@ from urllib.request import urlopen, Request
 from urllib.parse import quote, urlencode
 
 from modules.logger import log_error
-from modules.config import CONFIG_DIR
+from modules.config import load_app_config, save_app_config
 from modules.encrypt_utils import encrypt, decrypt, get_default_translate_key
-
-TRANSLATE_CONFIG_FILE = os.path.join(CONFIG_DIR, "translate_config.json")
 
 USER_AGENT = "pymanager/1.5.0"
 
@@ -54,32 +52,28 @@ TRANSLATE_PROVIDERS = {
 
 
 def load_translate_config():
-    config = {"provider": "Google翻译", "keys": {}}
-    if os.path.exists(TRANSLATE_CONFIG_FILE):
+    """加载翻译配置（从统一配置中读取 translate 部分）"""
+    app_config = load_app_config()
+    translate_config = app_config.get("translate", {"provider": "Google翻译", "keys": {}})
+    config = {"provider": translate_config.get("provider", "Google翻译"), "keys": {}}
+    for name, enc_key in translate_config.get("keys", {}).items():
         try:
-            with open(TRANSLATE_CONFIG_FILE, "r", encoding="utf-8") as f:
-                saved = json.load(f)
-                saved_provider = saved.get("provider", config["provider"])
-                if saved_provider in TRANSLATE_PROVIDERS:
-                    config["provider"] = saved_provider
-                for name, enc_key in saved.get("keys", {}).items():
-                    try:
-                        config["keys"][name] = decrypt(enc_key)
-                    except Exception:
-                        pass
+            config["keys"][name] = decrypt(enc_key)
         except Exception:
             pass
     return config
 
 
 def save_translate_config(config):
+    """保存翻译配置（保存到统一配置的 translate 部分）"""
     try:
-        to_save = {"provider": config.get("provider", "Google翻译"), "keys": {}}
+        app_config = load_app_config()
+        app_config["translate"]["provider"] = config.get("provider", "Google翻译")
+        app_config["translate"]["keys"] = {}
         for name, plain_key in config.get("keys", {}).items():
             if plain_key:
-                to_save["keys"][name] = encrypt(plain_key)
-        with open(TRANSLATE_CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(to_save, f, ensure_ascii=False, indent=2)
+                app_config["translate"]["keys"][name] = encrypt(plain_key)
+        save_app_config(app_config)
     except Exception as e:
         log_error(f"保存翻译配置失败：{e}")
 

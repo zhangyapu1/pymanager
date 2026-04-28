@@ -65,6 +65,7 @@ USE_WEBDAV_FOR_UPDATES = True
 WEBDAV_URL = "https://dav.jianguoyun.com/dav/pymanager/"
 
 from modules.token_crypto import get_api_token, save_api_token, get_default_token
+from modules.config import load_app_config
 
 
 def _output(callback, msg):
@@ -90,18 +91,14 @@ class RateLimitError(Exception):
 
 
 def _get_webdav_credentials():
-    """从配置文件 api_keys.json 获取 WebDAV 凭据"""
+    """从统一配置文件获取 WebDAV 凭据"""
     try:
-        import json
-        api_keys_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'api_keys.json')
-        if os.path.exists(api_keys_path):
-            with open(api_keys_path, 'r', encoding='utf-8') as f:
-                keys = json.load(f)
-            webdav_config = keys.get("webdav", {})
-            username = webdav_config.get('username', '')
-            password = webdav_config.get('password', '')
-            if username and password and username != "YOUR_WEBDAV_USERNAME":
-                return username, password
+        app_config = load_app_config()
+        webdav_config = app_config.get("webdav", {})
+        username = webdav_config.get('username', '')
+        password = webdav_config.get('password', '')
+        if username and password and username != "YOUR_WEBDAV_USERNAME":
+            return username, password
     except Exception:
         pass
     return '', ''
@@ -141,13 +138,15 @@ def fetch_latest_version_webdav(output_callback=None):
         latest = data.get("version", CURRENT_VERSION)
         download_filename = data.get("downloadUrl", f"pymanager-{latest}.zip")
         download_url = f"{WEBDAV_URL}{download_filename}"
+        changelog = data.get("changelog", "")
+        release_date = data.get("releaseDate", "")
 
         _output(output_callback, f"[WebDAV] 最新版本: {latest}, 下载链接: {download_url}")
-        return latest, download_url
+        return latest, download_url, changelog, release_date
 
     except Exception as e:
         _output_error(output_callback, f"WebDAV更新检查失败: {e}")
-        return None, None
+        return None, None, "", ""
 
 
 def download_file_webdav(url, dest_path, username="", password="", output_callback=None, progress_callback=None):
@@ -199,9 +198,49 @@ def download_file_webdav(url, dest_path, username="", password="", output_callba
 
 
 def webdav_upload_file(local_path, remote_name, output_callback=None):
-    """WebDAV 上传文件（此功能已禁用，禁止通过程序上传）"""
-    _output_error(output_callback, "WebDAV 上传功能已禁用，不允许通过程序上传文件")
-    return False
+    """WebDAV 上传文件"""
+    try:
+        if not os.path.exists(local_path):
+            _output_error(output_callback, f"本地文件不存在: {local_path}")
+            return False
+
+        url = f"{WEBDAV_URL}{remote_name}"
+        _output(output_callback, f"[WebDAV] 开始上传: {local_path} -> {url}")
+
+        username, password = _get_webdav_credentials()
+        auth = _build_webdav_auth(username, password)
+        if not auth:
+            _output_error(output_callback, "WebDAV 凭据未配置")
+            return False
+
+        headers = {"Authorization": auth}
+
+        file_size = os.path.getsize(local_path)
+        _output(output_callback, f"[WebDAV] 文件大小: {file_size} bytes")
+
+        with open(local_path, 'rb') as f:
+            data = f.read()
+            headers["Content-Type"] = "application/octet-stream"
+            headers["Content-Length"] = str(len(data))
+            req = urllib.request.Request(url, data=data, headers=headers, method="PUT")
+
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+
+            with urllib.request.urlopen(req, timeout=300, context=ctx) as response:
+                if response.status in (200, 201, 204):
+                    _output(output_callback, f"[WebDAV] 上传成功: {remote_name}")
+                    return True
+                else:
+                    _output_error(output_callback, f"[WebDAV] 上传失败: HTTP {response.status}")
+                    return False
+
+    except Exception as e:
+        _output_error(output_callback, f"[WebDAV] 上传失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 
 def prompt_for_token(parent=None, ui_callback=None):
@@ -324,9 +363,9 @@ def select_download_url(data):
 def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
     # 优先使用 WebDAV（适用于国内用户）
     if USE_WEBDAV_FOR_UPDATES:
-        latest, download_url = fetch_latest_version_webdav(output_callback)
+        latest, download_url, changelog, release_date = fetch_latest_version_webdav(output_callback)
         if latest and download_url:
-            return latest, download_url
+            return latest, download_url, changelog, release_date
         _output(output_callback, "[WebDAV] 回退到 GitHub")
 
     # 回退到 GitHub
@@ -335,17 +374,19 @@ def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
         data = fetch_release_data(headers)
         latest = parse_latest_version(data)
         download_url, asset_name = select_download_url(data)
+        changelog = data.get("body", "")
+        release_date = data.get("published_at", "")
 
         _output(output_callback, f"[GitHub] 最新版本: {latest}, 下载链接: {download_url}")
-        return latest, download_url
+        return latest, download_url, changelog, release_date
     except RateLimitError:
         _output_error(output_callback, "API 速率限制已达上限")
         if ui_callback:
             ui_callback.show_warning("API 限制", "API请求次数已达上限，请稍后再试。", parent=parent)
-        return CURRENT_VERSION, PROJECT_URL
+        return CURRENT_VERSION, PROJECT_URL, "", ""
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         _output_error(output_callback, f"获取版本失败: {e}")
-        return CURRENT_VERSION, PROJECT_URL
+        return CURRENT_VERSION, PROJECT_URL, "", ""
 
 
 def download_file(url, dest_path, parent=None, output_callback=None, ui_callback=None, progress_callback=None):
@@ -464,9 +505,10 @@ def create_github_release(version, changelog, output_callback=None):
                 result = json.loads(resp.read().decode("utf-8"))
 
         html_url = result.get("html_url", "")
+        upload_url = result.get("upload_url", "")
         _output(output_callback, f"Release 发布成功: {html_url}")
 
-        return True
+        return upload_url if upload_url else True
 
     except urllib.error.HTTPError as e:
         error_body = ""
@@ -478,4 +520,66 @@ def create_github_release(version, changelog, output_callback=None):
         return False
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         _output_error(output_callback, f"发布 Release 失败: {e}")
+        return False
+
+
+def upload_github_asset(upload_url_template, file_path, file_name, output_callback=None):
+    """上传附件到 GitHub Release"""
+    token = get_api_token()
+    if not token:
+        default = get_default_token()
+        if default:
+            token = default
+    if not token:
+        _output_error(output_callback, "没有可用的 GitHub Token，无法上传附件")
+        return False
+
+    # 构造上传 URL
+    if upload_url_template and "{?name,label}" in upload_url_template:
+        upload_url = upload_url_template.replace("{?name,label}", f"?name={urllib.parse.quote(file_name)}")
+    else:
+        _output_error(output_callback, "无效的上传 URL")
+        return False
+
+    # 读取文件
+    try:
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+    except OSError as e:
+        _output_error(output_callback, f"读取文件失败: {e}")
+        return False
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": f"ScriptManager/{CURRENT_VERSION}",
+        "Content-Type": "application/zip",
+    }
+
+    try:
+        _output(output_callback, f"上传附件到 GitHub: {file_name}")
+        req = urllib.request.Request(upload_url, data=file_data, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+        except ssl.SSLError:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            with urllib.request.urlopen(req, timeout=300, context=ctx) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+
+        _output(output_callback, f"附件上传成功")
+        return True
+
+    except urllib.error.HTTPError as e:
+        error_body = ""
+        try:
+            error_body = e.read().decode("utf-8")
+        except (OSError, UnicodeDecodeError):
+            pass
+        _output_error(output_callback, f"上传附件失败 (HTTP {e.code}): {error_body}")
+        return False
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
+        _output_error(output_callback, f"上传附件失败: {e}")
         return False
