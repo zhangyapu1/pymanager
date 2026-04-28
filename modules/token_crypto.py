@@ -51,11 +51,11 @@ from modules.logger import log_error
 
 CONFIG_DIR = os.path.join(os.path.dirname(__file__), "..", "config")
 TOKEN_FILE = os.path.join(CONFIG_DIR, "api_token.enc")
+API_KEYS_FILE = os.path.join(CONFIG_DIR, "api_keys.json")
 
 CRYPTPROTECT_UI_FORBIDDEN = 0x01
 
 _XOR_KEY = b'pymanager'
-_DEFAULT_TOKEN_ENC = 'FxEdPh0kAwojQwoIOCdUMREcSAoZNwgjL1EqETAsKAgFH1FFFxUiMA=='
 
 
 class DATA_BLOB(ctypes.Structure):
@@ -104,7 +104,18 @@ def _decrypt(ciphertext):
 
 
 def get_default_token():
-    return _xor_decode(_DEFAULT_TOKEN_ENC)
+    try:
+        import json
+        if os.path.exists(API_KEYS_FILE):
+            with open(API_KEYS_FILE, 'r', encoding='utf-8') as f:
+                keys = json.load(f)
+            github = keys.get("github", {})
+            token = github.get("token", "").strip()
+            if token:
+                return token
+    except Exception:
+        pass
+    return ""
 
 
 def get_api_token():

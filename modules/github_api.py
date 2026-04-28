@@ -90,28 +90,21 @@ class RateLimitError(Exception):
 
 
 def _get_webdav_credentials():
-    """从配置文件或加密硬编码获取 WebDAV 凭据"""
+    """从配置文件 api_keys.json 获取 WebDAV 凭据"""
     try:
         import json
-        settings_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'settings.json')
-        if os.path.exists(settings_path):
-            with open(settings_path, 'r', encoding='utf-8') as f:
-                settings = json.load(f)
-            webdav_config = settings.get(WEBDAV_CONFIG_KEY, {})
+        api_keys_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'api_keys.json')
+        if os.path.exists(api_keys_path):
+            with open(api_keys_path, 'r', encoding='utf-8') as f:
+                keys = json.load(f)
+            webdav_config = keys.get("webdav", {})
             username = webdav_config.get('username', '')
             password = webdav_config.get('password', '')
-            if username and password:
+            if username and password and username != "YOUR_WEBDAV_USERNAME":
                 return username, password
     except Exception:
         pass
-
-    try:
-        encoded = "c2xhbmRlci15YXJuLWNpZGVyQGR1Y2suY29tOmFja241NjlqOW42cno5NWc="
-        decoded = base64.b64decode(encoded).decode('utf-8')
-        username, password = decoded.split(':', 1)
-        return username, password
-    except Exception:
-        return '', ''
+    return '', ''
 
 
 def _build_webdav_auth(username, password):
