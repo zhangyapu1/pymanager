@@ -241,9 +241,14 @@ def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
         headers = {"Accept": "application/json"}
         data = fetch_release_data(headers, use_gitee=use_gitee)
         latest = parse_latest_version(data, use_gitee=use_gitee)
-        download_url, asset_name = select_download_url(data, use_gitee=use_gitee)
+        
+        if use_gitee and latest:
+            download_url = "https://github.com/" + REPO_OWNER + "/" + REPO_NAME + "/archive/refs/tags/" + latest + ".zip"
+        else:
+            download_url, asset_name = select_download_url(data, use_gitee=use_gitee)
 
-        _output(output_callback, f"[{'Gitee' if use_gitee else 'GitHub'}] 最新版本: {latest}, 下载链接: {download_url}")
+        source_text = "Gitee检查/GitHub下载" if use_gitee else "GitHub"
+        _output(output_callback, "[" + source_text + "] 最新版本: " + latest + ", 下载链接: " + download_url)
         return latest, download_url
     except RateLimitError:
         _output_error(output_callback, "API 速率限制已达上限")

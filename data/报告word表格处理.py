@@ -47,28 +47,64 @@ def set_cell_border(cell, **kwargs):
         pass
 
 
+def find_header_end_row(table):
+    """找到表头结束行（考虑合并单元格）"""
+    max_span = 1
+    for cell in table.rows[0].cells:
+        # 获取单元格的垂直合并跨度
+        v_merge = cell._tc.get_or_add_tcPr().find(qn("w:vMerge"))
+        if v_merge is not None:
+            # 检查是否是合并的开始
+            if v_merge.get(qn("w:val")) != "continue":
+                # 计算实际跨越的行数
+                row_idx = 0
+                current_cell = cell
+                while True:
+                    next_row_idx = row_idx + 1
+                    if next_row_idx >= len(table.rows):
+                        break
+                    # 检查下一行对应位置是否有继续标记
+                    next_cell = table.rows[next_row_idx].cells[0]
+                    next_v_merge = next_cell._tc.get_or_add_tcPr().find(qn("w:vMerge"))
+                    if next_v_merge is not None and next_v_merge.get(qn("w:val")) == "continue":
+                        row_idx = next_row_idx
+                        max_span = row_idx + 1
+                    else:
+                        break
+    return max_span
+
+
 def apply_table_style(table):
     """将专业表格样式应用到给定的表格对象上"""
     n_rows = len(table.rows)
     n_cols = len(table.columns)
 
+    # 找到表头结束行（考虑合并单元格）
+    header_end_row = find_header_end_row(table)
+
+    # 清除所有边框
     for i, row in enumerate(table.rows):
         for j, cell in enumerate(row.cells):
             set_cell_border(cell, top={}, bottom={}, left={}, right={})
 
-            if i == 0:
-                set_cell_border(cell, top={"sz": "24", "val": "single"})
-            if i == n_rows - 1:
-                set_cell_border(cell, bottom={"sz": "24", "val": "single"})
+    # 设置外边框（顶端和低端实线1.5磅）
+    for j, cell in enumerate(table.rows[0].cells):
+        set_cell_border(cell, top={"sz": "24", "val": "single"})
+    for j, cell in enumerate(table.rows[-1].cells):
+        set_cell_border(cell, bottom={"sz": "24", "val": "single"})
 
-            if i > 0:
-                set_cell_border(cell, top={"sz": "8", "val": "dashed"})
-            if j > 0:
-                set_cell_border(cell, left={"sz": "8", "val": "dashed"})
-
-    if n_rows > 0:
-        for cell in table.rows[0].cells:
+    # 设置标题行底端边框（实线1磅）- 使用表头结束行
+    if n_rows > 0 and header_end_row > 0 and header_end_row <= n_rows:
+        for cell in table.rows[header_end_row - 1].cells:
             set_cell_border(cell, bottom={"sz": "16", "val": "single"})
+
+    # 设置内边框（虚线0.5磅）- 跳过表头下方的行的顶边框
+    for i, row in enumerate(table.rows):
+        for j, cell in enumerate(row.cells):
+            if i > 0 and i != header_end_row:
+                set_cell_border(cell, top={"sz": "8", "val": "dotted"})
+            if j > 0:
+                set_cell_border(cell, left={"sz": "8", "val": "dotted"})
 
     for row in table.rows:
         for cell in row.cells:
@@ -115,7 +151,8 @@ def apply_table_style(table):
                     for paragraph in cell.paragraphs:
                         paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
                         for run in paragraph.runs:
-                            run.font.name = 'Arial Narrow'
+                            run.font.name = 'Times New Roman'
+                            run.font.size = Pt(10.5)
                 except:
                     pass
 

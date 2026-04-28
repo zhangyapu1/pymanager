@@ -291,6 +291,14 @@ class DependencyChecker:
                 continue
             if cls.is_stdlib_module(mod):
                 continue
+            
+            # 检查该模块是否是冲突包的冲突名称
+            conflict_for_mod = None
+            for conflict_name, conflict_info in PACKAGE_CONFLICTS.items():
+                if conflict_info['conflict_package'] == mod:
+                    conflict_for_mod = conflict_info
+                    break
+            
             if cls.is_package_installed(mod):
                 conflict = cls.detect_conflict(mod)
                 if conflict:
@@ -298,7 +306,14 @@ class DependencyChecker:
                     if not cls.is_package_installed(correct_pkg):
                         missing.append(correct_pkg)
                 continue
-            missing.append(mod)
+            
+            # 如果模块未安装，但它是冲突包的冲突名称，则添加正确的包名
+            if conflict_for_mod:
+                correct_pkg = conflict_for_mod['correct_package']
+                if not cls.is_package_installed(correct_pkg):
+                    missing.append(correct_pkg)
+            else:
+                missing.append(mod)
 
         return missing
 
