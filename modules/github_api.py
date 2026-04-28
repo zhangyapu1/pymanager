@@ -90,7 +90,7 @@ class RateLimitError(Exception):
 
 
 def _get_webdav_credentials():
-    """从配置文件或加密硬编码获取 WebDAV 凭据"""
+    """从配置文件获取 WebDAV 凭据（不再使用硬编码）"""
     try:
         import json
         settings_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'settings.json')
@@ -102,43 +102,10 @@ def _get_webdav_credentials():
             password = webdav_config.get('password', '')
             if username and password:
                 return username, password
-    except Exception:
-        pass
-
-    try:
-        # 使用 DPAPI 加密的 WebDAV 凭据（与当前 Windows 用户账户绑定）
-        # 加密格式: DPAPI加密结果的Base64编码
-        import ctypes
-        import ctypes.wintypes
-        
-        class DATA_BLOB(ctypes.Structure):
-            _fields_ = [
-                ("cbData", ctypes.wintypes.DWORD),
-                ("pbData", ctypes.POINTER(ctypes.c_char)),
-            ]
-        
-        # DPAPI 加密后的凭据（Base64 编码）
-        encrypted_cred = 'AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAuAAAAAEAAAARAAAAAYAAAAgAAAAFAAAABQAAAAcAAAABgAAAAIAAAAAAAASAAAAAAAAAAAAAAAEAAAAGAAAAf4T8K99xM8uVn0z7yK5lN4QAAAAEAAAAHAAAAAwAAAAoAAAAYAAQAAAABAAEAAAAMAAAASAAAAAEAAAANAAAAKQAAABkAAAAQAAAALwAAABMAAAALAAAABQAAAAEAAAABAAAAAGAAAAEAAAACAAAAAIAAAAIAAAADAAAAAEAAAABAAAAAIAAAAgAAAACAAAAAEAAAAGAAAAAwAAAAIAAAACAAAAAwAAAAAAAAAAAAAAAAD+L6C8a9n8fK5Y6J7yDmZ0w=='
-        
-        raw = base64.b64decode(encrypted_cred)
-        data_in = DATA_BLOB()
-        data_in.cbData = len(raw)
-        data_in.pbData = ctypes.create_string_buffer(raw, len(raw))
-        data_out = DATA_BLOB()
-        
-        if ctypes.windll.crypt32.CryptUnprotectData(
-            ctypes.byref(data_in), None, None, None, None, 0,
-            ctypes.byref(data_out)
-        ):
-            result = ctypes.string_at(data_out.pbData, data_out.cbData)
-            ctypes.windll.kernel32.LocalFree(data_out.pbData)
-            credentials = result.decode('utf-8')
-            if ':' in credentials:
-                username, password = credentials.split(':', 1)
-                return username, password
-    except Exception:
-        pass
+    except Exception as e:
+        _output_error(None, f"读取 WebDAV 配置失败: {e}")
     
+    # 不再提供硬编码凭据，用户必须在配置文件中设置
     return '', ''
 
 

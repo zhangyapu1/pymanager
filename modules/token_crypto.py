@@ -7,17 +7,13 @@ Token 加密 - GitHub API Token 的加密存储与 Windows DPAPI 保护。
         - 其他用户无法解密
         - 加密结果经 Base64 编码存储到文件
 
-    默认 Token：使用 AES-256-GCM 加密
-        - 使用分散存储的密钥片段重组
-        - 增加破解难度
-
 文件存储：
     TOKEN_FILE = config/api_token.enc
     内容为 DPAPI 加密后的 Base64 字符串
 
 函数：
     get_default_token()：
-        获取内置默认 GitHub Token（AES 解密）
+        获取内置默认 GitHub Token（已移除硬编码，返回空字符串）
 
     get_api_token()：
         获取用户保存的 GitHub Token（DPAPI 解密）
@@ -53,52 +49,6 @@ CONFIG_DIR = os.path.join(os.path.dirname(__file__), "..", "config")
 TOKEN_FILE = os.path.join(CONFIG_DIR, "api_token.enc")
 
 CRYPTPROTECT_UI_FORBIDDEN = 0x01
-
-# AES 加密配置 - 密钥分散存储在不同位置
-_KEY_PARTS = [
-    b'\x7f\x8b\x0e\x1d\x2c\x3b\x4a\x59',
-    b'\x68\x77\x86\x95\xa4\xb3\xc2\xd1',
-    b'\xe0\xff\x00\x11\x22\x33\x44\x55',
-    b'\x66\x77\x88\x99\xaa\xbb\xcc\xdd'
-]
-
-# 默认 Token（AES-GCM 加密后再 Base64 编码）
-_DEFAULT_TOKEN_ENC = 'E2F4A7B9C3D1E5F0A2B4C6D8E0F1A3B5C7D9E1F2A4B6C8D0E2F3A5B7C9D1E3F5A7B9C1D3E5F7A9B0C2D4E6F8A0B1C3D5E7F9A1B2C4D6E8F0A2B3C5D7E9F1A3B5'
-
-# XOR 混淆密钥（仅用于兼容性回退）
-_XOR_KEY = b'pymanager'
-
-
-def _get_aes_key():
-    """重组分散存储的密钥"""
-    return b''.join(_KEY_PARTS)
-
-
-def _aes_gcm_decrypt(ciphertext_b64, key):
-    """AES-GCM 解密"""
-    try:
-        import hashlib
-        from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-        from cryptography.hazmat.backends import default_backend
-        
-        ciphertext = base64.b64decode(ciphertext_b64)
-        if len(ciphertext) < 12 + 16:  # IV(12) + AuthTag(16)
-            return ""
-        
-        iv = ciphertext[:12]
-        tag = ciphertext[-16:]
-        encrypted_data = ciphertext[12:-16]
-        
-        # 使用密钥的 SHA-256 作为实际加密密钥
-        actual_key = hashlib.sha256(key).digest()
-        
-        cipher = Cipher(algorithms.AES(actual_key), modes.GCM(iv, tag), backend=default_backend())
-        decryptor = cipher.decryptor()
-        plaintext = decryptor.update(encrypted_data) + decryptor.finalize()
-        return plaintext.decode('utf-8')
-    except Exception:
-        # 如果 cryptography 库不可用，返回空字符串
-        return ""
 
 
 class DATA_BLOB(ctypes.Structure):
@@ -142,20 +92,10 @@ def _decrypt(ciphertext):
 
 
 def get_default_token():
-    """获取内置默认 GitHub Token（使用 AES-GCM 解密）"""
-    # 尝试使用 AES-GCM 解密
-    key = _get_aes_key()
-    result = _aes_gcm_decrypt(_DEFAULT_TOKEN_ENC, key)
-    if result:
-        return result
-    
-    # 如果 AES 解密失败（可能缺少 cryptography 库），回退到简单混淆
-    # 注意：这是为了兼容性保留的临时方案，建议安装 cryptography 库
-    try:
-        raw = base64.b64decode(_DEFAULT_TOKEN_ENC)
-        return bytes(b ^ _XOR_KEY[i % len(_XOR_KEY)] for i, b in enumerate(raw)).decode('utf-8')
-    except Exception:
-        return ""
+    """获取内置默认 GitHub Token（不再使用硬编码）"""
+    # 不再提供硬编码的默认 Token，用户必须手动设置或使用自己的 Token
+    # 如需使用默认 Token，请在配置文件中设置
+    return ""
 
 
 def get_api_token():
