@@ -1,45 +1,18 @@
-# 忽略config文件夹（包含密钥）
-config/
-
-# 忽略Python生成的文件
-__pycache__/
-*.pyc
-.pytest_cache/
-
-# 忽略临时文件和日志
-temp/
-*.tmp
-*.log
-error_log.txt
-logs/
-
-# 忽略备份文件
-backups/
-*.backup
-
-# 忽略IDE相关文件
-.vscode/
-.idea/
-.git/
-.trae/
-*.swp
-*.swo
-*~
-
-# 忽略测试文件
-tests/
-
-# 忽略需求文档
-REQUIREMENTS.md
-
-# 忽略操作系统文件
-Thumbs.db
-.DS_Store
-
-# 忽略构建文件
-build/
-dist/
-*.spec
-
-# 忽略自身
+backups/备份20260428_01.zip
+backups/备份20260428_02.zip
+backups/备份20260428_03.zip
+backups/备份20260428_04.zip
+backups/备份20260428_05.zip
+backups/备份20260428_06.zip
+backups/备份20260428_07.zip
+backups/备份20260428_08.zip
+backups/备份20260428_09.zip
+logs/error_log.txt
+logs/output_log.txt
+logs/updater_log.txt
+config/ai_config.json
+config/groups_meta.json
+config/settings.json
+config/translate_config.json
+update-proxy.js
 .gitignore
