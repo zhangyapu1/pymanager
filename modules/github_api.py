@@ -187,7 +187,10 @@ def download_file_webdav(url, dest_path, username="", password="", output_callba
 
                     if progress_callback and total_size > 0:
                         progress = int((downloaded_size / total_size) * 100)
-                        progress_callback(progress)
+                        try:
+                            progress_callback(progress, f"下载中... {progress}%")
+                        except TypeError:
+                            progress_callback(progress)
 
         _output(output_callback, f"[WebDAV] 下载完成: {dest_path}")
         return True

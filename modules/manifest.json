@@ -2,6 +2,7 @@
   "version": "1.9.0",
   "files": [
     "README.md",
+    "changelog.txt",
     "main.pyw",
     "modules/__init__.py",
     "modules/add_script.py",

@@ -275,11 +275,14 @@ def check_for_updates(parent_root=None, show_no_update_msg=True, output_callback
             return True
         else:
             if show_no_update_msg:
-                msg = f"当前已是最新版本 v{CURRENT_VERSION}\n\n是否重新安装当前版本？"
+                msg = f"当前已是最新版本 v{CURRENT_VERSION}"
+                if release_date:
+                    msg += f"\n发布日期：{release_date}"
+                msg += "\n\n是否重新安装当前版本？"
                 _output(output_callback, f"当前已是最新版本 v{CURRENT_VERSION}")
                 confirmed = False
                 if ui_callback:
-                    confirmed = ui_callback.ask_yes_no("检查更新", msg, parent=parent_root)
+                    confirmed = ui_callback.show_update_dialog("检查更新", msg, changelog, parent=parent_root)
                 if confirmed:
                     auto_update(parent_root, download_url, output_callback, ui_callback=ui_callback)
             return False

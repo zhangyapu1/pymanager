@@ -254,3 +254,16 @@
 [2026-04-29 01:28:50,400] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.8.11.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.11.zip
 [2026-04-29 01:28:50,400] [INFO] [WebDAV] 文件大小: 105230 bytes
 [2026-04-29 01:28:50,559] [INFO] [WebDAV] 上传成功: pymanager-1.8.11.zip
+[2026-04-29 01:42:41,361] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\version.json -> https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:42:41,362] [INFO] [WebDAV] 文件大小: 144 bytes
+[2026-04-29 01:42:41,544] [INFO] [WebDAV] 上传成功: version.json
+[2026-04-29 01:42:41,545] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-changelog.txt.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-changelog.txt.zip
+[2026-04-29 01:42:41,546] [INFO] [WebDAV] 文件大小: 107244 bytes
+[2026-04-29 01:42:41,727] [INFO] [WebDAV] 上传成功: pymanager-changelog.txt.zip
+[2026-04-29 01:42:42,449] [ERROR] 发布 Release 失败 (HTTP 404): {"message":"Not Found","documentation_url":"https://docs.github.com/rest/releases/releases#create-a-release","status":"404"}
+[2026-04-29 01:43:41,889] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\version.json -> https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 01:43:41,890] [INFO] [WebDAV] 文件大小: 1148 bytes
+[2026-04-29 01:43:42,117] [INFO] [WebDAV] 上传成功: version.json
+[2026-04-29 01:43:42,118] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.9.0.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.0.zip
+[2026-04-29 01:43:42,119] [INFO] [WebDAV] 文件大小: 107244 bytes
+[2026-04-29 01:43:42,319] [INFO] [WebDAV] 上传成功: pymanager-1.9.0.zip
