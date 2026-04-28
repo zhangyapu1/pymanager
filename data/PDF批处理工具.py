@@ -52,7 +52,7 @@ def _askyesno(title, msg, **kw):
 
 THIS_FILE = os.path.abspath(__file__)
 sys.dont_write_bytecode = True
-_PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(THIS_FILE), "..", ".."))
+_PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(THIS_FILE), ".."))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 

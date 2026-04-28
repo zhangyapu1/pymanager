@@ -268,6 +268,21 @@ class DependencyChecker:
             return False
 
     @classmethod
+    def detect_conflict(cls, module_name):
+        """检测模块是否是冲突包（存在但版本不正确）"""
+        if module_name not in PACKAGE_CONFLICTS:
+            return None
+        conflict = PACKAGE_CONFLICTS[module_name]
+        check_attr = conflict['check_attr']
+        try:
+            mod = importlib.import_module(module_name)
+            if hasattr(mod, check_attr):
+                return None
+            return conflict
+        except Exception:
+            return None
+
+    @classmethod
     def get_missing_dependencies(cls, script_path):
         required_modules = cls.extract_imports_from_script(script_path)
         missing = []
@@ -277,6 +292,11 @@ class DependencyChecker:
             if cls.is_stdlib_module(mod):
                 continue
             if cls.is_package_installed(mod):
+                conflict = cls.detect_conflict(mod)
+                if conflict:
+                    correct_pkg = conflict['correct_package']
+                    if not cls.is_package_installed(correct_pkg):
+                        missing.append(correct_pkg)
                 continue
             missing.append(mod)
 
@@ -408,6 +428,15 @@ def check_script_deps_and_install(script_path, display_name, parent_root=None, o
 
     if confirmed:
         for pkg in missing:
-            DependencyChecker.install_package(pkg, parent_root, output_callback=output_callback, ui_callback=ui_callback)
+            conflict_to_fix = None
+            for conflict_name, conflict_info in PACKAGE_CONFLICTS.items():
+                if conflict_info['correct_package'] == pkg:
+                    conflict_to_fix = conflict_name
+                    break
+
+            if conflict_to_fix:
+                DependencyChecker.fix_package_conflict(conflict_to_fix, output_callback=output_callback)
+            else:
+                DependencyChecker.install_package(pkg, parent_root, output_callback=output_callback, ui_callback=ui_callback)
 
         still_missing = [p for p in missing if not DependencyChecker.is_package_installed(p)]
