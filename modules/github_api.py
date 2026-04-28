@@ -45,6 +45,7 @@ import urllib.error
 import json
 import ssl
 import webbrowser
+import base64
 
 from .config import CURRENT_VERSION
 
@@ -65,8 +66,15 @@ RELEASE_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releas
 DOWNLOAD_TIMEOUT = 60
 
 # Cloudflare Workers 更新代理服务（用于加速中国用户下载）
+# 暂时禁用，Cloudflare Worker 遇到 SSL 连接问题，需要检查 Worker 配置
 CLOUDFLARE_UPDATE_URL = "https://snowy-recipe-80d5.ahdszyp.workers.dev"
-USE_CLOUDFLARE_FOR_UPDATES = True
+USE_CLOUDFLARE_FOR_UPDATES = False
+
+# WebDAV 更新配置（坚果云）
+USE_WEBDAV_FOR_UPDATES = True
+WEBDAV_URL = "https://dav.jianguoyun.com/dav/pymanager/"
+WEBDAV_USERNAME = "slander-yarn-cider@duck.com"
+WEBDAV_PASSWORD = "ackn569j9n6rz95g"
 
 from modules.token_crypto import get_api_token, save_api_token, get_default_token
 
@@ -210,8 +218,97 @@ def select_download_url(data):
     return data.get("html_url", PROJECT_URL), "项目主页"
 
 
+def _build_webdav_auth(username, password):
+    """构建 WebDAV 认证头"""
+    if username and password:
+        auth = f"{username}:{password}"
+        encoded_auth = base64.b64encode(auth.encode('utf-8')).decode('utf-8')
+        return f"Basic {encoded_auth}"
+    return ""
+
+def fetch_latest_version_webdav(output_callback=None):
+    """从 WebDAV 获取最新版本信息"""
+    try:
+        version_file_url = f"{WEBDAV_URL}version.json"
+        _output(output_callback, f"[WebDAV] 检查更新: {version_file_url}")
+        
+        headers = {
+            "Accept": "application/json"
+        }
+        
+        auth = _build_webdav_auth(WEBDAV_USERNAME, WEBDAV_PASSWORD)
+        if auth:
+            headers["Authorization"] = auth
+        
+        req = urllib.request.Request(version_file_url, headers=headers)
+        
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        
+        with urllib.request.urlopen(req, timeout=15, context=ctx) as response:
+            data = json.loads(response.read().decode('utf-8'))
+        
+        latest = data.get("version", CURRENT_VERSION)
+        download_filename = data.get("downloadUrl", f"pymanager-{latest}.zip")
+        download_url = f"{WEBDAV_URL}{download_filename}"
+
+        _output(output_callback, f"[WebDAV] 最新版本: {latest}, 下载链接: {download_url}")
+        return latest, download_url
+        
+    except Exception as e:
+        _output_error(output_callback, f"WebDAV更新检查失败: {e}")
+        return None, None
+
+def download_file_webdav(url, dest_path, username="", password="", output_callback=None, progress_callback=None):
+    """从 WebDAV 下载文件"""
+    try:
+        _output(output_callback, f"[WebDAV] 开始下载: {url}")
+        
+        headers = {}
+        auth = _build_webdav_auth(username or WEBDAV_USERNAME, password or WEBDAV_PASSWORD)
+        if auth:
+            headers["Authorization"] = auth
+        
+        req = urllib.request.Request(url, headers=headers)
+        
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        
+        with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=ctx) as response:
+            total_size = int(response.headers.get('Content-Length', 0))
+            downloaded_size = 0
+            chunk_size = 1024 * 1024  # 1MB
+            
+            with open(dest_path, 'wb') as f:
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    downloaded_size += len(chunk)
+                    
+                    if progress_callback and total_size > 0:
+                        progress = int((downloaded_size / total_size) * 100)
+                        progress_callback(progress)
+        
+        _output(output_callback, f"[WebDAV] 下载完成: {dest_path}")
+        return True
+        
+    except Exception as e:
+        _output_error(output_callback, f"WebDAV下载失败: {e}")
+        return False
+
 def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
-    # 优先使用 Cloudflare Workers（加速中国用户访问）
+    # 优先使用 WebDAV（适用于国内用户）
+    if USE_WEBDAV_FOR_UPDATES:
+        latest, download_url = fetch_latest_version_webdav(output_callback)
+        if latest and download_url:
+            return latest, download_url
+        _output(output_callback, "[WebDAV] 回退到其他更新源")
+    
+    # 其次使用 Cloudflare Workers（加速中国用户访问）
     if USE_CLOUDFLARE_FOR_UPDATES:
         try:
             headers = {"Accept": "application/json"}
@@ -220,14 +317,24 @@ def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
             _output(output_callback, f"[Cloudflare] 检查更新: {url}")
             
             req = urllib.request.Request(url, headers=headers)
+            
+            # 创建兼容的 SSL 上下文，解决 Cloudflare 连接问题
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            # 设置 TLS 版本，支持多种协议
+            ctx.options |= ssl.OP_NO_SSLv2
+            ctx.options |= ssl.OP_NO_SSLv3
+            ctx.options |= ssl.OP_NO_TLSv1
+            ctx.options |= ssl.OP_NO_TLSv1_1
+            
             try:
-                with urllib.request.urlopen(req, timeout=15) as response:
-                    data = json.loads(response.read().decode('utf-8'))
-            except ssl.SSLError:
-                ctx = ssl.create_default_context()
-                ctx.check_hostname = False
-                ctx.verify_mode = ssl.CERT_NONE
                 with urllib.request.urlopen(req, timeout=15, context=ctx) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+            except Exception as e:
+                # 如果 SSL 上下文仍失败，尝试不使用上下文
+                _output(output_callback, f"尝试不使用 SSL 上下文: {e}")
+                with urllib.request.urlopen(req, timeout=15) as response:
                     data = json.loads(response.read().decode('utf-8'))
             
             latest = data.get("version", CURRENT_VERSION)
@@ -261,6 +368,11 @@ def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
 def download_file(url, dest_path, parent=None, output_callback=None, ui_callback=None, progress_callback=None):
     _output(output_callback, f"开始下载文件，URL: {url}")
     _output(output_callback, f"目标路径: {dest_path}")
+
+    # 检查是否为 WebDAV 链接
+    if WEBDAV_URL and url.startswith(WEBDAV_URL):
+        _output(output_callback, "[WebDAV] 使用 WebDAV 下载")
+        return download_file_webdav(url, dest_path, output_callback=output_callback, progress_callback=progress_callback)
 
     is_direct_download = (
         url.endswith('.exe') or
