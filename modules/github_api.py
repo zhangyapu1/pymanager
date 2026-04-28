@@ -11,9 +11,7 @@ GitHub API 通信 - 版本查询、文件下载、Release 发布。
 核心函数：
     fetch_latest_version(parent, output_callback, ui_callback)：
         获取最新版本信息
-        - 优先使用用户保存的 Token
-        - Token 不足时回退到内置默认 Token
-        - 速率限制时提示用户输入自己的 Token
+        - 使用 GitHub API
 
     download_file(url, dest_path, ...)：
         下载更新文件
@@ -61,19 +59,14 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
-GITEE_PROJECT_URL = "https://gitee.com/yaopei6678/pymanager"
-
 REPO_OWNER = "zhangyapu1"
 REPO_NAME = "pymanager"
-GITEE_OWNER = "yaopei6678"
-GITEE_REPO = "pymanager"
-
 RELEASE_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
-GITEE_TAGS_API_URL = f"https://gitee.com/api/v5/repos/{GITEE_OWNER}/{GITEE_REPO}/tags"
-
-USE_GITEE_FOR_UPDATES = True
-
 DOWNLOAD_TIMEOUT = 60
+
+# Cloudflare Workers 更新代理服务（用于加速中国用户下载）
+CLOUDFLARE_UPDATE_URL = "https://snowy-recipe-80d5.ahdszyp.workers.dev"
+USE_CLOUDFLARE_FOR_UPDATES = True
 
 from modules.token_crypto import get_api_token, save_api_token, get_default_token
 
@@ -158,11 +151,8 @@ def build_auth_headers(parent=None):
     return headers, "未认证"
 
 
-def fetch_release_data(headers, use_gitee=False):
-    if use_gitee:
-        api_url = GITEE_TAGS_API_URL
-    else:
-        api_url = RELEASE_API_URL
+def fetch_release_data(headers):
+    api_url = RELEASE_API_URL
     req = urllib.request.Request(api_url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
@@ -183,27 +173,14 @@ def fetch_release_data(headers, use_gitee=False):
             return json.loads(resp.read().decode('utf-8'))
 
 
-def parse_latest_version(data, use_gitee=False):
-    if use_gitee:
-        if isinstance(data, list) and len(data) > 0:
-            return data[0].get("name", "")
-        return ""
+def parse_latest_version(data):
     latest = data.get("tag_name", "") or data.get("name", "")
     if latest.startswith("v"):
         latest = latest[1:]
     return latest
 
 
-def select_download_url(data, use_gitee=False):
-    if use_gitee:
-        if isinstance(data, list) and len(data) > 0:
-            first_tag = data[0]
-            commit_sha = first_tag.get("commit", {}).get("sha", "")
-            if commit_sha:
-                download_url = f"{GITEE_PROJECT_URL}/archive/refs/tags/{first_tag.get('name', '')}.zip"
-                return download_url, f"{first_tag.get('name', '')}.zip"
-        return GITEE_PROJECT_URL, "项目主页"
-
+def select_download_url(data):
     assets = data.get("assets", [])
     preferred_exts = ('.exe', '.zip', '.rar')
 
@@ -234,30 +211,51 @@ def select_download_url(data, use_gitee=False):
 
 
 def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
-    use_gitee = USE_GITEE_FOR_UPDATES
-    project_url = GITEE_PROJECT_URL if use_gitee else PROJECT_URL
+    # 优先使用 Cloudflare Workers（加速中国用户访问）
+    if USE_CLOUDFLARE_FOR_UPDATES:
+        try:
+            headers = {"Accept": "application/json"}
+            url = f"{CLOUDFLARE_UPDATE_URL}/api/version"
+            
+            _output(output_callback, f"[Cloudflare] 检查更新: {url}")
+            
+            req = urllib.request.Request(url, headers=headers)
+            try:
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+            except ssl.SSLError:
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                with urllib.request.urlopen(req, timeout=15, context=ctx) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+            
+            latest = data.get("version", CURRENT_VERSION)
+            download_url = f"{CLOUDFLARE_UPDATE_URL}{data.get('downloadUrl', '/api/download')}"
 
+            _output(output_callback, f"[Cloudflare] 最新版本: {latest}, 下载链接: {download_url}")
+            return latest, download_url
+            
+        except Exception as e:
+            _output_error(output_callback, f"Cloudflare更新检查失败，回退到GitHub: {e}")
+    
+    # 回退到 GitHub
     try:
         headers = {"Accept": "application/json"}
-        data = fetch_release_data(headers, use_gitee=use_gitee)
-        latest = parse_latest_version(data, use_gitee=use_gitee)
-        
-        if use_gitee and latest:
-            download_url = "https://github.com/" + REPO_OWNER + "/" + REPO_NAME + "/archive/refs/tags/" + latest + ".zip"
-        else:
-            download_url, asset_name = select_download_url(data, use_gitee=use_gitee)
+        data = fetch_release_data(headers)
+        latest = parse_latest_version(data)
+        download_url, asset_name = select_download_url(data)
 
-        source_text = "Gitee检查/GitHub下载" if use_gitee else "GitHub"
-        _output(output_callback, "[" + source_text + "] 最新版本: " + latest + ", 下载链接: " + download_url)
+        _output(output_callback, f"[GitHub] 最新版本: {latest}, 下载链接: {download_url}")
         return latest, download_url
     except RateLimitError:
         _output_error(output_callback, "API 速率限制已达上限")
         if ui_callback:
             ui_callback.show_warning("API 限制", "API请求次数已达上限，请稍后再试。", parent=parent)
-        return CURRENT_VERSION, project_url
+        return CURRENT_VERSION, PROJECT_URL
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         _output_error(output_callback, f"获取版本失败: {e}")
-        return CURRENT_VERSION, project_url
+        return CURRENT_VERSION, PROJECT_URL
 
 
 def download_file(url, dest_path, parent=None, output_callback=None, ui_callback=None, progress_callback=None):
@@ -268,7 +266,8 @@ def download_file(url, dest_path, parent=None, output_callback=None, ui_callback
         url.endswith('.exe') or
         url.endswith('.zip') or
         url.endswith('.rar') or
-        'api.github.com' in url
+        'api.github.com' in url or
+        'workers.dev' in url  # Cloudflare Workers 下载链接
     )
 
     if not is_direct_download:
@@ -279,7 +278,9 @@ def download_file(url, dest_path, parent=None, output_callback=None, ui_callback
         return False
 
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "ScriptManager"})
+        headers = {"User-Agent": "ScriptManager"}
+        
+        req = urllib.request.Request(url, headers=headers)
         try:
             opener = urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT)
         except ssl.SSLError:

@@ -32,8 +32,17 @@ def set_cell_border(cell, **kwargs):
     try:
         tc = cell._tc
         tcPr = tc.get_or_add_tcPr()
+        
         for edge in ("top", "bottom", "left", "right"):
             edge_data = kwargs.get(edge)
+            
+            # 先移除已有的该方向边框
+            # 使用正确的方式查找和移除边框元素
+            border_tag = qn(f"w:{edge}")
+            for child in list(tcPr):
+                if child.tag == border_tag:
+                    tcPr.remove(child)
+            
             if edge_data:
                 tag = f"w:{edge}"
                 try:
@@ -48,29 +57,53 @@ def set_cell_border(cell, **kwargs):
 
 
 def find_header_end_row(table):
-    """找到表头结束行（考虑合并单元格）"""
+    """找到表头结束行（以首行纵向合并最大的单元格为准）"""
+    n_rows = len(table.rows)
+    
+    if n_rows == 0:
+        return 1
+    
     max_span = 1
-    for cell in table.rows[0].cells:
-        # 获取单元格的垂直合并跨度
+    first_row = table.rows[0]
+    
+    # 检查第一行的每个单元格是否有垂直合并标记
+    for col_idx, cell in enumerate(first_row.cells):
         v_merge = cell._tc.get_or_add_tcPr().find(qn("w:vMerge"))
+        
         if v_merge is not None:
-            # 检查是否是合并的开始
-            if v_merge.get(qn("w:val")) != "continue":
-                # 计算实际跨越的行数
-                row_idx = 0
-                current_cell = cell
-                while True:
-                    next_row_idx = row_idx + 1
-                    if next_row_idx >= len(table.rows):
-                        break
-                    # 检查下一行对应位置是否有继续标记
-                    next_cell = table.rows[next_row_idx].cells[0]
-                    next_v_merge = next_cell._tc.get_or_add_tcPr().find(qn("w:vMerge"))
-                    if next_v_merge is not None and next_v_merge.get(qn("w:val")) == "continue":
-                        row_idx = next_row_idx
-                        max_span = row_idx + 1
-                    else:
-                        break
+            v_merge_val = v_merge.get(qn("w:val"))
+            
+            # 如果单元格标记为合并开始
+            if v_merge_val is None or v_merge_val == "" or v_merge_val == "restart":
+                current_span = 1
+                
+                # 向下检查：如果下一行相同位置也是restart标记，说明表头跨越多行
+                if n_rows > 1:
+                    next_row = table.rows[1]
+                    if col_idx < len(next_row.cells):
+                        next_cell = next_row.cells[col_idx]
+                        next_v_merge = next_cell._tc.get_or_add_tcPr().find(qn("w:vMerge"))
+                        
+                        if next_v_merge is not None:
+                            next_v_merge_val = next_v_merge.get(qn("w:val"))
+                            # 如果下一行也是restart或空值，说明表头至少跨越两行
+                            if next_v_merge_val is None or next_v_merge_val == "" or next_v_merge_val == "restart":
+                                current_span = 2
+                                
+                                # 继续检查第三行
+                                if n_rows > 2:
+                                    third_row = table.rows[2]
+                                    if col_idx < len(third_row.cells):
+                                        third_cell = third_row.cells[col_idx]
+                                        third_v_merge = third_cell._tc.get_or_add_tcPr().find(qn("w:vMerge"))
+                                        if third_v_merge is not None:
+                                            third_v_merge_val = third_v_merge.get(qn("w:val"))
+                                            if third_v_merge_val is None or third_v_merge_val == "" or third_v_merge_val == "restart":
+                                                current_span = 3
+                
+                if current_span > max_span:
+                    max_span = current_span
+    
     return max_span
 
 
@@ -87,24 +120,45 @@ def apply_table_style(table):
         for j, cell in enumerate(row.cells):
             set_cell_border(cell, top={}, bottom={}, left={}, right={})
 
-    # 设置外边框（顶端和低端实线1.5磅）
-    for j, cell in enumerate(table.rows[0].cells):
-        set_cell_border(cell, top={"sz": "16", "val": "single"})
-    for j, cell in enumerate(table.rows[-1].cells):
-        set_cell_border(cell, bottom={"sz": "16", "val": "single"})
-
-    # 设置标题行底端边框（实线1磅）- 使用表头结束行
-    if n_rows > 0 and header_end_row > 0 and header_end_row <= n_rows:
-        for cell in table.rows[header_end_row - 1].cells:
-            set_cell_border(cell, bottom={"sz": "16", "val": "single"})
-
-    # 设置内边框（虚线0.5磅）- 跳过表头下方的行的顶边框
+    # 设置内边框（虚线0.5磅）- 只设置左边框
     for i, row in enumerate(table.rows):
         for j, cell in enumerate(row.cells):
-            if i > 0 and i != header_end_row:
-                set_cell_border(cell, top={"sz": "8", "val": "dotted"})
             if j > 0:
                 set_cell_border(cell, left={"sz": "8", "val": "dotted"})
+
+    # 设置标题行底端边框（实线0.5磅）- 使用表头结束行，确保整行都是实线
+    if n_rows > 0 and header_end_row > 0 and header_end_row <= n_rows:
+        header_row = table.rows[header_end_row - 1]
+        for cell in header_row.cells:
+            set_cell_border(cell, bottom={"sz": "8", "val": "single"})
+        # 设置下一行的顶部边框
+        if header_end_row < n_rows:
+            next_row = table.rows[header_end_row]
+            for cell in next_row.cells:
+                set_cell_border(cell, top={"sz": "8", "val": "single"})
+
+    # 最后处理：为纵向合并单元格设置上方1磅实线和下方0.5磅实线
+    # 遍历所有行，找到所有纵向合并单元格
+    for i, row in enumerate(table.rows):
+        for j, cell in enumerate(row.cells):
+            v_merge = cell._tc.get_or_add_tcPr().find(qn("w:vMerge"))
+            if v_merge is not None:
+                v_merge_val = v_merge.get(qn("w:val"))
+                # 如果是合并标记（开始或继续）
+                if v_merge_val is None or v_merge_val == "" or v_merge_val == "restart" or v_merge_val == "continue":
+                    # 设置上方1磅实线（只在第一行设置）
+                    if i == 0:
+                        set_cell_border(cell, top={"sz": "16", "val": "single"})
+                    
+                    # 设置下方0.5磅实线
+                    set_cell_border(cell, bottom={"sz": "8", "val": "single"})
+                    
+                    # 设置下一行对应单元格的顶部边框（确保显示实线）
+                    if i + 1 < n_rows:
+                        next_row = table.rows[i + 1]
+                        if j < len(next_row.cells):
+                            next_cell = next_row.cells[j]
+                            set_cell_border(next_cell, top={"sz": "8", "val": "single"})
 
     for row in table.rows:
         for cell in row.cells:
@@ -121,12 +175,14 @@ def apply_table_style(table):
                 paragraph.paragraph_format.line_spacing_rule = 3
 
     if n_rows > 0:
-        for cell in table.rows[0].cells:
-            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-            for paragraph in cell.paragraphs:
-                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                for run in paragraph.runs:
-                    run.font.bold = False
+        # 表头所有行都居中（从第一行到header_end_row）
+        for i in range(min(header_end_row, n_rows)):
+            for cell in table.rows[i].cells:
+                cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+                for paragraph in cell.paragraphs:
+                    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    for run in paragraph.runs:
+                        run.font.bold = False
 
     for row in table.rows[1:]:
         for cell in row.cells:
