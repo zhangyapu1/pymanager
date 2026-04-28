@@ -307,7 +307,7 @@ def show_version_info(ctx):
                 msg = f"当前版本：{CURRENT_VERSION} | 检查更新失败"
         except (OSError, ValueError) as e:
             log_error(f"版本检查异常: {e}")
-            msg = f"当前版本：1.0.0 | 检查更新失败"
+            msg = f"当前版本：{CURRENT_VERSION} | 检查更新失败"
         ctx.schedule_callback(lambda: ctx.set_version_info(msg))
 
     thread = threading.Thread(target=check_version_thread)
