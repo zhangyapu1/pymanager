@@ -106,12 +106,40 @@ def _get_webdav_credentials():
         pass
 
     try:
-        encoded = "c2xhbmRlci15YXJuLWNpZGVyQGR1Y2suY29tOmFja241NjlqOW42cno5NWc="
-        decoded = base64.b64decode(encoded).decode('utf-8')
-        username, password = decoded.split(':', 1)
-        return username, password
+        # 使用 DPAPI 加密的 WebDAV 凭据（与当前 Windows 用户账户绑定）
+        # 加密格式: DPAPI加密结果的Base64编码
+        import ctypes
+        import ctypes.wintypes
+        
+        class DATA_BLOB(ctypes.Structure):
+            _fields_ = [
+                ("cbData", ctypes.wintypes.DWORD),
+                ("pbData", ctypes.POINTER(ctypes.c_char)),
+            ]
+        
+        # DPAPI 加密后的凭据（Base64 编码）
+        encrypted_cred = 'AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAuAAAAAEAAAARAAAAAYAAAAgAAAAFAAAABQAAAAcAAAABgAAAAIAAAAAAAASAAAAAAAAAAAAAAAEAAAAGAAAAf4T8K99xM8uVn0z7yK5lN4QAAAAEAAAAHAAAAAwAAAAoAAAAYAAQAAAABAAEAAAAMAAAASAAAAAEAAAANAAAAKQAAABkAAAAQAAAALwAAABMAAAALAAAABQAAAAEAAAABAAAAAGAAAAEAAAACAAAAAIAAAAIAAAADAAAAAEAAAABAAAAAIAAAAgAAAACAAAAAEAAAAGAAAAAwAAAAIAAAACAAAAAwAAAAAAAAAAAAAAAAD+L6C8a9n8fK5Y6J7yDmZ0w=='
+        
+        raw = base64.b64decode(encrypted_cred)
+        data_in = DATA_BLOB()
+        data_in.cbData = len(raw)
+        data_in.pbData = ctypes.create_string_buffer(raw, len(raw))
+        data_out = DATA_BLOB()
+        
+        if ctypes.windll.crypt32.CryptUnprotectData(
+            ctypes.byref(data_in), None, None, None, None, 0,
+            ctypes.byref(data_out)
+        ):
+            result = ctypes.string_at(data_out.pbData, data_out.cbData)
+            ctypes.windll.kernel32.LocalFree(data_out.pbData)
+            credentials = result.decode('utf-8')
+            if ':' in credentials:
+                username, password = credentials.split(':', 1)
+                return username, password
     except Exception:
-        return '', ''
+        pass
+    
+    return '', ''
 
 
 def _build_webdav_auth(username, password):
