@@ -69,7 +69,7 @@ GITEE_OWNER = "yaopei6678"
 GITEE_REPO = "pymanager"
 
 RELEASE_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
-GITEE_RELEASE_API_URL = f"https://gitee.com/api/v5/repos/{GITEE_OWNER}/{GITEE_REPO}/releases/tags/latest"
+GITEE_TAGS_API_URL = f"https://gitee.com/api/v5/repos/{GITEE_OWNER}/{GITEE_REPO}/tags"
 
 USE_GITEE_FOR_UPDATES = True
 
@@ -159,7 +159,10 @@ def build_auth_headers(parent=None):
 
 
 def fetch_release_data(headers, use_gitee=False):
-    api_url = GITEE_RELEASE_API_URL if use_gitee else RELEASE_API_URL
+    if use_gitee:
+        api_url = GITEE_TAGS_API_URL
+    else:
+        api_url = RELEASE_API_URL
     req = urllib.request.Request(api_url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
@@ -182,7 +185,9 @@ def fetch_release_data(headers, use_gitee=False):
 
 def parse_latest_version(data, use_gitee=False):
     if use_gitee:
-        return data.get("tag_name", "") or data.get("name", "")
+        if isinstance(data, list) and len(data) > 0:
+            return data[0].get("name", "")
+        return ""
     latest = data.get("tag_name", "") or data.get("name", "")
     if latest.startswith("v"):
         latest = latest[1:]
@@ -191,19 +196,13 @@ def parse_latest_version(data, use_gitee=False):
 
 def select_download_url(data, use_gitee=False):
     if use_gitee:
-        assets = data.get("assets", [])
-        for asset in assets:
-            name = asset.get("name", "")
-            url = asset.get("browser_download_url", "")
-            if name.endswith(('.exe', '.zip', '.rar')):
-                return url, name
-        if assets:
-            first = assets[0]
-            return first.get("browser_download_url", ""), first.get("name", "")
-        zipball = data.get("zipball", {})
-        if zipball:
-            return zipball.get("download_url", ""), "源码包(zip)"
-        return data.get("html_url", GITEE_PROJECT_URL), "项目主页"
+        if isinstance(data, list) and len(data) > 0:
+            first_tag = data[0]
+            commit_sha = first_tag.get("commit", {}).get("sha", "")
+            if commit_sha:
+                download_url = f"{GITEE_PROJECT_URL}/archive/refs/tags/{first_tag.get('name', '')}.zip"
+                return download_url, f"{first_tag.get('name', '')}.zip"
+        return GITEE_PROJECT_URL, "项目主页"
 
     assets = data.get("assets", [])
     preferred_exts = ('.exe', '.zip', '.rar')
