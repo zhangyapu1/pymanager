@@ -89,9 +89,9 @@ def apply_table_style(table):
 
     # 设置外边框（顶端和低端实线1.5磅）
     for j, cell in enumerate(table.rows[0].cells):
-        set_cell_border(cell, top={"sz": "24", "val": "single"})
+        set_cell_border(cell, top={"sz": "16", "val": "single"})
     for j, cell in enumerate(table.rows[-1].cells):
-        set_cell_border(cell, bottom={"sz": "24", "val": "single"})
+        set_cell_border(cell, bottom={"sz": "16", "val": "single"})
 
     # 设置标题行底端边框（实线1磅）- 使用表头结束行
     if n_rows > 0 and header_end_row > 0 and header_end_row <= n_rows:
@@ -110,8 +110,12 @@ def apply_table_style(table):
         for cell in row.cells:
             for paragraph in cell.paragraphs:
                 for run in paragraph.runs:
-                    run.font.name = 'Arial Narrow'
-                    run._element.rPr.rFonts.set(qn('w:eastAsia'), 'SimSun')
+                    text = run.text
+                    if text and not any('一' <= c <= '鿿' for c in text):
+                        run.font.name = 'Times New Roman'
+                    else:
+                        run.font.name = 'Arial Narrow'
+                        run._element.rPr.rFonts.set(qn('w:eastAsia'), 'SimSun')
                     run.font.size = Pt(10.5)
                 paragraph.paragraph_format.line_spacing = Pt(20)
                 paragraph.paragraph_format.line_spacing_rule = 3
