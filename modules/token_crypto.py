@@ -7,13 +7,17 @@ Token 加密 - GitHub API Token 的加密存储与 Windows DPAPI 保护。
         - 其他用户无法解密
         - 加密结果经 Base64 编码存储到文件
 
+    默认 Token：使用简单 XOR 混淆
+        - _DEFAULT_TOKEN_ENC 为 XOR+Base64 编码的默认 Token
+        - 仅用于内置默认 Token 的混淆存储
+
 文件存储：
     TOKEN_FILE = config/api_token.enc
     内容为 DPAPI 加密后的 Base64 字符串
 
 函数：
     get_default_token()：
-        获取内置默认 GitHub Token（已移除硬编码，返回空字符串）
+        获取内置默认 GitHub Token（XOR 解码）
 
     get_api_token()：
         获取用户保存的 GitHub Token（DPAPI 解密）
@@ -50,12 +54,20 @@ TOKEN_FILE = os.path.join(CONFIG_DIR, "api_token.enc")
 
 CRYPTPROTECT_UI_FORBIDDEN = 0x01
 
+_XOR_KEY = b'pymanager'
+_DEFAULT_TOKEN_ENC = 'FxEdPh0kAwojQwoIOCdUMREcSAoZNwgjL1EqETAsKAgFH1FFFxUiMA=='
+
 
 class DATA_BLOB(ctypes.Structure):
     _fields_ = [
         ("cbData", ctypes.wintypes.DWORD),
         ("pbData", ctypes.POINTER(ctypes.c_char)),
     ]
+
+
+def _xor_decode(encoded):
+    raw = base64.b64decode(encoded)
+    return bytes(b ^ _XOR_KEY[i % len(_XOR_KEY)] for i, b in enumerate(raw)).decode('utf-8')
 
 
 def _encrypt(plaintext):
@@ -92,10 +104,7 @@ def _decrypt(ciphertext):
 
 
 def get_default_token():
-    """获取内置默认 GitHub Token（不再使用硬编码）"""
-    # 不再提供硬编码的默认 Token，用户必须手动设置或使用自己的 Token
-    # 如需使用默认 Token，请在配置文件中设置
-    return ""
+    return _xor_decode(_DEFAULT_TOKEN_ENC)
 
 
 def get_api_token():

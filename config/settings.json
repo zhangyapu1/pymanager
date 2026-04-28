@@ -1,0 +1,17 @@
+{
+  "window": {
+    "width": 950,
+    "height": 600,
+    "x": 537,
+    "y": 75
+  },
+  "log": {
+    "retain_days": 7,
+    "max_file_size_mb": 1
+  },
+  "favorites": [],
+  "script_icons": {},
+  "recent_runs": {
+    "test_local_ai.py": 1777392869.071933
+  }
+}
