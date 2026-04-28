@@ -11,6 +11,10 @@
     log_info(info_msg)     - 记录 INFO 级别日志
     log_output(message)    - 记录程序输出到 OUTPUT_LOG_FILE
 
+结构化日志：
+    get_structured_logger(name) - 获取标准 logging 模块的 logger，支持 JSON 格式输出
+    init_structured_logging()   - 初始化结构化日志系统
+
 日志格式：
     [{LEVEL}] {timestamp} - {message}
     {stack_trace}（如有异常）
@@ -39,13 +43,81 @@ import time
 import traceback
 import sys
 import os
+import logging
+import json
 
 LOG_DIR = os.path.join(os.path.dirname(__file__), '..', 'logs')
 ERROR_LOG_FILE = os.path.join(LOG_DIR, 'error_log.txt')
 OUTPUT_LOG_FILE = os.path.join(LOG_DIR, 'output_log.txt')
+STRUCTURED_LOG_FILE = os.path.join(LOG_DIR, 'structured_log.json')
 
 LOG_RETENTION_DAYS = 7
 LOG_MAX_SIZE = 1 * 1024 * 1024
+
+_structured_logger = None
+
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_data = {
+            "timestamp": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno
+        }
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_data, ensure_ascii=False)
+
+
+def init_structured_logging(log_file=None):
+    global _structured_logger
+    log_file = log_file or STRUCTURED_LOG_FILE
+
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+    _structured_logger = logging.getLogger("pymanager.structured")
+    _structured_logger.setLevel(logging.DEBUG)
+
+    if _structured_logger.handlers:
+        return _structured_logger
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(JSONFormatter())
+
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.WARNING)
+    console_handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+
+    _structured_logger.addHandler(file_handler)
+    _structured_logger.addHandler(console_handler)
+
+    return _structured_logger
+
+
+def get_structured_logger(name=None):
+    if _structured_logger is None:
+        init_structured_logging()
+    if name:
+        return logging.getLogger(f"pymanager.{name}")
+    return _structured_logger
+
+
+def log_structured(level, message, **kwargs):
+    logger = get_structured_logger()
+    extra_data = {"extra_data": kwargs} if kwargs else {}
+    if level == "error":
+        logger.error(message, extra=extra_data)
+    elif level == "warning":
+        logger.warning(message, extra=extra_data)
+    elif level == "info":
+        logger.info(message, extra=extra_data)
+    elif level == "debug":
+        logger.debug(message, extra=extra_data)
 
 
 def _get_log_settings():
@@ -65,8 +137,8 @@ def _ensure_dir(log_file):
     if log_dir and not os.path.exists(log_dir):
         try:
             os.makedirs(log_dir, exist_ok=True)
-        except OSError:
-            pass
+        except OSError as e:
+            print(f"[WARNING] 无法创建日志目录 {log_dir}: {e}", file=sys.stderr)
 
 def log_error(error_msg, log_file=None):
     _log('ERROR', error_msg, log_file or ERROR_LOG_FILE)
@@ -83,8 +155,8 @@ def log_output(message):
     try:
         with open(OUTPUT_LOG_FILE, "a", encoding="utf-8") as f:
             f.write(f"[{timestamp}] {message}\n")
-    except OSError:
-        pass
+    except OSError as e:
+        print(f"[WARNING] 日志写入失败: {e}", file=sys.stderr)
 
 def _log(level, message, log_file):
     timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -100,8 +172,8 @@ def _log(level, message, log_file):
     try:
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(full_log)
-    except OSError:
-        pass
+    except OSError as e:
+        print(f"[WARNING] 日志写入失败 [{level}]: {e}", file=sys.stderr)
 
 def cleanup_logs(log_dir=None, retention_days=None, max_size=None):
     log_dir = log_dir or LOG_DIR
@@ -127,8 +199,8 @@ def cleanup_logs(log_dir=None, retention_days=None, max_size=None):
                 if os.path.getmtime(filepath) < cutoff:
                     os.remove(filepath)
                     continue
-            except OSError:
-                pass
+            except OSError as e:
+                print(f"[WARNING] 删除过期日志失败 {filepath}: {e}", file=sys.stderr)
 
             try:
                 if os.path.getsize(filepath) > max_size:
@@ -140,7 +212,7 @@ def cleanup_logs(log_dir=None, retention_days=None, max_size=None):
                         remaining = f.read()
                     with open(filepath, 'w', encoding='utf-8') as f:
                         f.write(remaining)
-            except (OSError, UnicodeDecodeError):
-                pass
-    except OSError:
-        pass
+            except (OSError, UnicodeDecodeError) as e:
+                print(f"[WARNING] 截断日志文件失败 {filepath}: {e}", file=sys.stderr)
+    except OSError as e:
+        print(f"[WARNING] 清理日志目录失败 {log_dir}: {e}", file=sys.stderr)
