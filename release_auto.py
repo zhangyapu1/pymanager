@@ -134,6 +134,7 @@ def main():
     # 解析命令行参数
     args = sys.argv[1:]
     i = 0
+    version_set = False
     while i < len(args):
         arg = args[i]
         if arg == "--skip-webdav":
@@ -143,8 +144,9 @@ def main():
             publish_github = False
             print_info("跳过 GitHub 发布")
         elif not arg.startswith("-"):
-            if version == CURRENT_VERSION:
+            if not version_set:
                 version = arg
+                version_set = True
                 print_info(f"使用指定版本: {version}")
             else:
                 changelog = read_changelog_from_file(arg)
