@@ -61,10 +61,17 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 PROJECT_URL = "https://github.com/zhangyapu1/pymanager"
+GITEE_PROJECT_URL = "https://gitee.com/yaopei6678/pymanager"
 
 REPO_OWNER = "zhangyapu1"
 REPO_NAME = "pymanager"
+GITEE_OWNER = "yaopei6678"
+GITEE_REPO = "pymanager"
+
 RELEASE_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
+GITEE_RELEASE_API_URL = f"https://gitee.com/api/v5/repos/{GITEE_OWNER}/{GITEE_REPO}/releases/tags/latest"
+
+USE_GITEE_FOR_UPDATES = True
 
 DOWNLOAD_TIMEOUT = 60
 
@@ -151,8 +158,9 @@ def build_auth_headers(parent=None):
     return headers, "未认证"
 
 
-def fetch_release_data(headers):
-    req = urllib.request.Request(RELEASE_API_URL, headers=headers)
+def fetch_release_data(headers, use_gitee=False):
+    api_url = GITEE_RELEASE_API_URL if use_gitee else RELEASE_API_URL
+    req = urllib.request.Request(api_url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             if resp.status != 200:
@@ -160,7 +168,7 @@ def fetch_release_data(headers):
             return json.loads(resp.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
         if e.code in (403, 429):
-            raise RateLimitError("GitHub API 速率限制已达上限")
+            raise RateLimitError("API 速率限制已达上限")
         raise
     except ssl.SSLError:
         ctx = ssl.create_default_context()
@@ -172,14 +180,31 @@ def fetch_release_data(headers):
             return json.loads(resp.read().decode('utf-8'))
 
 
-def parse_latest_version(data):
+def parse_latest_version(data, use_gitee=False):
+    if use_gitee:
+        return data.get("tag_name", "") or data.get("name", "")
     latest = data.get("tag_name", "") or data.get("name", "")
     if latest.startswith("v"):
         latest = latest[1:]
     return latest
 
 
-def select_download_url(data):
+def select_download_url(data, use_gitee=False):
+    if use_gitee:
+        assets = data.get("assets", [])
+        for asset in assets:
+            name = asset.get("name", "")
+            url = asset.get("browser_download_url", "")
+            if name.endswith(('.exe', '.zip', '.rar')):
+                return url, name
+        if assets:
+            first = assets[0]
+            return first.get("browser_download_url", ""), first.get("name", "")
+        zipball = data.get("zipball", {})
+        if zipball:
+            return zipball.get("download_url", ""), "源码包(zip)"
+        return data.get("html_url", GITEE_PROJECT_URL), "项目主页"
+
     assets = data.get("assets", [])
     preferred_exts = ('.exe', '.zip', '.rar')
 
@@ -210,37 +235,25 @@ def select_download_url(data):
 
 
 def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
-    try:
-        headers, auth_status = build_auth_headers(parent)
-        data = fetch_release_data(headers)
-        latest = parse_latest_version(data)
-        download_url, asset_name = select_download_url(data)
+    use_gitee = USE_GITEE_FOR_UPDATES
+    project_url = GITEE_PROJECT_URL if use_gitee else PROJECT_URL
 
-        _output(output_callback, f"[{auth_status}] 最新版本: {latest}, 下载链接: {download_url}")
+    try:
+        headers = {"Accept": "application/json"}
+        data = fetch_release_data(headers, use_gitee=use_gitee)
+        latest = parse_latest_version(data, use_gitee=use_gitee)
+        download_url, asset_name = select_download_url(data, use_gitee=use_gitee)
+
+        _output(output_callback, f"[{'Gitee' if use_gitee else 'GitHub'}] 最新版本: {latest}, 下载链接: {download_url}")
         return latest, download_url
     except RateLimitError:
-        if parent and not get_api_token():
-            token = prompt_for_token(parent, ui_callback=ui_callback)
-            if token:
-                headers, auth_status = build_auth_headers(parent)
-                try:
-                    data = fetch_release_data(headers)
-                    latest = parse_latest_version(data)
-                    download_url, asset_name = select_download_url(data)
-                    _output(output_callback, f"[{auth_status}] 最新版本: {latest}, 下载链接: {download_url}")
-                    return latest, download_url
-                except RateLimitError:
-                    _output_error(output_callback, "用户Token也已达速率限制")
-                    if ui_callback:
-                        ui_callback.show_warning("API 限制", "当前Token的API请求次数已达上限，请稍后再试。", parent=parent)
-                    return CURRENT_VERSION, PROJECT_URL
-        _output_error(output_callback, "GitHub API 速率限制已达上限")
+        _output_error(output_callback, "API 速率限制已达上限")
         if ui_callback:
-            ui_callback.show_warning("API 限制", "内置Token的API请求次数已达上限。\n请输入您自己的GitHub Token以提高限额。", parent=parent)
-        return CURRENT_VERSION, PROJECT_URL
+            ui_callback.show_warning("API 限制", "API请求次数已达上限，请稍后再试。", parent=parent)
+        return CURRENT_VERSION, project_url
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         _output_error(output_callback, f"获取版本失败: {e}")
-        return CURRENT_VERSION, PROJECT_URL
+        return CURRENT_VERSION, project_url
 
 
 def download_file(url, dest_path, parent=None, output_callback=None, ui_callback=None, progress_callback=None):
