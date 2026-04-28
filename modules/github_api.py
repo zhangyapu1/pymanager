@@ -461,7 +461,7 @@ def download_file(url, dest_path, parent=None, output_callback=None, ui_callback
 
 
 def get_latest_version():
-    latest, _ = fetch_latest_version()
+    latest, _, _, _ = fetch_latest_version()
     return latest
 
 
