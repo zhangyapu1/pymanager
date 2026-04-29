@@ -32,7 +32,11 @@
   "favorites": [],
   "script_icons": {},
   "recent_runs": {
-    "test_local_ai.py": 1777392869.071933
+    "test_local_ai.py": 1777392869.071933,
+    "format_tables_gui.py": 1777444775.025394,
+    "format_tables_1.0.py": 1777444821.285133,
+    "format_tables_1.0_gui.py": 1777447566.9603474,
+    "format_tables_1.5_gui.py": 1777447013.4364097
   },
   "groups_meta": {
     "默认分组": {
@@ -40,6 +44,9 @@
     },
     "系统工具": {
       "order": 3
+    },
+    "__pycache__": {
+      "order": 2
     }
   },
   "translate": {

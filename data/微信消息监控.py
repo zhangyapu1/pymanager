@@ -3,11 +3,8 @@
 """
 微信消息监控 - 监控微信数据库并发送 Windows 通知
 
-使用方式：
-    python 微信消息监控.py
-
 依赖：
-    pip install plyer
+    pip install plyer（首次运行会自动安装）
 
 微信数据库路径（自动检测）：
     %APPDATA%\Tencent\WeChat\<随机>\MicroMsg.db

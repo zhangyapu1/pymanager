@@ -1,3 +1,0 @@
-ttkbootstrap>=1.10.0
-Pillow>=10.0.0
-requests>=2.31.0

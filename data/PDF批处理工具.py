@@ -1,6 +1,9 @@
 """
 PDF 批处理工具 - 批量合并、拆分和转换 PDF 文件。
 
+依赖：
+    pip install PyMuPDF reportlab pypdf
+
 功能：
     - 合并 PDF：将多个 PDF 文件合并为一个文件
     - 拆分 PDF：将一个 PDF 按页码范围拆分为多个文件

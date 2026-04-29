@@ -289,3 +289,33 @@
 [2026-04-29 07:58:55,296] [INFO] [WebDAV] 最新版本: 1.9.0, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.0.zip
 [2026-04-29 07:58:57,604] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
 [2026-04-29 07:58:57,704] [INFO] [WebDAV] 最新版本: 1.9.0, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.0.zip
+[2026-04-29 08:50:02,048] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\version.json -> https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 08:50:02,048] [INFO] [WebDAV] 文件大小: 544 bytes
+[2026-04-29 08:50:02,304] [INFO] [WebDAV] 上传成功: version.json
+[2026-04-29 08:50:02,306] [INFO] [WebDAV] 开始上传: C:\Users\ahdsz\Documents\GitHub\pymanager\pymanager-1.9.1.zip -> https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 08:50:02,307] [INFO] [WebDAV] 文件大小: 106942 bytes
+[2026-04-29 08:50:02,528] [INFO] [WebDAV] 上传成功: pymanager-1.9.1.zip
+[2026-04-29 14:24:01,913] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:24:02,068] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 14:28:24,719] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:28:24,833] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 14:50:06,882] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:50:07,004] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 14:53:59,593] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:53:59,698] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 14:54:03,288] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:54:03,423] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 14:54:06,819] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:54:06,923] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 14:54:08,882] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:54:09,002] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 14:56:09,860] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 14:56:09,982] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 15:09:01,321] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 15:09:01,446] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 15:11:05,632] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 15:11:05,745] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 15:16:49,269] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 15:16:49,384] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
+[2026-04-29 15:23:10,920] [INFO] [WebDAV] 检查更新: https://dav.jianguoyun.com/dav/pymanager/version.json
+[2026-04-29 15:23:11,033] [INFO] [WebDAV] 最新版本: 1.9.1, 下载链接: https://dav.jianguoyun.com/dav/pymanager/pymanager-1.9.1.zip
