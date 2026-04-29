@@ -106,8 +106,8 @@ def get_default_token():
         token = app_config["github"].get("token", "").strip()
         if token:
             return token
-    except Exception:
-        pass
+    except Exception as e:
+        log_error(f"获取默认Token失败: {e}")
     return ""
 
 
@@ -137,8 +137,8 @@ def delete_api_token():
         app_config = load_app_config()
         app_config["github"]["encrypted_token"] = ""
         save_app_config(app_config)
-    except Exception:
-        pass
+    except Exception as e:
+        log_error(f"删除Token失败: {e}")
 
 
 def delete_token_ui(ctx):
@@ -192,8 +192,8 @@ def show_token_config_dialog(parent):
             enc_key = keys.get(key_name, "")
             if enc_key:
                 return decrypt(enc_key)
-        except Exception:
-            pass
+        except Exception as e:
+            log_error(f"解密密钥失败 [{section}.{key_name}]: {e}")
         return ""
 
     def _set_encrypted_key_local(section, key_name, value):
@@ -387,8 +387,8 @@ def _get_decrypted_key(app_config, section, key_name):
         enc_key = keys.get(key_name, "")
         if enc_key:
             return decrypt(enc_key)
-    except Exception:
-        pass
+    except Exception as e:
+        log_error(f"解密密钥失败 [{section}.{key_name}]: {e}")
     return ""
 
 

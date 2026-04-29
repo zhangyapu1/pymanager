@@ -40,6 +40,7 @@ import json
 import ssl
 import webbrowser
 import base64
+import urllib.parse
 
 from .config import CURRENT_VERSION
 
@@ -90,6 +91,45 @@ class RateLimitError(Exception):
     pass
 
 
+# 需要禁用 SSL 验证的域名（使用自签名证书）
+INSECURE_HOSTS = {
+    "dav.jianguoyun.com",  # 坚果云 - 使用自签名证书
+    "localhost",
+    "127.0.0.1",
+}
+
+
+def _create_ssl_context(url=None, verify=True):
+    """创建 SSL 上下文
+
+    Args:
+        url: 请求的 URL，用于判断是否为已知需要禁用验证的域名
+        verify: 是否验证 SSL 证书，默认 True
+
+    Returns:
+        ssl.SSLContext: 配置好的 SSL 上下文
+    """
+    if not verify:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+
+    if url:
+        try:
+            parsed = urllib.parse.urlparse(url)
+            host = parsed.netloc.split(':')[0]
+            if host in INSECURE_HOSTS:
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                return ctx
+        except Exception:
+            pass
+
+    return ssl.create_default_context()
+
+
 def _get_webdav_credentials():
     """从统一配置文件获取 WebDAV 凭据"""
     try:
@@ -128,9 +168,7 @@ def fetch_latest_version_webdav(output_callback=None):
 
         req = urllib.request.Request(version_file_url, headers=headers)
 
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
+        ctx = _create_ssl_context(version_file_url)
 
         with urllib.request.urlopen(req, timeout=15, context=ctx) as response:
             data = json.loads(response.read().decode('utf-8'))
@@ -168,9 +206,7 @@ def download_file_webdav(url, dest_path, username="", password="", output_callba
 
         req = urllib.request.Request(url, headers=headers)
 
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
+        ctx = _create_ssl_context(url)
 
         with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=ctx) as response:
             total_size = int(response.headers.get('Content-Length', 0))
@@ -227,9 +263,7 @@ def webdav_upload_file(local_path, remote_name, output_callback=None):
             headers["Content-Length"] = str(len(data))
             req = urllib.request.Request(url, data=data, headers=headers, method="PUT")
 
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
+            ctx = _create_ssl_context(url)
 
             with urllib.request.urlopen(req, timeout=300, context=ctx) as response:
                 if response.status in (200, 201, 204):
@@ -317,9 +351,7 @@ def fetch_release_data(headers):
             raise RateLimitError("API 速率限制已达上限")
         raise
     except ssl.SSLError:
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
+        ctx = _create_ssl_context(api_url, verify=False)
         with urllib.request.urlopen(req, timeout=15, context=ctx) as resp:
             if resp.status != 200:
                 raise Exception(f"HTTP {resp.status}")
@@ -427,9 +459,7 @@ def download_file(url, dest_path, parent=None, output_callback=None, ui_callback
         try:
             opener = urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT)
         except ssl.SSLError:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
+            ctx = _create_ssl_context(url, verify=False)
             opener = urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=ctx)
         with opener as response:
             total_size = int(response.headers.get('Content-Length', 0))
@@ -501,9 +531,7 @@ def create_github_release(version, changelog, output_callback=None):
             with urllib.request.urlopen(req, timeout=30) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
         except ssl.SSLError:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
+            ctx = _create_ssl_context(url, verify=False)
             with urllib.request.urlopen(req, timeout=30, context=ctx) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
 
@@ -566,9 +594,7 @@ def upload_github_asset(upload_url_template, file_path, file_name, output_callba
             with urllib.request.urlopen(req, timeout=300) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
         except ssl.SSLError:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
+            ctx = _create_ssl_context(upload_url, verify=False)
             with urllib.request.urlopen(req, timeout=300, context=ctx) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
 

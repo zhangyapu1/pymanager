@@ -53,7 +53,7 @@ import sys
 import json
 from pathlib import Path
 
-CURRENT_VERSION = "1.9.0"
+CURRENT_VERSION = "1.9.1"
 
 PROTECTED_DIRS = {
     "data", "config", "logs", "backups",
