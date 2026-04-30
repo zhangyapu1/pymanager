@@ -34,14 +34,10 @@ env/
 *~
 
 # Logs
-logs/*.txt
-logs/*.json
-!logs/.gitkeep
+logs/
 
-# Config with secrets
-config/api_keys.json
-config/api_token.enc
-config/ai_config.json
+# Config
+config/
 
 # OS
 .DS_Store
