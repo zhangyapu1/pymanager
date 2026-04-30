@@ -61,3 +61,15 @@ backups/
 *.zip
 version.json
 changelog.txt
+
+# Documentation
+REQUIREMENTS.md
+
+# Config files
+config/app_config.example.json
+config/settings.json
+config/groups_meta.json
+config/pdf_tool.json
+
+# Testing
+tests/
