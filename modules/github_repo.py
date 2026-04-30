@@ -28,40 +28,57 @@ import base64
 import json
 from urllib.request import urlopen, Request
 from urllib.parse import quote
+from urllib.error import HTTPError
 
-from modules.token_crypto import get_api_token, get_default_token as get_github_default_token
+from modules.token_crypto import get_api_token, get_default_token as get_github_default_token, delete_api_token
 
 GITHUB_API = "https://api.github.com"
 USER_AGENT = "pymanager/1.5.0"
 PER_PAGE = 30
 
 
-def _get_github_headers():
+def _get_github_headers(use_token=True):
     headers = {"User-Agent": USER_AGENT, "Accept": "application/vnd.github.v3+json"}
-    token = get_api_token()
-    if not token:
-        token = get_github_default_token()
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    if use_token:
+        token = get_api_token()
+        if not token:
+            token = get_github_default_token()
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
     return headers
 
 
-def _request(url):
-    req = Request(url, headers=_get_github_headers())
-    with urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+def _request(url, use_token=True):
+    req = Request(url, headers=_get_github_headers(use_token))
+    try:
+        with urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as e:
+        if e.code == 401 and use_token:
+            # Token 无效，删除保存的用户 Token（如果有），然后尝试匿名请求
+            delete_api_token()
+            return _request(url, use_token=False)
+        raise
 
 
-def _request_raw(url):
+def _request_raw(url, use_token=True):
     headers = {"User-Agent": USER_AGENT}
-    token = get_api_token()
-    if not token:
-        token = get_github_default_token()
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    if use_token:
+        token = get_api_token()
+        if not token:
+            token = get_github_default_token()
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
     req = Request(url, headers=headers)
-    with urlopen(req, timeout=15) as resp:
-        return resp.read().decode("utf-8")
+    try:
+        with urlopen(req, timeout=15) as resp:
+            return resp.read().decode("utf-8")
+    except HTTPError as e:
+        if e.code == 401 and use_token:
+            # Token 无效，删除保存的用户 Token（如果有），然后尝试匿名请求
+            delete_api_token()
+            return _request_raw(url, use_token=False)
+        raise
 
 
 def search_repos(keyword, page=1):
