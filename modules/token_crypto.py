@@ -54,6 +54,10 @@ CRYPTPROTECT_UI_FORBIDDEN = 0x01
 
 _XOR_KEY = b'pymanager'
 
+# 默认 GitHub Token（XOR+Base64 加密）
+# 用户填入自己的 token 后，更新将不再使用此默认值
+_DEFAULT_TOKEN_ENC = "FxEdPj4lIQMfAwEFNAMmAggBSDMfIx8nLzMFFgs8MVksMlQ5QBEYLw=="
+
 
 class DATA_BLOB(ctypes.Structure):
     _fields_ = [
@@ -103,9 +107,22 @@ def _decrypt(ciphertext):
 def get_default_token():
     try:
         app_config = load_app_config()
-        token = app_config["github"].get("token", "").strip()
-        if token:
-            return token
+        # 优先使用用户自己保存的 token（encrypted_token）
+        encrypted_token = app_config["github"].get("encrypted_token", "").strip()
+        if encrypted_token:
+            try:
+                return _decrypt(encrypted_token)
+            except Exception:
+                pass
+        
+        # 其次检查配置文件中的明文 token（旧版兼容）
+        plain_token = app_config["github"].get("token", "").strip()
+        if plain_token:
+            return plain_token
+        
+        # 最后使用硬编码的默认加密 token
+        if _DEFAULT_TOKEN_ENC:
+            return _xor_decode(_DEFAULT_TOKEN_ENC)
     except Exception as e:
         log_error(f"获取默认Token失败: {e}")
     return ""
@@ -179,7 +196,7 @@ def show_token_config_dialog(parent):
     notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
     content = {}
-    for name in ["GitHub", "AI服务", "WebDAV", "翻译服务"]:
+    for name in ["GitHub", "AI服务", "翻译服务"]:
         frame = ttk.Frame(notebook, padding=15)
         notebook.add(frame, text=name)
         content[name] = frame
@@ -288,25 +305,6 @@ def show_token_config_dialog(parent):
     entries["ai_local_model"].insert(0, app_config["ai"].get("local_model", ""))
     create_help_text(f, "例如：DeepSeek-V3.2, Qwen3.5-Plus 等。需本地服务已启动并监听 127.0.0.1:8080", 17)
 
-    # ========== WebDAV Tab ==========
-    f = content["WebDAV"]
-    f.columnconfigure(1, weight=1)
-
-    create_section_header(f, "☁️ WebDAV 配置", 0)
-    create_help_text(f, "用途：用于程序更新时的文件同步和版本检查。提示：目前使用坚果云 WebDAV 服务。", 1)
-
-    entries["webdav_url"] = create_labeled_entry(f, "服务器地址:", 2)
-    entries["webdav_url"].insert(0, app_config["webdav"].get("url", ""))
-
-    entries["webdav_user"] = create_labeled_entry(f, "用户名:", 3)
-    entries["webdav_user"].insert(0, app_config["webdav"].get("username", ""))
-    create_help_text(f, "获取：坚果云注册邮箱即为用户名", 4)
-
-    entries["webdav_pass"] = create_labeled_entry(f, "密码:", 5)
-    entries["webdav_pass"].insert(0, app_config["webdav"].get("password", ""))
-    entries["webdav_pass"].config(show="*")
-    create_help_line(f, "获取：坚果云 → 设置 → 第三方应用管理 → 创建应用密码", 6)
-
     # ========== 翻译服务 Tab ==========
     f = content["翻译服务"]
     f.columnconfigure(1, weight=1)
@@ -356,10 +354,6 @@ def show_token_config_dialog(parent):
             _set_encrypted_key_local("ai", "智谱AI (GLM-4-Flash)", entries["ai_zhipu"].get().strip())
             _set_encrypted_key_local("ai", "DeepSeek", entries["ai_deepseek"].get().strip())
             _set_encrypted_key_local("ai", "本地服务 (127.0.0.1:8080)", entries["ai_local"].get().strip())
-
-            app_config["webdav"]["url"] = entries["webdav_url"].get().strip()
-            app_config["webdav"]["username"] = entries["webdav_user"].get().strip()
-            app_config["webdav"]["password"] = entries["webdav_pass"].get().strip()
 
             app_config["translate"]["provider"] = entries["trans_provider"].get()
             _set_encrypted_key_local("translate", "百度翻译_APP_ID", entries["baidu_appid"].get().strip())

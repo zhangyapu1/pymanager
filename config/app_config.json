@@ -14,11 +14,6 @@
     "local_model": "Qwen3.5-Plus",
     "custom_keys": {}
   },
-  "webdav": {
-    "url": "https://dav.jianguoyun.com/dav/pymanager/",
-    "username": "slander-yarn-cider@duck.com",
-    "password": "ackn569j9n6rz95g"
-  },
   "window": {
     "width": 950,
     "height": 583,

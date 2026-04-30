@@ -11,15 +11,12 @@ GitHub API 通信 - 版本查询、文件下载、Release 发布。
 核心函数：
     fetch_latest_version(parent, output_callback, ui_callback)：
         获取最新版本信息
-        - 优先使用 WebDAV（坚果云）
-        - 其次使用 Cloudflare Workers
-        - 最后回退到 GitHub
+        - 使用 GitHub Releases
 
     download_file(url, dest_path, ...)：
         下载更新文件
         - 支持进度回调
         - SSL 错误时自动降级验证
-        - WebDAV 下载保护（只读）
         - 非标准链接引导浏览器手动下载
 
     create_github_release(version, changelog, output_callback)：
@@ -60,11 +57,6 @@ REPO_NAME = "pymanager"
 RELEASE_API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
 DOWNLOAD_TIMEOUT = 60
 
-# WebDAV 更新配置（坚果云）- 优先使用
-WEBDAV_CONFIG_KEY = "webdav_update"
-USE_WEBDAV_FOR_UPDATES = True
-WEBDAV_URL = "https://dav.jianguoyun.com/dav/pymanager/"
-
 from modules.token_crypto import get_api_token, save_api_token, get_default_token
 from modules.config import load_app_config
 
@@ -93,7 +85,6 @@ class RateLimitError(Exception):
 
 # 需要禁用 SSL 验证的域名（使用自签名证书）
 INSECURE_HOSTS = {
-    "dav.jianguoyun.com",  # 坚果云 - 使用自签名证书
     "localhost",
     "127.0.0.1",
 }
@@ -128,156 +119,6 @@ def _create_ssl_context(url=None, verify=True):
             pass
 
     return ssl.create_default_context()
-
-
-def _get_webdav_credentials():
-    """从统一配置文件获取 WebDAV 凭据"""
-    try:
-        app_config = load_app_config()
-        webdav_config = app_config.get("webdav", {})
-        username = webdav_config.get('username', '')
-        password = webdav_config.get('password', '')
-        if username and password and username != "YOUR_WEBDAV_USERNAME":
-            return username, password
-    except Exception:
-        pass
-    return '', ''
-
-
-def _build_webdav_auth(username, password):
-    """构建 WebDAV Basic Auth 认证头"""
-    if not username or not password:
-        return None
-    credentials = f"{username}:{password}"
-    encoded = base64.b64encode(credentials.encode('utf-8')).decode('ascii')
-    return f"Basic {encoded}"
-
-
-def fetch_latest_version_webdav(output_callback=None):
-    """从 WebDAV 获取最新版本信息"""
-    try:
-        version_file_url = f"{WEBDAV_URL}version.json"
-        _output(output_callback, f"[WebDAV] 检查更新: {version_file_url}")
-
-        headers = {"Accept": "application/json"}
-
-        username, password = _get_webdav_credentials()
-        auth = _build_webdav_auth(username, password)
-        if auth:
-            headers["Authorization"] = auth
-
-        req = urllib.request.Request(version_file_url, headers=headers)
-
-        ctx = _create_ssl_context(version_file_url)
-
-        with urllib.request.urlopen(req, timeout=15, context=ctx) as response:
-            data = json.loads(response.read().decode('utf-8'))
-
-        latest = data.get("version", CURRENT_VERSION)
-        download_filename = data.get("downloadUrl", f"pymanager-{latest}.zip")
-        download_url = f"{WEBDAV_URL}{download_filename}"
-        changelog = data.get("changelog", "")
-        release_date = data.get("releaseDate", "")
-
-        _output(output_callback, f"[WebDAV] 最新版本: {latest}, 下载链接: {download_url}")
-        return latest, download_url, changelog, release_date
-
-    except Exception as e:
-        _output_error(output_callback, f"WebDAV更新检查失败: {e}")
-        return None, None, "", ""
-
-
-def download_file_webdav(url, dest_path, username="", password="", output_callback=None, progress_callback=None):
-    """从 WebDAV 下载文件（只读操作，禁止上传）"""
-    allowed_prefix = WEBDAV_URL.rstrip('/')
-    if not url.startswith(allowed_prefix):
-        _output_error(output_callback, f"WebDAV 安全拒绝：不允许多级目录访问")
-        return False
-
-    try:
-        _output(output_callback, f"[WebDAV] 开始下载: {url}")
-
-        headers = {}
-        if not username or not password:
-            username, password = _get_webdav_credentials()
-        auth = _build_webdav_auth(username, password)
-        if auth:
-            headers["Authorization"] = auth
-
-        req = urllib.request.Request(url, headers=headers)
-
-        ctx = _create_ssl_context(url)
-
-        with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=ctx) as response:
-            total_size = int(response.headers.get('Content-Length', 0))
-            downloaded_size = 0
-            chunk_size = 1024 * 1024
-
-            with open(dest_path, 'wb') as f:
-                while True:
-                    chunk = response.read(chunk_size)
-                    if not chunk:
-                        break
-                    f.write(chunk)
-                    downloaded_size += len(chunk)
-
-                    if progress_callback and total_size > 0:
-                        progress = int((downloaded_size / total_size) * 100)
-                        try:
-                            progress_callback(progress, f"下载中... {progress}%")
-                        except TypeError:
-                            progress_callback(progress)
-
-        _output(output_callback, f"[WebDAV] 下载完成: {dest_path}")
-        return True
-
-    except Exception as e:
-        _output_error(output_callback, f"WebDAV下载失败: {e}")
-        return False
-
-
-def webdav_upload_file(local_path, remote_name, output_callback=None):
-    """WebDAV 上传文件"""
-    try:
-        if not os.path.exists(local_path):
-            _output_error(output_callback, f"本地文件不存在: {local_path}")
-            return False
-
-        url = f"{WEBDAV_URL}{remote_name}"
-        _output(output_callback, f"[WebDAV] 开始上传: {local_path} -> {url}")
-
-        username, password = _get_webdav_credentials()
-        auth = _build_webdav_auth(username, password)
-        if not auth:
-            _output_error(output_callback, "WebDAV 凭据未配置")
-            return False
-
-        headers = {"Authorization": auth}
-
-        file_size = os.path.getsize(local_path)
-        _output(output_callback, f"[WebDAV] 文件大小: {file_size} bytes")
-
-        with open(local_path, 'rb') as f:
-            data = f.read()
-            headers["Content-Type"] = "application/octet-stream"
-            headers["Content-Length"] = str(len(data))
-            req = urllib.request.Request(url, data=data, headers=headers, method="PUT")
-
-            ctx = _create_ssl_context(url)
-
-            with urllib.request.urlopen(req, timeout=300, context=ctx) as response:
-                if response.status in (200, 201, 204):
-                    _output(output_callback, f"[WebDAV] 上传成功: {remote_name}")
-                    return True
-                else:
-                    _output_error(output_callback, f"[WebDAV] 上传失败: HTTP {response.status}")
-                    return False
-
-    except Exception as e:
-        _output_error(output_callback, f"[WebDAV] 上传失败: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
 
 
 def prompt_for_token(parent=None, ui_callback=None):
@@ -396,14 +237,7 @@ def select_download_url(data):
 
 
 def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
-    # 优先使用 WebDAV（适用于国内用户）
-    if USE_WEBDAV_FOR_UPDATES:
-        latest, download_url, changelog, release_date = fetch_latest_version_webdav(output_callback)
-        if latest and download_url:
-            return latest, download_url, changelog, release_date
-        _output(output_callback, "[WebDAV] 回退到 GitHub")
-
-    # 回退到 GitHub
+    # 使用 GitHub Releases
     try:
         headers = {"Accept": "application/json"}
         data = fetch_release_data(headers)
@@ -427,16 +261,6 @@ def fetch_latest_version(parent=None, output_callback=None, ui_callback=None):
 def download_file(url, dest_path, parent=None, output_callback=None, ui_callback=None, progress_callback=None):
     _output(output_callback, f"开始下载文件，URL: {url}")
     _output(output_callback, f"目标路径: {dest_path}")
-
-    # 检查是否为 WebDAV 链接且已配置凭据
-    if WEBDAV_URL and url.startswith(WEBDAV_URL):
-        username, password = _get_webdav_credentials()
-        if username and password:
-            _output(output_callback, "[WebDAV] 使用 WebDAV 下载")
-            return download_file_webdav(url, dest_path, username, password, output_callback=output_callback, progress_callback=progress_callback)
-        else:
-            _output_error(output_callback, "WebDAV 未配置用户名或密码，请在设置中配置")
-            return False
 
     is_direct_download = (
         url.endswith('.exe') or

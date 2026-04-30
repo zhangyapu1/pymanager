@@ -65,7 +65,6 @@ PROTECTED_DIRS = {
 PROTECTED_FILES = {
     "settings.json", "groups_meta.json",
     ".gitignore", "REQUIREMENTS.md",
-    "release_webdav.py", "release_webdav_auto.py",
     "release.py", "release_auto.py",
     "version.json", "changelog.txt",
 }
@@ -174,19 +173,6 @@ DEFAULT_APP_CONFIG = {
         # 本地服务使用的模型名称（仅对"本地服务"时有效）
         # 例如："DeepSeek-V3.2"、"Qwen3.5-Plus"
         "local_model": "DeepSeek-V3.2"
-    },
-    
-    # ==================== WebDAV 相关配置 ====================
-    "webdav": {
-        # WebDAV 服务器地址（用于更新文件同步）
-        # 默认使用坚果云：https://dav.jianguoyun.com/dav/pymanager/
-        "url": "https://dav.jianguoyun.com/dav/pymanager/",
-        
-        # WebDAV 用户名
-        "username": "",
-        
-        # WebDAV 密码
-        "password": ""
     },
     
     # ==================== 窗口相关配置 ====================
