@@ -37,47 +37,52 @@ USER_AGENT = "pymanager/1.5.0"
 PER_PAGE = 30
 
 
-def _get_github_headers(use_token=True):
+def _get_github_headers(use_user_token=True, use_default_token=True):
     headers = {"User-Agent": USER_AGENT, "Accept": "application/vnd.github.v3+json"}
-    if use_token:
+    if use_user_token:
         token = get_api_token()
-        if not token:
-            token = get_github_default_token()
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+            return headers
+    if use_default_token:
+        token = get_github_default_token()
         if token:
             headers["Authorization"] = f"Bearer {token}"
     return headers
 
 
-def _request(url, use_token=True):
-    req = Request(url, headers=_get_github_headers(use_token))
+def _request(url, use_user_token=True, use_default_token=True):
+    req = Request(url, headers=_get_github_headers(use_user_token, use_default_token))
     try:
         with urlopen(req, timeout=15) as resp:
             return json.loads(resp.read().decode("utf-8"))
     except HTTPError as e:
-        if e.code == 401 and use_token:
-            # Token 无效，删除保存的用户 Token（如果有），然后尝试匿名请求
-            delete_api_token()
-            return _request(url, use_token=False)
+        if e.code == 401:
+            if use_user_token:
+                # 用户 Token 无效，删除并尝试默认 Token
+                delete_api_token()
+                return _request(url, use_user_token=False, use_default_token=True)
+            elif use_default_token:
+                # 默认 Token 也无效，尝试匿名请求
+                return _request(url, use_user_token=False, use_default_token=False)
         raise
 
 
-def _request_raw(url, use_token=True):
-    headers = {"User-Agent": USER_AGENT}
-    if use_token:
-        token = get_api_token()
-        if not token:
-            token = get_github_default_token()
-        if token:
-            headers["Authorization"] = f"Bearer {token}"
+def _request_raw(url, use_user_token=True, use_default_token=True):
+    headers = _get_github_headers(use_user_token, use_default_token)
     req = Request(url, headers=headers)
     try:
         with urlopen(req, timeout=15) as resp:
             return resp.read().decode("utf-8")
     except HTTPError as e:
-        if e.code == 401 and use_token:
-            # Token 无效，删除保存的用户 Token（如果有），然后尝试匿名请求
-            delete_api_token()
-            return _request_raw(url, use_token=False)
+        if e.code == 401:
+            if use_user_token:
+                # 用户 Token 无效，删除并尝试默认 Token
+                delete_api_token()
+                return _request_raw(url, use_user_token=False, use_default_token=True)
+            elif use_default_token:
+                # 默认 Token 也无效，尝试匿名请求
+                return _request_raw(url, use_user_token=False, use_default_token=False)
         raise
 
 
